@@ -25,20 +25,32 @@ class InputLease {
 
   void update(TextEditingController? nextController, FocusNode? nextFocus) {
     if (nextController != _externalController) {
-      final value = controller.value;
-      controller.removeListener(changed);
-      if (_externalController == null) controller.dispose();
+      final ownedController = _externalController == null;
+      final retired = controller;
+      final value = retired.value;
+      retired.removeListener(changed);
       controller = nextController ?? TextEditingController.fromValue(value);
       _externalController = nextController;
       controller.addListener(changed);
+      // The still-mounted editable keeps pointing at the replaced object
+      // until it rebuilds with the new one; disposing it here would assert.
+      if (ownedController) _retire(retired.dispose);
     }
     if (nextFocus != _externalFocus) {
-      focus.removeListener(changed);
-      if (_externalFocus == null) focus.dispose();
+      final ownedFocus = _externalFocus == null;
+      final retiredFocus = focus;
+      retiredFocus.removeListener(changed);
       focus = nextFocus ?? FocusNode();
       _externalFocus = nextFocus;
       focus.addListener(changed);
+      if (ownedFocus) _retire(retiredFocus.dispose);
     }
+  }
+
+  /// Disposes a replaced internally-owned object after this frame's build,
+  /// when the previous editable no longer references it.
+  void _retire(VoidCallback disposeObject) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => disposeObject());
   }
 
   void dispose() {

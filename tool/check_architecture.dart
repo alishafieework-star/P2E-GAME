@@ -16,6 +16,8 @@ List<String> checkArchitecture(Directory root) {
   const domainCoreContract = 'lib/core/errors/app_failure.dart';
   // Architecture sections 8/9. Edges are public APIs only, never feature src.
   const featureEdges = {
+    // D-101: Home composes game sections through the games public API.
+    'home:games',
     'home:missions',
     'home:leaderboard',
     'games:missions',
@@ -64,6 +66,19 @@ List<String> checkArchitecture(Directory root) {
   final iconPackages = RegExp(
     r'(?:cupertino_icons|material_symbols_icons|font_awesome_flutter|lucide_icons|iconsax|hugeicons|phosphor_flutter)',
   );
+  // O-### ids sanctioned in the overrides register. A raw value whose own
+  // line carries a registered `// OVERRIDE(O-###)` annotation is exempt from
+  // the feature/shared visual-value check below (AGENTS.md rule 2).
+  final registeredOverrides = <String>{};
+  final overridesRegister = File(
+    '${root.path}/docs/agents/registers/overrides.md',
+  );
+  if (overridesRegister.existsSync()) {
+    for (final line in overridesRegister.readAsLinesSync()) {
+      final id = RegExp(r'^\|\s*(O-\d+)\s*\|').firstMatch(line)?[1];
+      if (id != null) registeredOverrides.add(id);
+    }
+  }
   for (final scope in packages.values) {
     final prefix = scope.isEmpty ? '' : '$scope/';
     final pubspec = File('${root.path}/${prefix}pubspec.yaml');
@@ -112,6 +127,11 @@ List<String> checkArchitecture(Directory root) {
       }
       if (!path.endsWith('.dart')) continue;
       final code = uncomment(raw), targets = <String>[];
+      // D-101: component widgets take display-ready values; sections read state.
+      final presentational =
+          path.startsWith('lib/shared/widgets/') ||
+          RegExp(r'^lib/features/[^/]+/src/presentation/(?:.+/)?widgets/')
+              .hasMatch(path);
       if (path == domainCoreContract &&
           RegExp(r'\bpart\s+of\b').hasMatch(code)) {
         violations.add(
@@ -152,6 +172,20 @@ List<String> checkArchitecture(Directory root) {
                   feature(path) == feature(target) &&
                   target.contains('/src/domain/'))) {
             violations.add('$path: domain must be pure Dart');
+          }
+          if (presentational &&
+              (RegExp(
+                    r'^package:(?:flutter_riverpod|riverpod|riverpod_annotation|hooks_riverpod|go_router)/',
+                  ).hasMatch(uri) ||
+                  (target != null &&
+                      (target.contains('/src/data/') ||
+                          target.contains('/src/domain/') ||
+                          target.startsWith('lib/app/') ||
+                          target.startsWith('lib/l10n/') ||
+                          RegExp(
+                            r'^lib/shared/(?:session|balance|profile|navigation|backend)/',
+                          ).hasMatch(target))))) {
+            violations.add('$path: presentational widget imports $uri');
           }
           if (RegExp(r'^package:(?:api_sdk|backend_sdk)/').hasMatch(uri) &&
               !path.startsWith('lib/shared/backend/') &&
@@ -239,7 +273,9 @@ List<String> checkArchitecture(Directory root) {
               .hasMatch(code)) {
         violations.add('$path: platform branching outside core/app/platform');
       }
-      if (path.startsWith('lib/features/')) {
+      // D-067: screens and shared widgets stay on Design System controls.
+      // A single-owner widget file may use TextButton.
+      if (path.startsWith('lib/features/') && !path.contains('/widgets/')) {
         if (RegExp(
           r'\b(?:ElevatedButton|FilledButton|OutlinedButton|TextButton|IconButton|TextField|TextFormField|Card|\w*Chip|Switch|SwitchListTile|Checkbox|Radio|AlertDialog|showDialog|showModalBottomSheet|SnackBar|AppBar)\s*(?:<[^>]+>)?\s*(?:\.\w+\s*)?\(',
         ).hasMatch(code)) {
@@ -248,11 +284,23 @@ List<String> checkArchitecture(Directory root) {
       }
       if (path.startsWith('lib/features/') ||
           path.startsWith('lib/shared/widgets/')) {
-        if (RegExp(
-          r'\b(?:Color\s*\(|Colors\s*\.|fontSize\s*:\s*\d|Radius\.circular\s*\(\s*\d)',
-        ).hasMatch(code)) {
-          violations.add('$path: raw feature/shared visual value');
+        final exempt = <String>{};
+        for (final line in raw.split('\n')) {
+          final id = RegExp(r'//\s*OVERRIDE\((O-\d+)\)').firstMatch(line)?[1];
+          if (id != null && registeredOverrides.contains(id)) {
+            exempt.add(uncomment(line).trim());
+          }
         }
+        final flagged = code
+            .split('\n')
+            .any(
+              (line) =>
+                  !exempt.contains(line.trim()) &&
+                  RegExp(
+                    r'\b(?:Color\s*\(|Colors\s*\.|fontSize\s*:\s*\d|Radius\.circular\s*\(\s*\d)',
+                  ).hasMatch(line),
+            );
+        if (flagged) violations.add('$path: raw feature/shared visual value');
       }
       if (RegExp(r'\b(?:Icons|CupertinoIcons)\s*\.').hasMatch(code)) {
         violations.add('$path: prohibited Icons/CupertinoIcons member');
@@ -307,9 +355,21 @@ List<String> checkArchitecture(Directory root) {
     }
   }
   for (final file in root.listSync().whereType<File>()) {
-    if (RegExp(r'\.(?:yaml|yml|json|toml|code-workspace)$')
-            .hasMatch(file.path) &&
-        referencesDevTools(file.readAsStringSync())) {
+    if (!RegExp(r'\.(?:yaml|yml|json|toml|code-workspace)$')
+        .hasMatch(file.path)) {
+      continue;
+    }
+    var content = file.readAsStringSync();
+    if (relative(file) == 'analysis_options.yaml') {
+      // The analyzer exclude is not a runtime, pubspec, workspace or CI
+      // reference: it keeps the independently analyzed dev-only packages out
+      // of product analysis. Exclude entries and comments may name them.
+      content = content
+          .replaceAll(RegExp(r'^\s*//[^\n]*$', multiLine: true), '')
+          .replaceAll(RegExp(r'^\s*#[^\n]*$', multiLine: true), '')
+          .replaceAll(RegExp(r'^\s*-\s*dev_tools[^\n]*$', multiLine: true), '');
+    }
+    if (referencesDevTools(content)) {
       violations.add('${relative(file)}: dev_tools reference');
     }
   }

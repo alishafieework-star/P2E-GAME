@@ -8,6 +8,7 @@ import '../domain/models.dart';
 import 'dependencies.dart';
 import 'auth_flow.dart';
 import 'auth_messages.dart';
+import 'otp_code_listener.dart';
 part 'auth_entry_controller.g.dart';
 
 enum AuthSubmission { idle, loading, failure }
@@ -81,6 +82,7 @@ class AuthEntryController extends _$AuthEntryController {
       authFlowProvider,
       (_, _) {},
     ); // auth-flow lifetime without rebuilding entry on result.
+    ref.listen(otpCodeListenerProvider, (_, _) {});
     ref.onDispose(() {
       _request?.cancel();
       _welcome?.cancel();
@@ -130,7 +132,9 @@ class AuthEntryController extends _$AuthEntryController {
 
   Future<void> submit() async {
     if (!state.canSubmit) return;
-    final identifier = state.identifier, remember = state.rememberDevice;
+    final identifier = state.identifier,
+        remember = state.rememberDevice,
+        raw = state.raw;
     final token = AuthCancellation();
     _request = token;
     final revision = ++_revision;
@@ -142,21 +146,62 @@ class AuthEntryController extends _$AuthEntryController {
     );
     final Result<AuthFlowResult> result;
     if (identifier is Phone) {
-      result =
-          (await ref
-                  .read(phoneSignInRepositoryProvider)
-                  .requestOtp(
-                    identifier,
-                    rememberDevice: remember,
-                    cancellation: token,
-                  ))
-              .map((challenge) => PhoneFlowResult(challenge, remember));
+      ref.read(otpCodeListenerProvider.notifier).arm();
+      final phones = ref.read(phoneSignInRepositoryProvider);
+      // Start the code before the first await so an in-flight cancel still
+      // lands on this call, matching the existing phone contract tests.
+      final otpFuture = phones.requestOtp(
+        identifier,
+        rememberDevice: remember,
+        cancellation: token,
+      );
+      final status = await phones.checkPhone(identifier, cancellation: token);
+      if (!ref.mounted || token.isCancelled || revision != _revision) return;
+      if (status is Failure<PhoneAccountStatus>) {
+        _fail(status.error);
+        return;
+      }
+      final account = (status as Success<PhoneAccountStatus>).value;
+      if (account == PhoneAccountStatus.registeredWithPassword) {
+        ref
+            .read(authFlowProvider.notifier)
+            .accept(PhonePasswordFlowResult(identifier, raw, remember));
+        state = state.copyWith(
+          submission: AuthSubmission.idle,
+          destination: AuthStep.password,
+        );
+        return;
+      }
+      result = (await otpFuture).map(
+        (challenge) => PhoneFlowResult(
+          challenge,
+          raw,
+          remember,
+          registration: account == PhoneAccountStatus.notRegistered,
+        ),
+      );
     } else if (identifier is Email) {
-      result =
-          (await ref
-                  .read(emailSignInRepositoryProvider)
-                  .checkEmail(identifier, cancellation: token))
-              .map((status) => EmailFlowResult(identifier, status, remember));
+      final emails = ref.read(emailSignInRepositoryProvider);
+      final checked = await emails.checkEmail(identifier, cancellation: token);
+      if (!ref.mounted || token.isCancelled || revision != _revision) return;
+      if (checked is Failure<EmailAccountStatus>) {
+        _fail(checked.error);
+        return;
+      }
+      final account = (checked as Success<EmailAccountStatus>).value;
+      if (account == EmailAccountStatus.notRegistered) {
+        result =
+            (await emails.requestVerification(
+              identifier,
+              rememberDevice: remember,
+              cancellation: token,
+            )).map(
+              (challenge) =>
+                  EmailVerifyFlowResult(identifier, challenge, remember),
+            );
+      } else {
+        result = Success(EmailFlowResult(identifier, account, remember));
+      }
     } else {
       return;
     }

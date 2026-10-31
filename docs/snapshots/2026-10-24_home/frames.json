@@ -1,0 +1,64 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "fileKey": "7PGTHT5CQzbTsWZQnPIQce",
+  "pageId": "16458:11",
+  "pageName": "EN",
+  "frames": [
+    {
+      "id": "18437:9175",
+      "name": "Home Page - Dark",
+      "w": 402,
+      "h": 874,
+      "screenshot": "screens/18437-9175.png",
+      "sections": ["App Bar Container", "Hero Section Card", "Recommended for You", "Multiplayer Games", "Competition Games", "Mission and Quest"]
+    },
+    {
+      "id": "18457:13084",
+      "name": "Home Page - Dark (Expand)",
+      "w": 402,
+      "h": 1809,
+      "screenshot": "screens/18457-13084.png",
+      "body": {"id": "18457:13087", "h": 1674},
+      "sections": [
+        {"id": "18457:13088", "name": "App Bar Container", "y": 0, "h": 64},
+        {"id": "18457:13089", "name": "Hero Section Card", "y": 64, "h": 302},
+        {"id": "18457:13110", "name": "Recommended for You", "y": 366, "h": 284},
+        {"id": "18457:13138", "name": "Multiplayer Games", "y": 650, "h": 325.5},
+        {"id": "18457:13124", "name": "Competition Games", "y": 975.5, "h": 284},
+        {"id": "18457:13153", "name": "Mission and Quest", "y": 1259.5, "h": 414.5}
+      ]
+    },
+    {
+      "id": "18422:11645",
+      "name": "Home Page - Light",
+      "w": 402,
+      "h": 874,
+      "screenshot": "screens/18422-11645.png",
+      "sections": ["App Bar Container", "Hero Section Card", "Recommended for You", "Multiplayer Games", "Competition Games", "Mission and Quest"]
+    },
+    {
+      "id": "18457:14885",
+      "name": "Home Page - Light (Expand)",
+      "w": 402,
+      "h": 1809,
+      "screenshot": "screens/18457-14885.png",
+      "body": {"id": "18457:14888", "h": 1674},
+      "sections": [
+        {"id": "18457:14889", "name": "App Bar Container", "y": 0, "h": 64},
+        {"id": "18457:14890", "name": "Hero Section Card", "y": 64, "h": 302},
+        {"id": "18457:14911", "name": "Recommended for You", "y": 366, "h": 284},
+        {"id": "18457:14925", "name": "Multiplayer Games", "y": 650, "h": 325.5},
+        {"id": "18457:15141", "name": "Competition Games", "y": 975.5, "h": 284},
+        {"id": "18457:15429", "name": "Mission and Quest", "y": 1259.5, "h": 414.5}
+      ]
+    }
+  ],
+  "detachedPatterns": [
+    {"id": "18533:4246", "name": "Hero Section Banner", "placement": "features/games"},
+    {"id": "18533:4252", "name": "Countainer", "placement": "lib/shared/widgets GameInfoRow"},
+    {"id": "18533:4266", "name": "Recommended for You", "placement": "section composition; SectionHeader and Shelf are Design System"},
+    {"id": "18533:4277", "name": "Game Compact Card instance", "componentSet": "18457:14096", "placement": "features/games"},
+    {"id": "18457:13153", "name": "Mission and Quest", "placement": "features/missions"}
+  ]
+}

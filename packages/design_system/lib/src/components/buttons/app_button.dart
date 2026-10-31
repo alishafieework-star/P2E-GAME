@@ -10,6 +10,8 @@ import '../../theme/skin_theme.dart';
 import '../../tokens/specs/button_spec.dart';
 import '../../tokens/specs/generated/app_button_spec.g.dart';
 import '../../interaction/press_action.dart';
+import '../../tokens/button_motion.dart';
+import '../../tokens/generated/html_journey_tokens.g.dart';
 import '../../tokens/generated/readiness_tokens.g.dart';
 import '../../tokens/field_spec.dart' show FieldMotion;
 
@@ -19,7 +21,8 @@ export '../../tokens/specs/button_spec.dart'
         AppButtonSize,
         AppButtonType,
         ButtonIconMode,
-        AppButtonTone;
+        AppButtonTone,
+        AppButtonFeedback;
 
 class AppButton extends StatefulWidget {
   const AppButton({
@@ -32,6 +35,7 @@ class AppButton extends StatefulWidget {
     this.size = AppButtonSize.medium,
     this.type = AppButtonType.filled,
     this.tone = AppButtonTone.source,
+    this.feedback = AppButtonFeedback.standard,
     this.icon,
     this.iconMode = ButtonIconMode.none,
     this.backgroundColor,
@@ -65,6 +69,7 @@ class AppButton extends StatefulWidget {
   final AppButtonSize size;
   final AppButtonType type;
   final AppButtonTone tone;
+  final AppButtonFeedback feedback;
   final AppIcon? icon;
   final ButtonIconMode iconMode;
   // Explicitly authorized owner parameters; default source paints stay central.
@@ -115,7 +120,15 @@ class AppButton extends StatefulWidget {
               : foregroundColor,
           borderColor: borderColor,
         );
-    final normal = resolve(enabled ? type : AppButtonType.disabled);
+    final hoverBackground = !enabled || loading
+        ? null
+        : feedback == AppButtonFeedback.playNow
+        ? HtmlJourneyTokens.playNowHover
+        : type == AppButtonType.filled && backgroundColor == null
+        ? HtmlJourneyTokens.primaryPress
+        : null;
+    final normal = resolve(enabled ? type : AppButtonType.disabled)
+        .copyWith(hoverBackground: hoverBackground);
     final paint = loading
         ? resolve(type == AppButtonType.disabled ? AppButtonType.filled : type)
         : normal;
@@ -171,6 +184,9 @@ class AppButton extends StatefulWidget {
       ],
     );
     final button = PressAction(
+      pressedScale: feedback == AppButtonFeedback.playNow
+          ? ButtonMotion.playNowPressedScale
+          : ButtonMotion.pressedScale,
       onPressed: loading || retainedDisabledFocus
           ? () {}
           : enabled

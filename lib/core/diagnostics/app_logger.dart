@@ -8,27 +8,24 @@ abstract final class PiiRedactor {
     r'phone|mobile|email|identifier|otp|token|authorization|password|secret|رمز|تلفن',
     caseSensitive: false,
   );
+  // Compiled once; every log line would otherwise rebuild all five.
+  static final _email = RegExp(r'''[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+''');
+  static final _bearer = RegExp(r'Bearer\s+[^\s,;]+', caseSensitive: false);
+  static final _jwt = RegExp(
+    r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',
+  );
+  static final _assignedSecret = RegExp(
+    r'''(?:token|otp|password|secret|authorization)\s*[:=]\s*[^\s,;]+''',
+    caseSensitive: false,
+  );
+  static final _phone = RegExp(r'\+?[0-9۰-۹٠-٩][0-9۰-۹٠-٩ ()-]{2,}[0-9۰-۹٠-٩]');
+
   static String text(String value) => value
-      .replaceAll(RegExp(r'''[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+'''), '[REDACTED]')
-      .replaceAll(
-        RegExp(r'Bearer\s+[^\s,;]+', caseSensitive: false),
-        'Bearer [REDACTED]',
-      )
-      .replaceAll(
-        RegExp(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'),
-        '[REDACTED]',
-      )
-      .replaceAll(
-        RegExp(
-          r'''(?:token|otp|password|secret|authorization)\s*[:=]\s*[^\s,;]+''',
-          caseSensitive: false,
-        ),
-        '[REDACTED]',
-      )
-      .replaceAll(
-        RegExp(r'\+?[0-9۰-۹٠-٩][0-9۰-۹٠-٩ ()-]{2,}[0-9۰-۹٠-٩]'),
-        '[REDACTED]',
-      );
+      .replaceAll(_email, '[REDACTED]')
+      .replaceAll(_bearer, 'Bearer [REDACTED]')
+      .replaceAll(_jwt, '[REDACTED]')
+      .replaceAll(_assignedSecret, '[REDACTED]')
+      .replaceAll(_phone, '[REDACTED]');
 
   static Object? value(Object? input) => switch (input) {
     Map() => {

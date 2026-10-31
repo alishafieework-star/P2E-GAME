@@ -1,0 +1,36 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-25",
+  "fileKey": "7PGTHT5CQzbTsWZQnPIQce",
+  "pageId": "16458:11",
+  "frames": [
+    {
+      "id": "18526:11998",
+      "name": "Game (Downloadable) - Dark (Expand)",
+      "w": 402,
+      "h": 3240.5,
+      "screenshot": "screens/18526-11998.png"
+    },
+    {
+      "id": "18533:9314",
+      "name": "Game (Downloadable) - Light (Expand)",
+      "w": 402,
+      "h": 3240.5,
+      "screenshot": "screens/18533-9314.png"
+    },
+    {
+      "id": "18517:1302",
+      "name": "Game (Downloadable) - Dark",
+      "w": 402,
+      "h": 874,
+      "note": "Prototype frame. Header and footer are fixed; the body scrolls. No reactions."
+    },
+    {
+      "id": "18533:6290",
+      "name": "Game (Downloadable) - Light",
+      "w": 402,
+      "h": 874,
+      "note": "Prototype frame. Same structure as Dark. Media has three tiles."
+    }
+  ]
+}

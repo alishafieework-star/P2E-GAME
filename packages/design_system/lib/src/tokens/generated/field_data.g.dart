@@ -11334,6 +11334,11 @@ const fieldEngineeringData = <String, dynamic>{
   "minTapExtent": 48,
   "zero": 0,
   "hiddenOpacity": 0,
+  "statusDecision": "D-069",
+  "statusColorMs": 250,
+  "statusShakeMs": 400,
+  "statusShakeAmplitude": 8,
+  "statusShakeCycles": 3,
 };
 const fieldLightBindingsData = <String, dynamic>{
   "body": {

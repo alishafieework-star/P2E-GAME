@@ -61,6 +61,22 @@ abstract final class AuthToastTokens {
   static const duration = Duration(milliseconds: 4000);
 }
 
+abstract final class AuthEntryMotion {
+  /// D-063: engineering timing. Figma defines no keyboard motion.
+  static const duration = Duration(milliseconds: 250);
+  static const curve = Curves.easeOut;
+
+  /// D-066: plate and brand-mark press. The label stays at rest.
+  static const socialIconPressedScale = 1.12;
+  static const socialIconPressDuration = Duration(milliseconds: 160);
+  static const socialIconReleaseDuration = Duration(milliseconds: 200);
+}
+
+abstract final class AuthOtpMotion {
+  /// D-070: verified OTP stays visible before the session continues.
+  static const successHold = Duration(milliseconds: 900);
+}
+
 abstract final class AuthTextTokens {
   static final Map<String, TextStyle> byName = {
     'English/Baseline/Headline-Large': BundledTypography.resolve(
@@ -160,6 +176,17 @@ abstract final class AuthTextTokens {
         fontVariations: [FontVariation('wght', 600.0)],
         height: 1.2857142857142858,
         letterSpacing: -0.56,
+      ),
+    ),
+    'English/Baseline/Headline-Small': BundledTypography.resolve(
+      const TextStyle(
+        fontFamily: 'Outfit',
+        package: 'p2e_design_system',
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        fontVariations: [FontVariation('wght', 600.0)],
+        height: 1.25,
+        letterSpacing: -0.96,
       ),
     ),
   };

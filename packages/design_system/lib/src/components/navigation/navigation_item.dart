@@ -94,6 +94,7 @@ class _NavigationItemPresentationState
     extends State<NavigationItemPresentation> {
   final states = WidgetStatesController();
   bool focused = false;
+  bool pressed = false;
   @override
   void initState() {
     super.initState();
@@ -102,7 +103,13 @@ class _NavigationItemPresentationState
 
   void observe() {
     final next = states.value.contains(WidgetState.focused);
-    if (next != focused && mounted) setState(() => focused = next);
+    final nextPressed = states.value.contains(WidgetState.pressed);
+    if ((next != focused || nextPressed != pressed) && mounted) {
+      setState(() {
+        focused = next;
+        pressed = nextPressed;
+      });
+    }
   }
 
   @override
@@ -208,7 +215,14 @@ class _NavigationItemPresentationState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          indicator,
+          AnimatedScale(
+            scale: pressed && !reduced && w.onPressed != null
+                ? ButtonMotion.indicatorPressedScale
+                : ButtonMotion.restScale,
+            duration: reduced ? Duration.zero : ButtonMotion.pressDuration,
+            curve: ButtonMotion.curve,
+            child: indicator,
+          ),
           SizedBox(height: s.metric('body', 'itemSpacing')),
           SizedBox(
             key: ValueKey('$id.label'),
@@ -295,6 +309,7 @@ class _NavigationItemPresentationState
                 height: l.contentHeight,
                 child: PressAction(
                   onPressed: w.onPressed,
+                  pressedScale: ButtonMotion.restScale,
                   style: style,
                   statesController: states,
                   child: IgnorePointer(child: ExcludeSemantics(child: content)),

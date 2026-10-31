@@ -27,3 +27,7 @@ class DeviceLocales extends Notifier<List<Locale>> with WidgetsBindingObserver {
 final deviceTargetPlatformProvider = Provider<TargetPlatform>(
   (ref) => defaultTargetPlatform,
 );
+
+/// The Windows inspector drives the phone with a mouse. Product builds stay
+/// touch-only so text selection in a real scroll view is unchanged (D-052).
+final deviceMouseDragProvider = Provider<bool>((ref) => false);

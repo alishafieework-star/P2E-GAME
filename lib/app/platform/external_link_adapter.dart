@@ -27,4 +27,18 @@ final class SystemExternalLinks implements ExternalLinkPort {
       return const Failure(BusinessFailure('url_failed'));
     }
   }
+
+  @override
+  Future<Result<void>> openUri(Uri uri) async {
+    if (uri.scheme != 'https' || uri.host.isEmpty) {
+      return const Failure(BusinessFailure('url_failed'));
+    }
+    try {
+      return await launchUrl(uri, mode: LaunchMode.externalApplication)
+          ? const Success(null)
+          : const Failure(BusinessFailure('url_failed'));
+    } catch (_) {
+      return const Failure(BusinessFailure('url_failed'));
+    }
+  }
 }

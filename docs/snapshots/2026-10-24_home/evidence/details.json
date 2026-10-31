@@ -1,0 +1,106 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "positions": {
+    "compactReward": {"id": "18451:10157", "x": 36, "y": 4, "w": 80, "h": 26, "parentW": 120, "parentH": 120, "positioning": "ABSOLUTE", "constraints": {"horizontal": "MAX", "vertical": "MIN"}},
+    "expandReward": {"id": "18457:12165", "x": 277, "y": 4, "w": 89, "h": 26, "parentW": 370, "parentH": 150, "positioning": "ABSOLUTE", "constraints": {"horizontal": "MAX", "vertical": "MIN"}},
+    "compactImage": {"scaleMode": "FILL"},
+    "expandImage": {"scaleMode": "CROP"},
+    "heroBanner": {"id": "18457:13090", "y": -119, "w": 402, "h": 343},
+    "heroRow": {"id": "18457:13096", "y": 224, "h": 78},
+    "heroCard": {"id": "18457:13089", "h": 302},
+    "heroObject": {"id": "18457:13095", "x": 106, "y": 121, "w": 246, "h": 248, "constraints": {"horizontal": "CENTER", "vertical": "CENTER"}}
+  },
+  "notStarted": {
+    "dark": {"id": "18457:13163", "lines": [
+      "FRAM Mission Status Dark Mode:Surface Container/Highest=#404040 icon:Icon=Crown Dark Mode:On Surface/Emphasis=#ffffff",
+      "RECT Bar RAW=#404040@70 w50 sizing:FIXED",
+      "FRAM Reward Dark Mode:Surface Container/Highest=#404040",
+      "TEXT 250 \"250\" Dark Mode:On Surface/Variant=#737373",
+      "TEXT pts \"pts\" Dark Mode:On Surface/Variant=#737373",
+      "FRAM Mission Status Dark Mode:Surface Container/Highest=#404040 icon:Icon=Workspace Premium 2 Dark Mode:On Surface/Base=#a1a1a1",
+      "RECT Bar RAW=#404040@70 w50 sizing:FIXED",
+      "FRAM Reward Dark Mode:Surface Container/Highest=#404040",
+      "TEXT 500 \"500\" Dark Mode:On Surface/Variant=#737373",
+      "TEXT pts \"pts\" Dark Mode:On Surface/Variant=#737373",
+      "FRAM Mission Status Dark Mode:Surface Container/Highest=#404040 icon:Icon=Workspace Premium 2 Dark Mode:On Surface/Base=#a1a1a1",
+      "RECT Bar RAW=#404040@70 w94 sizing:FILL",
+      "FRAM Reward Dark Mode:Surface Container/Highest=#404040",
+      "TEXT 1,000 \"1,000\" Dark Mode:On Surface/Variant=#737373",
+      "TEXT pts \"pts\" Dark Mode:On Surface/Variant=#737373",
+      "FRAM Mission Status Dark Mode:Surface Container/Highest=#404040 icon:Icon=Trophy Dark Mode:On Surface/Base=#a1a1a1",
+      "TEXT Not Started Yet! \"Not Started Yet!\" Dark Mode:On Surface/Base=#a1a1a1",
+      "FRAM Reward Dark Mode:Surface Container/Highest=#404040",
+      "TEXT 0 \"0\" Dark Mode:On Surface/Emphasis=#ffffff",
+      "TEXT / \"/\" Dark Mode:On Surface/Variant=#737373",
+      "TEXT 1,750 \"1,750\" Dark Mode:On Surface/Base=#a1a1a1",
+      "TEXT pts \"pts\" Dark Mode:On Surface/Variant=#737373"
+    ]},
+    "light": {"id": "18457:15794", "lines": [
+      "FRAM Mission Status Light Mode:Surface Container/Highest=#d4d4d4 icon:Icon=Crown Light Mode:On Surface/Variant=#737373",
+      "RECT Bar RAW=#404040@20 w50 sizing:FIXED",
+      "FRAM Reward Light Mode:Surface Container/Lowest=#ffffff",
+      "TEXT 250 \"250\" Light Mode:On Surface/Muted=#a1a1a1",
+      "TEXT pts \"pts\" Light Mode:On Surface/Muted=#a1a1a1",
+      "FRAM Mission Status Light Mode:Surface Container/Highest=#d4d4d4 icon:Icon=Workspace Premium 2 Light Mode:On Surface/Muted=#a1a1a1",
+      "RECT Bar RAW=#404040@20 w50 sizing:FIXED",
+      "FRAM Reward Light Mode:Surface Container/Lowest=#ffffff",
+      "TEXT 500 \"500\" Light Mode:On Surface/Muted=#a1a1a1",
+      "TEXT pts \"pts\" Light Mode:On Surface/Muted=#a1a1a1",
+      "FRAM Mission Status Light Mode:Surface Container/Highest=#d4d4d4 icon:Icon=Workspace Premium 2 Light Mode:On Surface/Muted=#a1a1a1",
+      "RECT Bar RAW=#404040@20 w94 sizing:FILL",
+      "FRAM Reward Light Mode:Surface Container/Lowest=#ffffff",
+      "TEXT 1,000 \"1,000\" Light Mode:On Surface/Muted=#a1a1a1",
+      "TEXT pts \"pts\" Light Mode:On Surface/Muted=#a1a1a1",
+      "FRAM Mission Status Light Mode:Surface Container/Highest=#d4d4d4 icon:Icon=Trophy Light Mode:On Surface/Muted=#a1a1a1",
+      "TEXT Not Started Yet! \"Not Started Yet!\" Light Mode:On Surface/Muted=#a1a1a1",
+      "FRAM Reward Light Mode:Surface Container/Lowest=#ffffff",
+      "TEXT 0 \"0\" Light Mode:On Surface/Base=#525252",
+      "TEXT / \"/\" Light Mode:On Surface/Muted=#a1a1a1",
+      "TEXT 1,750 \"1,750\" Light Mode:On Surface/Variant=#737373",
+      "TEXT pts \"pts\" Light Mode:On Surface/Muted=#a1a1a1"
+    ]}
+  },
+  "layout": {
+    "questFooterCounter": {"primary": "CENTER", "counter": "CENTER", "gap": 6, "unitSizing": "HUG", "dividerSizingV": "FILL", "dividerPrimary": "CENTER"},
+    "questDigit": {"w": 28, "sizingH": "FIXED", "sizingV": "HUG", "clips": true},
+    "questDetails": {"primary": "SPACE_BETWEEN", "counter": "CENTER"},
+    "questTrackMissions": ["MIN", "CENTER", "CENTER", "MAX"],
+    "questTrackBars": ["FIXED", "FIXED", "FILL"],
+    "questPanel": {"clips": true},
+    "sliders": {"clips": false, "primary": "MIN"},
+    "section": {"clips": true, "primary": "CENTER", "counter": "CENTER"}
+  },
+  "starArtwork": {
+    "detailed.dark": "Color Palette:Yellow/400=#fdc700",
+    "detailed.light": "Color Palette:Amber/400=#ffb900",
+    "simple.dark": "Color Palette:Yellow/400=#fdc700",
+    "simple.light": "Color Palette:Amber/500=#fe9a00"
+  },
+  "chevronArtwork": {
+    "dark": "Color Palette:Sky/500=#00a6f4",
+    "light": "Color Palette:Sky/500=#00a6f4"
+  },
+  "sampleContent": {
+    "appBar": ["A", "5,325", "pts", "150"],
+    "navigator": ["Home", "1", "Mission", "Games", "Leaderboard", "2", "Shop"],
+    "featured": {"name": "Clash of Clans", "creator": "Supercell", "mark": true, "caption": "Free to Play", "action": "Play Now"},
+    "recommended": [
+      {"id": "18457:13120", "name": "Sifu", "creator": "Kepler Interactive", "rate": "4.4", "reward": "+520"},
+      {"id": "18457:13121", "name": "9 Kings", "creator": "Playdigious", "rate": "3.6", "reward": "+250"},
+      {"id": "18457:13122", "name": "Dome Keeper", "creator": "Raw Fury", "rate": "2.1", "reward": "+75"},
+      {"id": "18533:5500", "name": "Oh, Snack!", "creator": "Tepes Ovidiu", "rate": "4.4", "reward": "+50"}
+    ],
+    "multiplayer": [{"id": "18457:13148", "name": "MONOPOLY", "creator": "Marmalade Game", "rate": "4.9", "reward": "+1,500", "caption": "In-app Purchases", "action": "Play Now"}],
+    "competition": [
+      {"id": "18457:13134", "name": "Chess", "creator": "Chess.com", "rate": "4.9", "reward": "+150"},
+      {"id": "18457:13135", "name": "Hokm", "creator": "Toofun Games", "rate": "4.3", "reward": "+150"},
+      {"id": "18457:13136", "name": "Backgammon", "creator": "Easybrain", "rate": "5.0", "reward": "+150"},
+      {"id": "18457:13137", "name": "Poker", "creator": "Zynga", "rate": "3.6", "reward": "+150"}
+    ],
+    "quests": [
+      {"id": "18457:13272", "name": "Clash Royal", "creator": "Supercell", "action": "Continue", "caption": "Free to Play", "steps": ["+250", "+500", "1,000"], "completed": 2, "total": 3, "earned": "750", "possible": "1,750", "remaining": "00:06:47:49"},
+      {"id": "18457:13163", "name": "8 Ball Pool", "creator": "Miniclip.com", "action": "Start Quest", "caption": "Free to Play", "steps": ["250", "500", "1,000"], "completed": 0, "total": 3, "earned": "0", "possible": "1,750", "remaining": "01:10:27:54", "status": "Not Started Yet!"}
+    ]
+  }
+}

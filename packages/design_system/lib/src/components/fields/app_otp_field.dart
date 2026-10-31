@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../theme/skin_theme.dart';
 
 import 'package:flutter/material.dart';
@@ -9,21 +11,35 @@ import '../../tokens/field_spec.dart';
 import 'field_identity.dart';
 import 'input_lease.dart';
 
+Color? otpStatusAccent(FieldSpec spec, AppOtpFeedbackTone tone) {
+  if (tone != AppOtpFeedbackTone.status || spec.skin == null) return null;
+  final role = switch (spec.data['state']) {
+    'Success' => 'Actions/Success/On Container',
+    'Error' => 'Actions/Error/On Container',
+    _ => null,
+  };
+  if (role == null) return null;
+  return spec.skin!.valuesFor(spec.brightness).color(role);
+}
+
 class AppOtpCell extends StatelessWidget {
   const AppOtpCell({
     super.key,
     required this.spec,
     this.value = '',
     this.visualKey,
+    this.feedbackTone = AppOtpFeedbackTone.source,
   });
   final FieldSpec spec;
   final String value;
   final Key? visualKey;
+  final AppOtpFeedbackTone feedbackTone;
   @override
   Widget build(BuildContext context) {
     final spec = this.spec.withSkin(SkinTheme.of(context));
     final state = spec.data['state'],
         active = state == 'Focused' || state == 'Edit';
+    final accent = otpStatusAccent(spec, feedbackTone);
     final child = state == 'Success'
         ? AssetAppIcon(
             spec.icon(spec.icons.single).id,
@@ -31,7 +47,7 @@ class AppOtpCell extends StatelessWidget {
               spec.icons.single['style'] as String,
             ),
             size: (spec.icons.single['width'] as num).toDouble(),
-            color: spec.iconPaint(spec.icons.single),
+            color: accent ?? spec.iconPaint(spec.icons.single),
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -39,10 +55,13 @@ class AppOtpCell extends StatelessWidget {
               if (value.isNotEmpty)
                 Text(
                   value,
-                  style: spec.textStyle(
-                    'otpText',
-                    persian: Directionality.of(context) == TextDirection.rtl,
-                  ),
+                  style: spec
+                      .textStyle(
+                        'otpText',
+                        persian:
+                            Directionality.of(context) == TextDirection.rtl,
+                      )
+                      .copyWith(color: accent),
                 ),
               if (active)
                 ColoredBox(
@@ -59,7 +78,7 @@ class AppOtpCell extends StatelessWidget {
         end: BoxDecoration(
           color: spec.color('body'),
           border: Border.all(
-            color: spec.color('body', stroke: true)!,
+            color: accent ?? spec.color('body', stroke: true)!,
             width: spec.number('body', 'strokeWeight'),
           ),
           borderRadius: BorderRadiusDirectional.all(
@@ -67,7 +86,12 @@ class AppOtpCell extends StatelessWidget {
           ),
         ),
       ),
-      duration: FieldMotion.effective(context, FieldMotion.color),
+      duration: FieldMotion.effective(
+        context,
+        feedbackTone == AppOtpFeedbackTone.status
+            ? FieldMotion.statusColor
+            : FieldMotion.color,
+      ),
       curve: FieldMotion.curve,
       builder: (context, value, child) =>
           DecoratedBox(decoration: value!, child: child),
@@ -98,6 +122,7 @@ class AppOtpField extends StatefulWidget {
     this.enabled = true,
     this.readOnly = false,
     this.sourceDivider = false,
+    this.feedbackTone = AppOtpFeedbackTone.source,
     this.onChanged,
     this.onCompleted,
     this.onSnapshot,
@@ -113,15 +138,19 @@ class AppOtpField extends StatefulWidget {
   final TextInputType keyboardType;
   final Iterable<String> autofillHints;
   final bool enabled, readOnly, sourceDivider;
+  final AppOtpFeedbackTone feedbackTone;
   final ValueChanged<String>? onChanged, onCompleted;
   final ValueChanged<FieldRuntimeSnapshot>? onSnapshot;
   @override
   State<AppOtpField> createState() => _AppOtpFieldState();
 }
 
-class _AppOtpFieldState extends State<AppOtpField> {
+class _AppOtpFieldState extends State<AppOtpField>
+    with SingleTickerProviderStateMixin {
   late InputLease lease;
-  String? lastComplete, published;
+  late final AnimationController shake;
+  String? lastComplete;
+  Map<String, Object?>? published;
   late String previousText;
   int? tapped;
   @override
@@ -129,6 +158,20 @@ class _AppOtpFieldState extends State<AppOtpField> {
     super.initState();
     lease = InputLease(widget.controller, widget.focusNode, changed);
     previousText = lease.controller.text;
+    shake = AnimationController(vsync: this, duration: FieldMotion.statusShake);
+  }
+
+  void _enterError(AppOtpField previous) {
+    final entered =
+        widget.feedbackTone == AppOtpFeedbackTone.status &&
+        widget.feedback.validation == FieldValidation.error &&
+        previous.feedback.validation != FieldValidation.error;
+    if (!entered) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      shake.value = 0;
+      return;
+    }
+    shake.forward(from: 0);
   }
 
   @override
@@ -136,10 +179,12 @@ class _AppOtpFieldState extends State<AppOtpField> {
     super.didUpdateWidget(old);
     lease.update(widget.controller, widget.focusNode);
     if (old.length != widget.length) lastComplete = null;
+    _enterError(old);
   }
 
   @override
   void dispose() {
+    shake.dispose();
     lease.dispose();
     super.dispose();
   }
@@ -215,6 +260,7 @@ class _AppOtpFieldState extends State<AppOtpField> {
           .fontFamily,
       textScale: MediaQuery.textScalerOf(context).scale(1),
       motionReduced: MediaQuery.disableAnimationsOf(context),
+      feedbackTone: widget.feedbackTone,
       resolvedTypography: {
         'otpText': spec.typographyMetadata('otpText'),
         if (message?.trim().isNotEmpty ?? false)
@@ -234,13 +280,25 @@ class _AppOtpFieldState extends State<AppOtpField> {
       },
       runtimeExtension: 'otp-group composition; cell basis only',
     );
-    final descriptor = snapshot.toJson().toString();
-    if (published != descriptor) {
+    final descriptor = snapshot.toJson();
+    if (!identityValueEquals(published, descriptor)) {
       published = descriptor;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) widget.onSnapshot?.call(snapshot);
       });
     }
+    final cellWidth = spec.number('body', 'width').toDouble();
+    final gap = (composition['gap'] as num).toDouble();
+    // PHYSICAL: the composition has a fixed Figma width; narrow screens scale
+    // the whole group uniformly instead of clipping the last cell.
+    final groupWidth =
+        pad[0] +
+        pad[2] +
+        widget.length * cellWidth +
+        (widget.sourceDivider
+            ? ((composition['divider'] as Map)['width'] as num).toDouble()
+            : 0.0) +
+        (widget.length + (widget.sourceDivider ? 1 : 0) - 1) * gap;
     final children = <Widget>[];
     for (var i = 0; i < widget.length; i++) {
       if (i > 0) {
@@ -281,11 +339,13 @@ class _AppOtpFieldState extends State<AppOtpField> {
           readOnly: widget.readOnly,
           focused: active == i,
           hasContent: i < chars.length,
+          feedbackTone: widget.feedbackTone,
         ).wrap(
           AppOtpCell(
             spec: cellSpec,
             value: i < chars.length ? chars[i] : '',
             visualKey: ValueKey('${widget.elementId}.cell.$i'),
+            feedbackTone: widget.feedbackTone,
           ),
           slotPath: 'cells.cell${i + 1}',
         ),
@@ -338,34 +398,71 @@ class _AppOtpFieldState extends State<AppOtpField> {
         children: [
           Semantics(
             label: widget.label,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Listener(
-                onPointerDown: (event) {
-                  final pitch =
-                      spec.number('body', 'width') +
-                      (composition['gap'] as num).toDouble();
-                  var x = event.localPosition.dx - pad[0];
-                  if (widget.sourceDivider && x > pitch) {
-                    x -= (composition['divider'] as Map)['width'] as num;
-                    x -= (composition['gap'] as num);
-                  }
-                  tapped = (x / pitch).floor().clamp(0, widget.length);
-                },
-                child: Stack(
-                  key: ValueKey('${widget.elementId}.visual'),
-                  children: [
-                    ExcludeSemantics(child: cells),
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: 0,
-                        alwaysIncludeSemantics: true,
-                        child: editor,
-                      ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final available = constraints.maxWidth;
+                final group = Listener(
+                  onPointerDown: (event) {
+                    final pitch = cellWidth + gap;
+                    var x = event.localPosition.dx - pad[0];
+                    if (widget.sourceDivider && x > pitch) {
+                      x -= (composition['divider'] as Map)['width'] as num;
+                      x -= gap;
+                    }
+                    tapped = (x / pitch).floor().clamp(0, widget.length);
+                  },
+                  child: AnimatedBuilder(
+                    animation: shake,
+                    builder: (context, child) {
+                      // PHYSICAL: the shake is a horizontal pixel offset, not a
+                      // directional layout change (D-069).
+                      final t = shake.value;
+                      final dx =
+                          widget.feedbackTone == AppOtpFeedbackTone.status
+                          ? FieldMotion.statusShakeAmplitude *
+                                math.sin(
+                                  FieldMotion.statusShakeCycles *
+                                      2 *
+                                      math.pi *
+                                      t,
+                                ) *
+                                (1 - t)
+                          : 0.0;
+                      return Transform.translate(
+                        key: const ValueKey('otp.shake'),
+                        offset: Offset(dx, 0),
+                        child: child,
+                      );
+                    },
+                    child: Stack(
+                      key: ValueKey('${widget.elementId}.visual'),
+                      children: [
+                        ExcludeSemantics(child: cells),
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: 0,
+                            alwaysIncludeSemantics: true,
+                            child: editor,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+                if (!available.isFinite ||
+                    available <= 0 ||
+                    available >= groupWidth) {
+                  return group;
+                }
+                return SizedBox(
+                  width: available,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: group,
+                  ),
+                );
+              },
             ),
           ),
           if (message != null && message.trim().isNotEmpty)

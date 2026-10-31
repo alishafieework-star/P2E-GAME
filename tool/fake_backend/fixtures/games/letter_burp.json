@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "id": "letter_burp",
+  "kind": "downloadable",
+  "name": "Letter Burp",
+  "icon": {
+    "url": "{{media}}/home/oh_snack.jpg",
+    "width": 512,
+    "height": 512,
+    "alt": "oh_snack.jpg"
+  },
+  "access": "freeToPlay",
+  "studio": {
+    "id": "olivia",
+    "name": "Olivia Can",
+    "registeredMark": true,
+    "tagline": "Mobile Game Development Company",
+    "logo": {
+      "url": "{{media}}/home/oh_snack.jpg",
+      "width": 512,
+      "height": 512,
+      "alt": "oh_snack.jpg"
+    },
+    "cover": {
+      "url": "{{media}}/home/oh_snack.jpg",
+      "width": 512,
+      "height": 512,
+      "alt": "oh_snack.jpg"
+    }
+  },
+  "rating": {
+    "average": 4.5,
+    "count": 1200,
+    "distribution": {
+      "5": 700,
+      "4": 300,
+      "3": 100,
+      "2": 60,
+      "1": 40
+    }
+  },
+  "downloads": 20000,
+  "installSizeBytes": 52428800,
+  "install": {
+    "method": "external",
+    "url": "https://example.com/games/letter_burp"
+  },
+  "media": [
+    {
+      "type": "image",
+      "image": {
+        "url": "{{media}}/home/oh_snack.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "oh_snack.jpg"
+      },
+      "alt": "Letter Burp"
+    }
+  ],
+  "about": {
+    "description": "Letter Burp is ready to play.",
+    "updatedOn": "2026-11-14",
+    "platforms": [
+      "android"
+    ]
+  },
+  "events": [],
+  "reviews": {
+    "aiSummary": null,
+    "total": 1,
+    "items": [
+      {
+        "id": "player",
+        "author": {
+          "id": "player",
+          "name": "Player",
+          "avatar": null
+        },
+        "rating": 4.0,
+        "createdOn": "2026-10-01",
+        "text": "A solid sample review."
+      }
+    ]
+  },
+  "similar": [
+    {
+      "id": "clash_of_clans",
+      "name": "Clash of Clans",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/featured_icon.png",
+        "width": 512,
+        "height": 512,
+        "alt": "featured_icon.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "sifu",
+      "name": "Sifu",
+      "studio": {
+        "name": "Kepler Interactive",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/sifu.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "sifu.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "nine_kings",
+      "name": "9 Kings",
+      "studio": {
+        "name": "Playdigious",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/nine_kings.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "nine_kings.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    }
+  ],
+  "moreByStudio": []
+}

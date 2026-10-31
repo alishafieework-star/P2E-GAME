@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/catalog.dart';
 import '../core/device.dart';
-import '../core/problems.dart';
+import '../core/matrix.dart';
+import '../core/sweep.dart';
 import 'tool_copy.dart';
 
 class DeviceToolbar extends StatelessWidget {
@@ -77,6 +79,48 @@ class DeviceToolbar extends StatelessWidget {
             if (v != null) device.preset(v);
           },
         ),
+        DropdownButton<FramePreset>(
+          key: const ValueKey('engineering-presets'),
+          hint: Text(toolCopy('engineeringPresets')),
+          items: [
+            for (final preset in engineeringPresets)
+              DropdownMenuItem(
+                value: preset,
+                child: Text(
+                  '${preset.id} ${preset.size.width.toInt()}x${preset.size.height.toInt()}',
+                ),
+              ),
+          ],
+          onChanged: (preset) {
+            if (preset != null) device.applyPreset(preset);
+          },
+        ),
+        if (device.customPresets.isNotEmpty)
+          DropdownButton<FramePreset>(
+            key: const ValueKey('custom-presets'),
+            hint: Text(toolCopy('savePreset')),
+            items: [
+              for (final preset in device.customPresets)
+                DropdownMenuItem(value: preset, child: Text(preset.id)),
+            ],
+            onChanged: (preset) {
+              if (preset != null) device.applyPreset(preset);
+            },
+          ),
+        TextButton(
+          key: const ValueKey('save-preset'),
+          onPressed: () => device.rememberPreset(
+            'custom-${device.customPresets.length + 1}',
+          ),
+          child: Text(toolCopy('savePreset')),
+        ),
+        TextButton(
+          key: const ValueKey('copy-presets'),
+          onPressed: () =>
+              Clipboard.setData(ClipboardData(text: device.exportPresets())),
+          child: Text(toolCopy('copyPresets')),
+        ),
+        const _PresetImport(),
         TextButton(
           key: const ValueKey('rotate'),
           onPressed: device.rotate,
@@ -265,6 +309,49 @@ class _DimensionInputState extends State<DimensionInput> {
   );
 }
 
+class _PresetImport extends StatefulWidget {
+  const _PresetImport();
+  @override
+  State<_PresetImport> createState() => _PresetImportState();
+}
+
+class _PresetImportState extends State<_PresetImport> {
+  final text = TextEditingController();
+  String? error;
+  @override
+  void dispose() {
+    text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final device = context
+        .findAncestorWidgetOfExactType<DeviceToolbar>()
+        ?.device;
+    return SizedBox(
+      width: 220,
+      child: TextField(
+        key: const ValueKey('load-presets'),
+        controller: text,
+        decoration: InputDecoration(
+          labelText: toolCopy('loadPresets'),
+          errorText: error,
+        ),
+        onSubmitted: (value) {
+          if (device == null) return;
+          try {
+            device.importPresets(value);
+            setState(() => error = null);
+          } on FormatException {
+            setState(() => error = toolCopy('unavailable'));
+          }
+        },
+      ),
+    );
+  }
+}
+
 class SweepControls extends StatefulWidget {
   const SweepControls({
     super.key,
@@ -272,19 +359,28 @@ class SweepControls extends StatefulWidget {
     required this.runner,
     required this.frame,
     required this.onJump,
+    this.catalog,
+    this.bundle,
+    this.onReplay,
   });
   final SimulatedDevice device;
   final SweepRunner runner;
   final Future<void> Function() frame;
   final ValueChanged<Map<String, Object?>> onJump;
+  final ScenarioCatalog? catalog;
+  final String Function()? bundle;
+  final Future<void> Function(FrameSettings settings, String? scenarioId)?
+  onReplay;
   @override
   State<SweepControls> createState() => _SweepControlsState();
 }
 
 class _SweepControlsState extends State<SweepControls> {
   SweepAxis axis = SweepAxis.width;
+  SweepStrategy strategy = SweepStrategy.legacy;
   double minW = 200, maxW = 1400, minH = 300, maxH = 1400, stepW = 4, stepH = 8;
-  bool matrix = false;
+  int seed = 1;
+  bool matrix = false, refine = true, minimize = true, allScenarios = false;
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.runner,
@@ -327,53 +423,158 @@ class _SweepControlsState extends State<SweepControls> {
               }
             }),
           ),
-        CheckboxListTile(
-          title: Text(toolCopy('sweepMatrix')),
-          value: matrix,
-          onChanged: (v) => setState(() => matrix = v!),
+        SegmentedButton<SweepStrategy>(
+          segments: [
+            ButtonSegment(
+              value: SweepStrategy.legacy,
+              label: Text(toolCopy('classicSweep')),
+            ),
+            ButtonSegment(
+              value: SweepStrategy.pairwiseBoundary,
+              label: Text(toolCopy('gorillaSweep')),
+            ),
+          ],
+          selected: {strategy},
+          onSelectionChanged: (value) => setState(() => strategy = value.first),
+        ),
+        if (strategy == SweepStrategy.legacy)
+          CheckboxListTile(
+            title: Text(toolCopy('sweepMatrix')),
+            value: matrix,
+            onChanged: (value) => setState(() => matrix = value!),
+          ),
+        if (strategy == SweepStrategy.pairwiseBoundary) ...[
+          DimensionInput(
+            id: 'seed',
+            value: seed.toDouble(),
+            onChange: (value) =>
+                setState(() => seed = value.round().clamp(1, 999999)),
+          ),
+          CheckboxListTile(
+            title: Text(toolCopy('refineEdges')),
+            value: refine,
+            onChanged: (value) => setState(() => refine = value!),
+          ),
+          CheckboxListTile(
+            title: Text(toolCopy('minimizeFailure')),
+            value: minimize,
+            onChanged: (value) => setState(() => minimize = value!),
+          ),
+          if (widget.catalog != null)
+            CheckboxListTile(
+              title: Text(toolCopy('runAllScenarios')),
+              value: allScenarios,
+              onChanged: (value) => setState(() => allScenarios = value!),
+            ),
+        ],
+        if (widget.catalog?.activeId != null)
+          Text('${toolCopy('scenarioLabel')}: ${widget.catalog!.activeId}'),
+        Text(
+          '${toolCopy('coverageSummary')}: ${widget.runner.coverage['environments'] ?? '-'} / ${widget.runner.coverage['samples'] ?? widget.runner.total}',
+          key: const ValueKey('coverage-summary'),
         ),
         TextButton(
           onPressed: widget.runner.running
               ? () => widget.runner.cancelled = true
               : () => widget.runner.run(
-                  SweepPlan(
-                    axis: axis,
-                    minWidth: minW,
-                    maxWidth: maxW,
-                    minHeight: minH,
-                    maxHeight: maxH,
-                    widthStep: stepW,
-                    heightStep: stepH,
-                    scales: matrix ? [1, 1.3, 2] : [],
-                    locales: matrix
-                        ? [
-                            [const Locale('fa', 'IR')],
-                            [const Locale('en', 'US')],
-                          ]
-                        : [],
-                  ),
+                  _plan(),
                   widget.frame,
+                  scenarioIds:
+                      allScenarios && strategy == SweepStrategy.pairwiseBoundary
+                      ? [
+                          for (final scenario
+                              in widget.catalog?.scenarios ?? [])
+                            scenario.id,
+                        ]
+                      : null,
+                  activateScenario: widget.catalog?.activate,
                 ),
           child: Text(toolCopy(widget.runner.running ? 'cancel' : 'runSweep')),
         ),
+        if (widget.runner.canResume && !widget.runner.running)
+          TextButton(
+            key: const ValueKey('resume-sweep'),
+            onPressed: () => widget.runner.run(
+              _plan(),
+              widget.frame,
+              resume: true,
+              scenarioIds:
+                  allScenarios && strategy == SweepStrategy.pairwiseBoundary
+                  ? [
+                      for (final scenario in widget.catalog?.scenarios ?? [])
+                        scenario.id,
+                    ]
+                  : null,
+              activateScenario: widget.catalog?.activate,
+            ),
+            child: Text(toolCopy('resumeSweep')),
+          ),
         Text('${toolCopy('sweepSamples')}: ${widget.runner.completed}'),
         TextButton(
           onPressed: () => Clipboard.setData(
-            ClipboardData(text: widget.runner.exportJson()),
+            ClipboardData(
+              text: strategy == SweepStrategy.legacy
+                  ? widget.runner.exportJson()
+                  : widget.bundle?.call() ?? widget.runner.exportJson(),
+            ),
           ),
-          child: Text(toolCopy('copyJson')),
+          child: Text(
+            toolCopy(
+              strategy == SweepStrategy.legacy ? 'copyJson' : 'copyBundle',
+            ),
+          ),
         ),
-        for (final r in widget.runner.ranges)
+        for (final range in widget.runner.ranges)
           ListTile(
             title: Text(
-              '${r['kind']} / ${r['elementId'] ?? toolCopy('unavailable')}',
+              '${range['kind']} / ${range['elementId'] ?? toolCopy('unavailable')}',
             ),
             subtitle: Text(
-              '${r['firstWidth']}..${r['lastWidth']} x ${r['firstHeight']}..${r['lastHeight']}',
+              '${range['firstWidth']}..${range['lastWidth']} x ${range['firstHeight']}..${range['lastHeight']}',
             ),
-            onTap: () => widget.onJump(r),
+            onTap: () => widget.onJump(range),
+          ),
+        for (final item in widget.runner.minimalCases)
+          ListTile(
+            key: ValueKey('minimal-${item['group']}-${item['sampleIndex']}'),
+            title: Text('${toolCopy('replayCase')}: ${item['group']}'),
+            subtitle: Text('${item['requiredFactors']}'),
+            onTap: () {
+              final device = item['device'];
+              if (device is! Map) return;
+              final settings = FrameSettings.fromJson(device);
+              final scenario = item['scenarioId'] as String?;
+              final replay = widget.onReplay;
+              if (replay != null) {
+                replay(settings, scenario);
+              } else {
+                widget.onJump({'device': device, 'ownerKey': null});
+              }
+            },
           ),
       ],
     ),
+  );
+
+  SweepPlan _plan() => SweepPlan(
+    axis: axis,
+    minWidth: minW,
+    maxWidth: maxW,
+    minHeight: minH,
+    maxHeight: maxH,
+    widthStep: stepW,
+    heightStep: stepH,
+    strategy: strategy,
+    seed: seed,
+    refine: strategy == SweepStrategy.pairwiseBoundary && refine,
+    minimize: strategy == SweepStrategy.pairwiseBoundary && minimize,
+    scenarioId: widget.catalog?.activeId,
+    scales: strategy == SweepStrategy.legacy && matrix ? [1, 1.3, 2] : [],
+    locales: strategy == SweepStrategy.legacy && matrix
+        ? [
+            [const Locale('fa', 'IR')],
+            [const Locale('en', 'US')],
+          ]
+        : [],
   );
 }

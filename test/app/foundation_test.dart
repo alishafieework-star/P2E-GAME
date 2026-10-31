@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mygame_p2e/app/config/app_config.dart';
 import 'package:mygame_p2e/app/startup/startup_controller.dart';
+import 'package:mygame_p2e/shared/preferences/device_preferences.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:mygame_p2e/core/diagnostics/app_logger.dart';
 import 'package:mygame_p2e/shared/formatting/digits.dart';
@@ -26,6 +27,11 @@ void main() {
     () async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
+      await container.read(devicePreferencesProvider.future);
+      await container
+          .read(devicePreferencesProvider.notifier)
+          .save(const DevicePreferences(onboardingSeen: true));
+      container.read(splashGateProvider.notifier).collapse();
       final seen = <StartupState>[];
       container.listen(
         startupControllerProvider,
@@ -59,6 +65,11 @@ void main() {
   test('startup stale work cannot open a signed-out session', () async {
     final container = ProviderContainer();
     addTearDown(container.dispose);
+    await container.read(devicePreferencesProvider.future);
+    await container
+        .read(devicePreferencesProvider.notifier)
+        .save(const DevicePreferences(onboardingSeen: true));
+    container.read(splashGateProvider.notifier).collapse();
     container.listen(startupControllerProvider, (_, _) {});
     container
         .read(sessionControllerProvider.notifier)

@@ -5,7 +5,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../l10n/generated/app_localizations.dart';
 import '../../features/auth/auth.dart';
+import '../../features/legal/legal.dart';
+import '../../features/onboarding/onboarding.dart';
+import '../../features/games/games.dart';
+import '../../features/home/home.dart';
+import '../../shared/navigation/app_locations.dart';
+import '../shell/app_shell.dart';
+import '../shell/shell_placeholders.dart';
 import '../startup/startup_controller.dart';
+import 'auth_transition.dart';
+import 'onboarding_transition.dart';
+import 'game_detail_transition.dart';
 part 'app_router.g.dart';
 
 @riverpod
@@ -16,31 +26,34 @@ GoRouter appRouter(Ref ref) {
     initialLocation: '/startup',
     refreshListenable: gate,
     redirect: (_, state) {
+      if (state.uri.path.startsWith('/legal')) return null;
       if (gate.value == StartupState.entry &&
           state.uri.path.startsWith('/entry/')) {
         final flow = ref.read(authFlowProvider);
         if (flow == null) return '/entry';
-        final required = switch (flow.step) {
-          AuthStep.otp => '/entry/otp',
-          AuthStep.password => '/entry/password',
-          AuthStep.createPassword => '/entry/create-password',
-        };
-        return state.uri.path == required ||
-                state.uri.path == '/entry/forgot-password'
-            ? null
-            : required;
+        final required = authStepPath(flow.step);
+        return state.uri.path == required ? null : required;
       }
+      final path = state.uri.path;
       final location = switch (gate.value) {
         StartupState.initializing || StartupState.sessionCheck => '/startup',
+        StartupState.onboarding => '/entry/onboarding',
         StartupState.entry => '/entry',
-        StartupState.ready => '/home',
+        // A signed-in session may visit any product location.
+        StartupState.ready =>
+          path == '/' ||
+                  path == '/startup' ||
+                  path == '/entry' ||
+                  path.startsWith('/entry/')
+              ? AppLocations.home
+              : path,
       };
-      return state.uri.path == location ? null : location;
+      return path == location ? null : location;
     },
     routes: [
       GoRoute(
         path: '/entry',
-        pageBuilder: (_, state) => NoTransitionPage<void>(
+        pageBuilder: (_, state) => AuthTransitionPage(
           key: state.pageKey,
           child: const UiIdentityScope(
             routeName: 'auth.entry',
@@ -48,6 +61,76 @@ GoRouter appRouter(Ref ref) {
           ),
         ),
         routes: [
+          GoRoute(
+            path: 'onboarding',
+            pageBuilder: (_, state) => OnboardingTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'onboarding',
+                child: OnboardingScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'verify',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.verify',
+                child: AuthOtpScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'username',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.username',
+                child: UsernameScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'avatar',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.avatar',
+                child: AvatarScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'notifications',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.notifications',
+                child: NotificationsScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'all-set',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.all-set',
+                child: AllSetScreen(),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: 'welcome-back',
+            pageBuilder: (_, state) => AuthTransitionPage(
+              key: state.pageKey,
+              child: const UiIdentityScope(
+                routeName: 'auth.welcome-back',
+                child: WelcomeBackScreen(),
+              ),
+            ),
+          ),
           for (final step in [
             'otp',
             'password',
@@ -56,27 +139,126 @@ GoRouter appRouter(Ref ref) {
           ])
             GoRoute(
               path: step,
-              pageBuilder: (_, state) => NoTransitionPage<void>(
+              pageBuilder: (_, state) => AuthTransitionPage(
                 key: state.pageKey,
                 child: UiIdentityScope(
                   routeName: 'auth.${step.replaceAll('-', '.')}',
-                  child: _AuthPlaceholder(step: step),
+                  child: switch (step) {
+                    'otp' || 'forgot-password' => const AuthOtpScreen(),
+                    'password' => const AuthPasswordScreen(),
+                    'create-password' => const AuthCreatePasswordScreen(),
+                    _ => _AuthPlaceholder(step: step),
+                  },
                 ),
               ),
             ),
         ],
       ),
-      for (final destination in ['startup', 'home', 'ready'])
-        GoRoute(
-          path: '/$destination',
-          pageBuilder: (_, state) => NoTransitionPage<void>(
-            key: state.pageKey,
-            child: UiIdentityScope(
-              routeName: destination,
-              child: _Placeholder(destination: destination),
-            ),
+      GoRoute(
+        path: '/startup',
+        pageBuilder: (_, state) => NoTransitionPage<void>(
+          key: state.pageKey,
+          child: const UiIdentityScope(
+            routeName: 'startup',
+            child: _Placeholder(),
           ),
         ),
+      ),
+      StatefulShellRoute.indexedStack(
+        pageBuilder: (_, state, shell) => AuthTransitionPage(
+          key: state.pageKey,
+          wholePage: true,
+          child: UiIdentityScope(
+            routeName: 'shell',
+            child: AppShell(shell: shell),
+          ),
+        ),
+        branches: [
+          for (var i = 0; i < appTabIds.length; i++)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: AppLocations.tabs[i],
+                  builder: (_, _) => UiIdentityScope(
+                    routeName: appTabIds[i],
+                    child: i == 0
+                        ? const HomeScreen()
+                        : TabPlaceholder(tab: appTabIds[i]),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'game/:id',
+                      pageBuilder: (_, state) => GameDetailTransitionPage(
+                        key: state.pageKey,
+                        child: UiIdentityScope(
+                          routeName: 'game.detail',
+                          child: GameDetailsScreen(
+                            id: state.pathParameters['id']!,
+                          ),
+                        ),
+                      ),
+                      routes: [
+                        GoRoute(
+                          path: 'reviews',
+                          builder: (context, _) => UiIdentityScope(
+                            routeName: 'game.reviews',
+                            child: GameRoutePlaceholder(
+                              elementId: 'game.reviews.page',
+                              title: AppLocalizations.of(context).gameRatings,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    GoRoute(
+                      path: 'studio/:studioId',
+                      builder: (context, _) => UiIdentityScope(
+                        routeName: 'game.studio',
+                        child: GameRoutePlaceholder(
+                          elementId: 'game.studio.page',
+                          title: AppLocalizations.of(context).gameStudioTitle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+        ],
+      ),
+      GoRoute(
+        path: '/game/:id',
+        redirect: (_, state) =>
+            AppLocations.gameOn(AppLocations.home, state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/legal/:doc',
+        pageBuilder: (_, state) => CustomTransitionPage<void>(
+          key: state.pageKey,
+          transitionDuration: HtmlJourneyTokens.legalEnter,
+          reverseTransitionDuration: HtmlJourneyTokens.legalExit,
+          child: UiIdentityScope(
+            routeName: 'legal.reader',
+            child: LegalReaderScreen(
+              doc: state.pathParameters['doc'] ?? 'terms',
+            ),
+          ),
+          transitionsBuilder: (context, animation, _, child) => SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/quest/:id',
+        builder: (_, _) => const UiIdentityScope(
+          routeName: 'quest.detail',
+          child: DetailPlaceholder(kind: DetailKind.quest),
+        ),
+      ),
     ],
   );
   ref.onDispose(() {
@@ -87,18 +269,10 @@ GoRouter appRouter(Ref ref) {
 }
 
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({required this.destination});
-  final String destination;
+  const _Placeholder();
   @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    return PageScaffold(
-      elementId: '$destination.page',
-      child: destination == 'startup'
-          ? const SizedBox.shrink()
-          : Text(strings.authHomePlaceholder),
-    );
-  }
+  Widget build(BuildContext context) =>
+      const PageScaffold(elementId: 'startup.page', child: SizedBox.shrink());
 }
 
 class _AuthPlaceholder extends StatelessWidget {

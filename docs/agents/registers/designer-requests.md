@@ -21,3 +21,15 @@ Status: `open` | `sent` | `delivered` | `dropped`.
 
 | R-013 | 2026-10-23 | Confirm Sky/500 accent Filled Button as an official variant, including Light and interaction states. | Auth Entry uses instance overrides18618:12153/12674; D-056. | medium | open |
 | R-014 | 2026-10-23 | Replace the provisional svgrepo Google logo with an official approved asset. | Auth Entry node18613:11518; no branding approval inferred. | medium | open |
+| R-015 | 2026-10-24 | Official Success and Error appearance and motion for OTP cells, including green/red borders. | D-069 status tone is an owner-requested engineering appearance. Figma Success is a white verified icon on a neutral cell; Error colors only the digit. | medium | open |
+
+R-016–R-099 are reserved for the parallel Auth track (D-100). Home starts at R-100.
+
+| R-100 | 2026-10-24 | Confirm Home errata E-100–E-106 and supply semantic roles for Sky/500, Green/500, Green/600 and Yellow/400. Promote the detached Home patterns (hero, section header, shelf, page indicator, reward, rating, quest progress, countdown) to components. | These patterns are frames, not component sets. Code will build them provisional (D-013, D-102). | medium | open |
+| R-101 | 2026-10-24 | Motion for the Home hero parallax, paged carousel and countdown completion. Section loading, empty and error remain R-009. | Figma defines no motion for these. D-102 uses engineering defaults until a source exists. | low | open |
+| R-102 | 2026-10-25 | Promote Game Details patterns (primary data, media tile, about, ratings, comments, studio card) to components. Supply bookmark and Read More states, a media viewer, and registry glyphs for AI, Android and iOS. | These are frames, not component sets (E-112, E-114, E-117). Code is provisional (D-121). | medium | open |
+| R-103 | 2026-10-25 | Loading, empty, error, offline and not-found for Game Details, plus the in-app download flow. | Figma shows success only. D-121 uses a provisional page error, saved-copy notice and external install. Section states remain R-009. | medium | open |
+| R-104 | 2026-10-26 | Official designs for the logo, Splash, the three Onboarding slides, Username, Avatar, Notifications, All Set, Welcome Back, the in-app Legal reader, the Help sheet and the Home tour. | Figma has none of these. The HTML prototype is the provisional source (D-135–D-142). | high | open |
+| R-105 | 2026-10-26 | Licensed or final artwork for the Onboarding game cards, podium and laurel. | The HTML sample images are placeholders and need a license or a replacement before release (D-138). | medium | open |
+| R-106 | 2026-10-26 | An official avatar set and its themes, replacing the twelve generated HTML characters. | Avatar art is provisional (D-140). | medium | open |
+| R-107 | 2026-10-26 | Registry icons for the notification bell, the tour arrow and any other glyph the HTML draws that is not already in the icon registry. | Missing glyphs stay bundled SVG assets and are not given invented registry ids. | low | open |

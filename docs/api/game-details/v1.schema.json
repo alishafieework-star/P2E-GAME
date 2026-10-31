@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mygame.p2e/schemas/game-details/v1.schema.json",
+  "title": "GameDetailsV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "id", "kind", "name", "icon", "access", "studio",
+    "rating", "downloads", "installSizeBytes", "install", "media", "about",
+    "events", "reviews", "similar", "moreByStudio"
+  ],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "id": {"$ref": "#/$defs/id"},
+    "kind": {"const": "downloadable"},
+    "name": {"$ref": "#/$defs/text"},
+    "icon": {"$ref": "#/$defs/image"},
+    "access": {"$ref": "#/$defs/access"},
+    "studio": {"$ref": "#/$defs/studio"},
+    "rating": {"$ref": "#/$defs/rating"},
+    "downloads": {"$ref": "#/$defs/count"},
+    "installSizeBytes": {"$ref": "#/$defs/count"},
+    "install": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "url"],
+      "properties": {
+        "method": {"const": "external"},
+        "url": {"$ref": "#/$defs/https"}
+      }
+    },
+    "media": {"type": "array", "items": {"$ref": "#/$defs/media"}},
+    "about": {"$ref": "#/$defs/about"},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "reviews": {"$ref": "#/$defs/reviews"},
+    "similar": {"type": "array", "items": {"$ref": "#/$defs/related"}},
+    "moreByStudio": {"type": "array", "items": {"$ref": "#/$defs/related"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "text": {"type": "string", "minLength": 1},
+    "count": {"type": "integer", "minimum": 0},
+    "https": {"type": "string", "pattern": "^https://"},
+    "absolute": {"type": "string", "pattern": "^https?://"},
+    "access": {"enum": ["freeToPlay", "inAppPurchases"]},
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "width", "height", "alt"],
+      "properties": {
+        "url": {"$ref": "#/$defs/absolute"},
+        "width": {"type": ["integer", "null"], "minimum": 1},
+        "height": {"type": ["integer", "null"], "minimum": 1},
+        "alt": {"type": "string"}
+      }
+    },
+    "studio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "registeredMark", "tagline", "logo", "cover"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "registeredMark": {"type": "boolean"},
+        "tagline": {"$ref": "#/$defs/text"},
+        "logo": {"$ref": "#/$defs/image"},
+        "cover": {"$ref": "#/$defs/image"}
+      }
+    },
+    "rating": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["average", "count", "distribution"],
+      "properties": {
+        "average": {"type": "number", "minimum": 0, "maximum": 5},
+        "count": {"$ref": "#/$defs/count"},
+        "distribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["1", "2", "3", "4", "5"],
+          "properties": {
+            "1": {"$ref": "#/$defs/count"},
+            "2": {"$ref": "#/$defs/count"},
+            "3": {"$ref": "#/$defs/count"},
+            "4": {"$ref": "#/$defs/count"},
+            "5": {"$ref": "#/$defs/count"}
+          }
+        }
+      }
+    },
+    "media": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "image", "alt"],
+          "properties": {
+            "type": {"const": "image"},
+            "image": {"$ref": "#/$defs/image"},
+            "alt": {"type": "string"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "thumbnail", "url", "alt"],
+          "properties": {
+            "type": {"const": "video"},
+            "thumbnail": {"$ref": "#/$defs/image"},
+            "url": {"$ref": "#/$defs/https"},
+            "alt": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "about": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "updatedOn", "platforms"],
+      "properties": {
+        "description": {"$ref": "#/$defs/text"},
+        "updatedOn": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "platforms": {
+          "type": "array",
+          "items": {"enum": ["android", "ios"]}
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "description", "banner", "rewardPoints", "action"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "title": {"$ref": "#/$defs/text"},
+        "description": {"$ref": "#/$defs/text"},
+        "banner": {"$ref": "#/$defs/image"},
+        "rewardPoints": {"$ref": "#/$defs/count"},
+        "action": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": {"const": "external"},
+            "url": {"$ref": "#/$defs/https"}
+          }
+        }
+      }
+    },
+    "reviews": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aiSummary", "total", "items"],
+      "properties": {
+        "aiSummary": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["text"],
+              "properties": {"text": {"$ref": "#/$defs/text"}}
+            }
+          ]
+        },
+        "total": {"$ref": "#/$defs/count"},
+        "items": {"type": "array", "items": {"$ref": "#/$defs/review"}}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "author", "rating", "createdOn", "text"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "author": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "avatar"],
+          "properties": {
+            "id": {"$ref": "#/$defs/id"},
+            "name": {"$ref": "#/$defs/text"},
+            "avatar": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/image"}]}
+          }
+        },
+        "rating": {"type": "number", "minimum": 0, "maximum": 5},
+        "createdOn": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "text": {"$ref": "#/$defs/text"}
+      }
+    },
+    "related": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "studio", "cover", "rating", "rewardPoints", "access"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"$ref": "#/$defs/text"},
+        "studio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "registeredMark"],
+          "properties": {
+            "name": {"$ref": "#/$defs/text"},
+            "registeredMark": {"type": "boolean"}
+          }
+        },
+        "cover": {"$ref": "#/$defs/image"},
+        "rating": {"type": "number", "minimum": 0, "maximum": 5},
+        "rewardPoints": {"$ref": "#/$defs/count"},
+        "access": {"$ref": "#/$defs/access"}
+      }
+    }
+  }
+}

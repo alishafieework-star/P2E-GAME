@@ -339,5 +339,46 @@
   "fitWindowMode": "Fit window",
   "@fitWindowMode": {
     "description": "Device size follows available window space."
-  }
+  },
+  "pageSection": "Page",
+  "@pageSection": {
+    "description": "Inspector section title for the simulated page size."
+  },
+  "copyProblems": "Copy problem report",
+  "@copyProblems": {
+    "description": "Copies the allowlisted problem list."
+  },
+  "jsonSection": "JSON",
+  "@jsonSection": {
+    "description": "Collapsed full inspection snapshot."
+  },
+  "engineeringPresets": "Boundary sizes",
+  "savePreset": "Save size",
+  "copyPresets": "Copy sizes",
+  "loadPresets": "Load sizes",
+  "classicSweep": "Classic",
+  "gorillaSweep": "Gorilla",
+  "seed": "Seed",
+  "refineEdges": "Refine edges to 1px",
+  "minimizeFailure": "Minimize failure",
+  "runAllScenarios": "All scenarios",
+  "scenarioLabel": "Scenario",
+  "coverageSummary": "Coverage",
+  "resumeSweep": "Resume",
+  "copyBundle": "Copy report",
+  "replayCase": "Replay",
+  "accessibilityTab": "Accessibility",
+  "performanceTab": "Performance",
+  "auditCurrent": "Audit this page",
+  "auditAll": "Audit all scenarios",
+  "copyAudit": "Copy audit",
+  "a11yNote": "This reads the semantics tree of this embed. It is not a TalkBack or VoiceOver certification.",
+  "perfNote": "These counts are diagnostics for this embed, not a device benchmark or a Figma comparison.",
+  "slowFrames": "Slow frames",
+  "rebuildSummary": "Rebuilds: {builds} · refreshes: {refreshes}",
+  "identityElement": "Element ID",
+  "identityComponent": "Component ID",
+  "identityNode": "Figma node",
+  "identitySet": "Component set",
+  "identityVariant": "Variant"
 }

@@ -283,6 +283,14 @@ abstract final class FieldMotion {
       Duration(milliseconds: fieldEngineeringData['colorMs'] as int);
   static Duration get support =>
       Duration(milliseconds: fieldEngineeringData['supportMs'] as int);
+  static Duration get statusColor =>
+      Duration(milliseconds: fieldEngineeringData['statusColorMs'] as int);
+  static Duration get statusShake =>
+      Duration(milliseconds: fieldEngineeringData['statusShakeMs'] as int);
+  static double get statusShakeAmplitude =>
+      (fieldEngineeringData['statusShakeAmplitude'] as num).toDouble();
+  static int get statusShakeCycles =>
+      fieldEngineeringData['statusShakeCycles'] as int;
   static Duration get hover => Duration(
     milliseconds: (fieldSourceData['sourceMotion'] as Map)['hoverMs'] as int,
   );

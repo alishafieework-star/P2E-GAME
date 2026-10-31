@@ -33,10 +33,115 @@ class Repositories
   }
 
   @override
+  Future<Result<OtpChallenge>> resendOtp(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) => requestOtp(
+    phone,
+    rememberDevice: rememberDevice,
+    cancellation: cancellation,
+  );
+
+  @override
+  Future<Result<void>> verifyOtp(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => Failure(ValidationFailure({'otp': 'invalid'}));
+
+  @override
   Future<Result<EmailAccountStatus>> checkEmail(
     Email email, {
     AuthCancellation? cancellation,
   }) async => this.email;
+  @override
+  Future<Result<void>> signIn(
+    Email email,
+    String password, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<OtpChallenge>> requestReset(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<OtpChallenge>> resendReset(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<void>> verifyReset(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<void>> createPassword(
+    Email email,
+    String password, {
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<PhoneAccountStatus>> checkPhone(
+    Phone phone, {
+    AuthCancellation? cancellation,
+  }) async => const Success(PhoneAccountStatus.registered);
+  @override
+  Future<Result<void>> signInPhone(
+    Phone phone,
+    String password, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<OtpChallenge>> requestPhoneReset(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<OtpChallenge>> resendPhoneReset(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<void>> verifyPhoneReset(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => const Failure(UnknownFailure());
+  @override
+  Future<Result<void>> createPhonePassword(
+    Phone phone,
+    String password, {
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<OtpChallenge>> requestVerification(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => Success(
+    OtpChallenge(
+      challengeId: 'verify-challenge',
+      codeLength: 6,
+      resendAfter: const Duration(seconds: 94),
+      expiresAt: DateTime.utc(2026, 10, 24),
+      maskedDestination: 'n•••@example.com',
+    ),
+  );
+  @override
+  Future<Result<void>> verifyRegistration(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
   @override
   Future<Result<void>> start(
     SocialProvider provider, {
@@ -122,7 +227,7 @@ void main() {
         state().destination,
         status == EmailAccountStatus.registered
             ? AuthStep.password
-            : AuthStep.createPassword,
+            : AuthStep.verify,
       );
       expect(state().raw, 'new@EXAMPLE.COM');
     });

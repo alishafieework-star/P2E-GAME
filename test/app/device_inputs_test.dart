@@ -6,7 +6,7 @@ import 'package:mygame_p2e/core/platform/device_inputs.dart';
 
 void main() {
   testWidgets(
-    'neutral device locales observe OS changes; app policy remains fa',
+    'neutral device locales observe OS changes; app policy remains en',
     (tester) async {
       final container = ProviderContainer();
       addTearDown(container.dispose);
@@ -22,11 +22,11 @@ void main() {
         const Locale('en', 'US'),
         const Locale('de', 'DE'),
       ]);
-      expect(container.read(appLocaleProvider), const Locale('fa'));
+      expect(container.read(appLocaleProvider), const Locale('en'));
       tester.platformDispatcher.localesTestValue = [const Locale('de', 'DE')];
       await tester.pump();
       expect(container.read(deviceLocalesProvider), [const Locale('de', 'DE')]);
-      expect(container.read(appLocaleProvider), const Locale('fa'));
+      expect(container.read(appLocaleProvider), const Locale('en'));
     },
   );
 }

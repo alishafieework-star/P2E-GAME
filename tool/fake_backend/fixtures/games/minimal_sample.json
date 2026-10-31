@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "minimal_sample",
+  "kind": "downloadable",
+  "name": "Sample",
+  "icon": {
+    "url": "{{media}}/home/chess.jpg",
+    "width": 512,
+    "height": 512,
+    "alt": "chess.jpg"
+  },
+  "access": "freeToPlay",
+  "studio": {
+    "id": "sample_studio",
+    "name": "Sample Studio",
+    "registeredMark": false,
+    "tagline": "Sample",
+    "logo": {
+      "url": "{{media}}/home/chess.jpg",
+      "width": 512,
+      "height": 512,
+      "alt": "chess.jpg"
+    },
+    "cover": {
+      "url": "{{media}}/home/chess.jpg",
+      "width": 512,
+      "height": 512,
+      "alt": "chess.jpg"
+    }
+  },
+  "rating": {
+    "average": 0,
+    "count": 0,
+    "distribution": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0
+    }
+  },
+  "downloads": 0,
+  "installSizeBytes": 52428800,
+  "install": {
+    "method": "external",
+    "url": "https://example.com/games/minimal_sample"
+  },
+  "media": [],
+  "about": {
+    "description": "Sample is ready to play.",
+    "updatedOn": "2026-11-14",
+    "platforms": []
+  },
+  "events": [],
+  "reviews": {
+    "aiSummary": null,
+    "total": 0,
+    "items": []
+  },
+  "similar": [],
+  "moreByStudio": []
+}

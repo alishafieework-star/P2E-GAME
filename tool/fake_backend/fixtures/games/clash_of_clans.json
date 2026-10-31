@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "id": "clash_of_clans",
+  "kind": "downloadable",
+  "name": "Clash of Clans",
+  "icon": {
+    "url": "{{media}}/home/featured_icon.png",
+    "width": 512,
+    "height": 512,
+    "alt": "featured_icon.png"
+  },
+  "access": "inAppPurchases",
+  "studio": {
+    "id": "supercell",
+    "name": "Supercell",
+    "registeredMark": true,
+    "tagline": "Mobile Game Development Company",
+    "logo": {
+      "url": "{{media}}/home/featured_icon.png",
+      "width": 512,
+      "height": 512,
+      "alt": "featured_icon.png"
+    },
+    "cover": {
+      "url": "{{media}}/home/hero_background.jpg",
+      "width": 512,
+      "height": 512,
+      "alt": "hero_background.jpg"
+    }
+  },
+  "rating": {
+    "average": 4.5,
+    "count": 40000000,
+    "distribution": {
+      "5": 25400000,
+      "4": 10600000,
+      "3": 2100000,
+      "2": 1100000,
+      "1": 800000
+    }
+  },
+  "downloads": 500000,
+  "installSizeBytes": 600833088,
+  "install": {
+    "method": "external",
+    "url": "https://example.com/games/clash_of_clans"
+  },
+  "media": [
+    {
+      "type": "video",
+      "thumbnail": {
+        "url": "{{media}}/games/media_1.jpg",
+        "width": 1600,
+        "height": 739,
+        "alt": "media_1.jpg"
+      },
+      "url": "https://example.com/videos/clash-of-clans",
+      "alt": "Clash of Clans trailer"
+    },
+    {
+      "type": "image",
+      "image": {
+        "url": "{{media}}/games/media_2.jpg",
+        "width": 1024,
+        "height": 589,
+        "alt": "media_2.jpg"
+      },
+      "alt": "Screenshot 1"
+    },
+    {
+      "type": "image",
+      "image": {
+        "url": "{{media}}/games/media_3.jpg",
+        "width": 1024,
+        "height": 589,
+        "alt": "media_3.jpg"
+      },
+      "alt": "Screenshot 2"
+    },
+    {
+      "type": "image",
+      "image": {
+        "url": "{{media}}/games/media_4.jpg",
+        "width": 1024,
+        "height": 576,
+        "alt": "media_4.jpg"
+      },
+      "alt": "Screenshot 3"
+    }
+  ],
+  "about": {
+    "description": "ALL FOR THE CROWN!\n\nBuild a formidable team, attack enemy towers, and use strategy skills to defend your own in multiplayer PvP card battles. Unlock 100+ unique cards, build an unrivalled battle deck, and defend your King’s Tower using strategy, wit, and Skeletons.\n\nClash Royale is free to download and play, however, some game items can also be purchased for real money (including random items). If you don't want to purchase game items for real money, please disable in-app purchases in your device's settings.",
+    "updatedOn": "2026-11-14",
+    "platforms": [
+      "android"
+    ]
+  },
+  "events": [
+    {
+      "id": "electro_wizard",
+      "title": "Hero Electro Wizard & Evolved Electro Giant",
+      "description": "Hero Electro Wizard is even more stunning than before! Activate his Hero ability to stun nearby enemies with twin beams of shocking proportions.",
+      "banner": {
+        "url": "{{media}}/games/event_electro.jpg",
+        "width": 1600,
+        "height": 900,
+        "alt": "event_electro.jpg"
+      },
+      "rewardPoints": 1500,
+      "action": {
+        "type": "external",
+        "url": "https://example.com/events/electro-wizard"
+      }
+    },
+    {
+      "id": "tenth_anniversary",
+      "title": "Clash of Clans 10th Anniversary",
+      "description": "Ten years of glory, one epic offer.",
+      "banner": {
+        "url": "{{media}}/home/hero_object.png",
+        "width": 512,
+        "height": 512,
+        "alt": "hero_object.png"
+      },
+      "rewardPoints": 2750,
+      "action": {
+        "type": "external",
+        "url": "https://example.com/events/anniversary"
+      }
+    }
+  ],
+  "reviews": {
+    "aiSummary": {
+      "text": "Users are saying the strategy gameplay is endlessly fun, praising fast-paced base building and instant troop deployment."
+    },
+    "total": 3,
+    "items": [
+      {
+        "id": "ardeshir",
+        "author": {
+          "id": "ardeshir",
+          "name": "Ardeshir Rashidi",
+          "avatar": null
+        },
+        "rating": 4.5,
+        "createdOn": "2026-10-05",
+        "text": "Been playing for years. good game. Too much pay to win though imo."
+      },
+      {
+        "id": "mohammad",
+        "author": {
+          "id": "mohammad",
+          "name": "Mohammad Hoserin Mozaffarian",
+          "avatar": null
+        },
+        "rating": 3.5,
+        "createdOn": "2026-09-16",
+        "text": "I don't understand what happening in this game."
+      },
+      {
+        "id": "mehdi",
+        "author": {
+          "id": "mehdi",
+          "name": "Mehdi Mohajeri Amiri",
+          "avatar": null
+        },
+        "rating": 4.0,
+        "createdOn": "2026-09-07",
+        "text": "I enjoy this game a lot. At the moment I especially enjoy merge tactics."
+      }
+    ]
+  },
+  "similar": [
+    {
+      "id": "sifu",
+      "name": "Sifu",
+      "studio": {
+        "name": "Kepler Interactive",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/sifu.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "sifu.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "nine_kings",
+      "name": "9 Kings",
+      "studio": {
+        "name": "Playdigious",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/nine_kings.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "nine_kings.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "dome_keeper",
+      "name": "Dome Keeper",
+      "studio": {
+        "name": "Raw Fury",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/dome_keeper.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "dome_keeper.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    }
+  ],
+  "moreByStudio": [
+    {
+      "id": "clash_royal",
+      "name": "Clash Royal",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/quest_icon_1.png",
+        "width": 512,
+        "height": 512,
+        "alt": "quest_icon_1.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 550,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "brawl_stars",
+      "name": "Brawl Stars",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/hero_object.png",
+        "width": 512,
+        "height": 512,
+        "alt": "hero_object.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "hay_day",
+      "name": "Hay Day",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/quest_icon_2.png",
+        "width": 512,
+        "height": 512,
+        "alt": "quest_icon_2.png"
+      },
+      "rating": 2.7,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "boom_beach",
+      "name": "Boom Beach",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/monopoly_banner.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "monopoly_banner.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    }
+  ]
+}

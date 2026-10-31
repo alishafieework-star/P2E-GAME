@@ -6,6 +6,8 @@ enum AuthMessage {
   notConfigured,
   socialUnavailable,
   blocked,
+  invalidCode,
+  invalidPassword,
   rateLimited,
   unknown,
   urlMissing,
@@ -20,7 +22,11 @@ final class AuthFailurePresentation {
 abstract final class AuthFailureMapper {
   static AuthFailurePresentation map(AppFailure failure) => switch (failure) {
     ValidationFailure(:final fields) => AuthFailurePresentation(
-      field: fields['identifier'] == 'rate_limited'
+      field: fields['otp'] == 'invalid'
+          ? AuthMessage.invalidCode
+          : fields['password'] == 'invalid'
+          ? AuthMessage.invalidPassword
+          : fields['identifier'] == 'rate_limited'
           ? AuthMessage.rateLimited
           : AuthMessage.blocked,
     ),

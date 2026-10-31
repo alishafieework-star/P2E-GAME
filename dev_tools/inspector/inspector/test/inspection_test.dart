@@ -441,9 +441,26 @@ void main() {
       expect(calls, 1);
       expect(FocusManager.instance.primaryFocus, focus);
       expect(host.session.selected!.identity.elementId, 'probe.button');
+      expect(find.byKey(const ValueKey('selected-identity')), findsOneWidget);
+      expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('identity-element')))
+            .data,
+        'probe.button',
+      );
+      expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('identity-component')))
+            .data,
+        'button.base',
+      );
+      expect(find.byKey(const ValueKey('identity-element')), findsOneWidget);
+      expect(find.byKey(const ValueKey('identity-node')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       expect(host.session.selecting, isFalse);
+      expect(host.session.selected, isNull);
+      expect(find.byKey(const ValueKey('selected-identity')), findsNothing);
       await tester.tap(find.byKey(const ValueKey('sample')));
       await tester.pumpAndSettle();
       expect(calls, 2);

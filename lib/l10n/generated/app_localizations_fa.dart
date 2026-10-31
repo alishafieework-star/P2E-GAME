@@ -138,5 +138,909 @@ class AppLocalizationsFa extends AppLocalizations {
   String get authBack => 'بازگشت';
 
   @override
+  String get authOtpTitle => 'صندوق پیام را بررسی کنید';
+
+  @override
+  String get authOtpSubtitleLead => 'کد ارسال‌شده به ';
+
+  @override
+  String get authOtpSubtitleEnd => ' را وارد کنید.';
+
+  @override
+  String get authOtpLabel => 'کد یک‌بارمصرف';
+
+  @override
+  String get authOtpResendPrompt => 'کد را نگرفتید؟';
+
+  @override
+  String get authOtpResend => 'ارسال دوباره';
+
+  @override
+  String get authOtpWrongPhone => 'شماره اشتباه است؟';
+
+  @override
+  String get authOtpChange => 'تغییر شماره';
+
+  @override
+  String get authOtpVerify => 'تأیید شماره موبایل';
+
+  @override
+  String get authOtpInvalid => 'این کد درست نیست. دوباره تلاش کنید.';
+
+  @override
+  String get authOtpHelp => 'راهنما';
+
+  @override
+  String get authOtpLoading => 'در حال بررسی';
+
+  @override
+  String get authPasswordTitle => 'رمز عبور را وارد کنید';
+
+  @override
+  String get authPasswordSubtitle =>
+      'برای برگشت به بازی، رمز عبور را وارد کنید.';
+
+  @override
+  String get authPasswordLoggingIn => 'ورود به‌عنوان';
+
+  @override
+  String get authPasswordChange => 'تغییر';
+
+  @override
+  String get authPasswordLabel => 'رمز عبور';
+
+  @override
+  String get authPasswordHint => 'رمز عبور را وارد کنید';
+
+  @override
+  String get authPasswordShow => 'نمایش رمز عبور';
+
+  @override
+  String get authPasswordHide => 'پنهان کردن رمز عبور';
+
+  @override
+  String get authPasswordRemember => 'مرا به خاطر بسپار';
+
+  @override
+  String get authPasswordForgot => 'رمز عبور را فراموش کرده‌اید؟';
+
+  @override
+  String get authPasswordLogin => 'ورود';
+
+  @override
+  String get authPasswordInvalid => 'این رمز عبور درست نیست. دوباره تلاش کنید.';
+
+  @override
+  String get authResetWrongEmail => 'ایمیل اشتباه است؟';
+
+  @override
+  String get authResetAction => 'بازنشانی رمز عبور';
+
+  @override
+  String get authResetLoading => 'در حال بازنشانی';
+
+  @override
+  String get authCreateTitle => 'رمز تازه بسازید';
+
+  @override
+  String get authCreateSubtitle => 'رمزی بگذارید که اینجا استفاده نکرده باشید.';
+
+  @override
+  String get authCreatePasswordLabel => 'رمز تازه';
+
+  @override
+  String get authCreatePasswordHint => 'رمز تازه را وارد کنید';
+
+  @override
+  String get authCreateConfirmLabel => 'تکرار رمز';
+
+  @override
+  String get authCreateConfirmHint => 'رمز را دوباره وارد کنید';
+
+  @override
+  String get authCreateSubmit => 'ساخت رمز';
+
+  @override
+  String get authPasswordStrength => 'قدرت رمز';
+
+  @override
+  String get authPasswordWeak => 'ضعیف';
+
+  @override
+  String get authPasswordFair => 'متوسط';
+
+  @override
+  String get authPasswordGood => 'خوب';
+
+  @override
+  String get authPasswordStrong => 'قوی';
+
+  @override
+  String get authPasswordRuleLength => 'حداقل ۸ نویسه';
+
+  @override
+  String get authPasswordRuleNumber => 'حداقل یک عدد';
+
+  @override
+  String get authPasswordRuleCase => 'حرف بزرگ و کوچک';
+
+  @override
+  String get authPasswordRuleSymbol => 'یک نماد (#, !, @, ...)';
+
+  @override
   String get authHomePlaceholder => 'خانه — صفحه در مرحله بعد';
+
+  @override
+  String get homeSectionRecommended => 'پیشنهاد برای شما';
+
+  @override
+  String get homeSectionMultiplayer => 'بازی‌های چندنفره';
+
+  @override
+  String get homeSectionCompetition => 'بازی‌های رقابتی';
+
+  @override
+  String get homeSectionQuests => 'مأموریت و کوئست';
+
+  @override
+  String get homeViewMore => 'مشاهده بیشتر';
+
+  @override
+  String get homeViewAllMissions => 'همه مأموریت‌ها';
+
+  @override
+  String get homePlayNow => 'بازی کن';
+
+  @override
+  String get homeFreeToPlay => 'رایگان';
+
+  @override
+  String get homeInAppPurchases => 'خرید درون‌برنامه‌ای';
+
+  @override
+  String get homePointsUnit => 'امتیاز';
+
+  @override
+  String homeRating(String rating) {
+    return 'امتیاز $rating از ۵';
+  }
+
+  @override
+  String homeGameCard(String name, String creator) {
+    return '$name، $creator';
+  }
+
+  @override
+  String homePageLabel(String page, String count) {
+    return 'صفحه $page از $count';
+  }
+
+  @override
+  String get homeQuestContinue => 'ادامه';
+
+  @override
+  String get homeQuestStart => 'شروع کوئست';
+
+  @override
+  String homeQuestCompleted(String done, String total) {
+    return '$done از $total تکمیل شده';
+  }
+
+  @override
+  String get homeQuestNotStarted => 'هنوز شروع نشده!';
+
+  @override
+  String homeQuestProgress(String done, String total) {
+    return '$done از $total مرحله تکمیل شده';
+  }
+
+  @override
+  String get homeCountdownDay => 'روز';
+
+  @override
+  String get homeCountdownHour => 'ساعت';
+
+  @override
+  String get homeCountdownMinute => 'دقیقه';
+
+  @override
+  String get homeCountdownSecond => 'ثانیه';
+
+  @override
+  String homeCountdownLabel(int days, int hours, int minutes, int seconds) {
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+    final intl.NumberFormat hoursNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+    final intl.NumberFormat minutesNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String minutesString = minutesNumberFormat.format(minutes);
+    final intl.NumberFormat secondsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String secondsString = secondsNumberFormat.format(seconds);
+
+    return 'زمان باقی‌مانده: $daysString روز، $hoursString ساعت، $minutesString دقیقه، $secondsString ثانیه';
+  }
+
+  @override
+  String get homeSectionError => 'این بخش بارگذاری نشد.';
+
+  @override
+  String get homeRetry => 'تلاش دوباره';
+
+  @override
+  String get homeValueUnknown => '—';
+
+  @override
+  String get homeProfile => 'نمایه';
+
+  @override
+  String get homeHelp => 'راهنما';
+
+  @override
+  String get homeAddCoins => 'افزودن سکه';
+
+  @override
+  String homePointsLabel(String points) {
+    return '$points امتیاز';
+  }
+
+  @override
+  String homeCoinsLabel(String coins) {
+    return '$coins سکه';
+  }
+
+  @override
+  String get navHome => 'خانه';
+
+  @override
+  String get navMission => 'مأموریت';
+
+  @override
+  String get navGames => 'بازی‌ها';
+
+  @override
+  String get navLeaderboard => 'رتبه‌بندی';
+
+  @override
+  String get navShop => 'فروشگاه';
+
+  @override
+  String navBadge(String label, String count) {
+    return '$label، $count مورد جدید';
+  }
+
+  @override
+  String shellComingSoon(String name) {
+    return '$name — صفحه در مرحله بعد';
+  }
+
+  @override
+  String get shellGameDetails => 'جزئیات بازی';
+
+  @override
+  String get shellQuestDetails => 'جزئیات کوئست';
+
+  @override
+  String get shellBack => 'بازگشت';
+
+  @override
+  String get gameDownload => 'دانلود و نصب';
+
+  @override
+  String get gameBookmark => 'نشان کردن';
+
+  @override
+  String get gameBookmarked => 'نشان شده';
+
+  @override
+  String get gameReviews => 'نظرها';
+
+  @override
+  String get gameDownloads => 'دانلودها';
+
+  @override
+  String get gameAboutLead => 'درباره';
+
+  @override
+  String get gameReadMore => 'ادامه مطلب';
+
+  @override
+  String get gameReadLess => 'کمتر';
+
+  @override
+  String get gameUpdatedOn => 'به‌روزرسانی';
+
+  @override
+  String get gameAvailableOn => 'در دسترس در';
+
+  @override
+  String get gamePlatformAndroid => 'اندروید';
+
+  @override
+  String get gamePlatformIos => 'iOS';
+
+  @override
+  String get gameEvents => 'رویدادها و پیشنهادها';
+
+  @override
+  String get gameRatings => 'امتیازها و نظرها';
+
+  @override
+  String get gameSeeAll => 'مشاهده همه';
+
+  @override
+  String get gameSeeMoreComments => 'نظرهای بیشتر';
+
+  @override
+  String get gameSummarizedByAi => 'خلاصه هوش مصنوعی';
+
+  @override
+  String get gameLike => 'پسندیدن';
+
+  @override
+  String get gameDislike => 'نپسندیدن';
+
+  @override
+  String get gameMore => 'بیشتر';
+
+  @override
+  String get gameMoreLikeLead => 'مشابه';
+
+  @override
+  String get gameMoreByLead => 'بیشتر از';
+
+  @override
+  String gameSeeAllStudio(String studio) {
+    return 'همه بازی‌های $studio';
+  }
+
+  @override
+  String get gameStudioTitle => 'استودیو';
+
+  @override
+  String get gameOffline => 'اطلاعات ذخیره‌شده نشان داده می‌شود.';
+
+  @override
+  String get gameLoadError => 'این بازی بارگذاری نشد.';
+
+  @override
+  String get gameNotFound => 'این بازی در دسترس نیست.';
+
+  @override
+  String get gameLoading => 'در حال بارگذاری بازی';
+
+  @override
+  String get onboardingSkip => 'رد کردن';
+
+  @override
+  String get onboardingNext => 'بعدی';
+
+  @override
+  String get onboardingStart => 'شروع';
+
+  @override
+  String get onboardingPlayTitle => 'بازی‌هایی که دوست داری';
+
+  @override
+  String get onboardingPlayBody =>
+      'بیش از ۲۰ بازی فوری، بدون دانلود. در چند ثانیه شروع کن.';
+
+  @override
+  String get onboardingQuestTitle => 'مأموریت‌های روزانه';
+
+  @override
+  String get onboardingQuestBody =>
+      'هر گام را پیش از پایان زمان انجام بده تا امتیاز جمع شود.';
+
+  @override
+  String get onboardingClimbTitle => 'بالا برو و جایزه بگیر';
+
+  @override
+  String get onboardingClimbBody =>
+      'در جدول رتبه بگیر و امتیازها را به جایزه تبدیل کن.';
+
+  @override
+  String get onboardingRegisteredMark => '®';
+
+  @override
+  String get onboardingGameSifu => 'Sifu';
+
+  @override
+  String get onboardingGameKings => '9 Kings';
+
+  @override
+  String get onboardingGameDome => 'Dome Keeper';
+
+  @override
+  String get onboardingGameSnack => 'Oh, Snack!';
+
+  @override
+  String get onboardingGameChess => 'Chess';
+
+  @override
+  String get onboardingGameHokm => 'حکم';
+
+  @override
+  String get onboardingGameBackgammon => 'تخته نرد';
+
+  @override
+  String get onboardingGamePoker => 'Poker';
+
+  @override
+  String get onboardingGameRailway => 'Railway Canyon';
+
+  @override
+  String get onboardingGameLetter => 'Letter Burp';
+
+  @override
+  String get onboardingGameGrabby => 'Grabby Crab';
+
+  @override
+  String get onboardingStudioKepler => 'Kepler Interactive';
+
+  @override
+  String get onboardingStudioPlaydigious => 'Playdigious';
+
+  @override
+  String get onboardingStudioRawFury => 'Raw Fury';
+
+  @override
+  String get onboardingStudioTepes => 'Tepes Ovidiu';
+
+  @override
+  String get onboardingStudioChess => 'Chess.com';
+
+  @override
+  String get onboardingStudioToofun => 'Toofun Games';
+
+  @override
+  String get onboardingStudioEasybrain => 'Easybrain';
+
+  @override
+  String get onboardingStudioZynga => 'Zynga';
+
+  @override
+  String get onboardingStudioDarkmater => 'Darkmater';
+
+  @override
+  String get onboardingStudioOlivia => 'Olivia Can';
+
+  @override
+  String get onboardingQuestEnds => 'پایان تا';
+
+  @override
+  String get onboardingQuestSeconds => 'ثانیه';
+
+  @override
+  String get onboardingQuestStepPlay => '۳ دور بازی کن';
+
+  @override
+  String get onboardingQuestStepScore => 'در یک دور ۱٬۰۰۰ امتیاز بگیر';
+
+  @override
+  String get onboardingQuestStepWin => 'بدون اشتباه ببر';
+
+  @override
+  String get onboardingYou => 'تو';
+
+  @override
+  String get authUsernameTitle => 'یک نام کاربری انتخاب کن';
+
+  @override
+  String get authUsernameBody => 'نامی که بقیه می‌بینند.';
+
+  @override
+  String get authUsernameLabel => 'نام مستعار';
+
+  @override
+  String get authUsernameHint => 'نام مستعار خود را اینجا بنویس';
+
+  @override
+  String get authUsernameRule =>
+      '۳ تا ۱۶ حرف یا عدد · بعداً می‌توانی تغییرش بدهی';
+
+  @override
+  String get authUsernameInvalid => 'فقط حرف، عدد و _ (بدون فاصله).';
+
+  @override
+  String get authUsernameShort => 'خیلی کوتاه است. ۳ تا ۱۶ نویسه بنویس.';
+
+  @override
+  String get authUsernameIdeas => 'ایده می‌خواهی؟';
+
+  @override
+  String get authUsernameChecking => 'در حال بررسی';
+
+  @override
+  String get authUsernameAvailable => 'آزاد است';
+
+  @override
+  String get authUsernameTaken => 'آزاد نیست';
+
+  @override
+  String get authAvatarTitle => 'آواتار خود را انتخاب کن';
+
+  @override
+  String get authAvatarBody => 'یکی را که به تو می‌آید بردار.';
+
+  @override
+  String get authSmsTitle => 'کد به‌صورت خودکار وارد شود؟';
+
+  @override
+  String get authSmsBody =>
+      'اجازه بده P2E کد یک‌بارمصرفی را که برایت پیامک می‌کنیم بخواند تا لازم نباشد خودت تایپش کنی.';
+
+  @override
+  String get authSmsItemCode => 'فقط کد یک‌بارمصرف استفاده می‌شود';
+
+  @override
+  String get authSmsItemPrivate => 'هیچ چیز دیگری از پیامک‌هایت ذخیره نمی‌شود';
+
+  @override
+  String get authSmsItemManual => 'همیشه می‌توانی کد را خودت وارد کنی';
+
+  @override
+  String get authSmsAllow => 'اجازه دسترسی به پیامک';
+
+  @override
+  String get authSmsLater => 'الان نه';
+
+  @override
+  String get authAvatarAll => 'همه آواتارها';
+
+  @override
+  String get authAvatarChoose => 'یک آواتار انتخاب کن';
+
+  @override
+  String get authAvatarTheme => 'تغییر تم';
+
+  @override
+  String get authAvatarSheetBody =>
+      'یک شخصیت انتخاب کن، سپس تمش را در صفحه اصلی بگذار.';
+
+  @override
+  String get authAvatarDone => 'تمام';
+
+  @override
+  String get authAvatarMore => 'آواتارهای بیشتر';
+
+  @override
+  String get authAvatarInitial => 'حرف اول';
+
+  @override
+  String get authNotifyTitle => 'هشدار مأموریت و جایزه می‌خواهی؟';
+
+  @override
+  String get authNotifyBody =>
+      'وقتی مأموریتی تمام شود، مأموریت روزانه جدید بیاید یا پرداخت تأیید شود خبر می‌دهیم.';
+
+  @override
+  String get authNotifyAllow => 'اجازه اعلان';
+
+  @override
+  String get authNotifyLater => 'الان نه';
+
+  @override
+  String get authNotifyMission => 'مأموریت تمام شد · امتیازت را بردار';
+
+  @override
+  String get authNotifyDaily => 'مأموریت‌های روزانه جدید آماده‌اند';
+
+  @override
+  String get authNotifyPayment => 'پرداخت تأیید شد و سکه اضافه شد';
+
+  @override
+  String get authAllSetTitle => 'همه چیز آماده است!';
+
+  @override
+  String get authAllSetBody => 'به بازی خوش آمدی،';
+
+  @override
+  String get authAllSetBonus => 'جایزه خوش‌آمد به موجودی اضافه شد';
+
+  @override
+  String get authAllSetPts => 'امتیاز';
+
+  @override
+  String get authAllSetEmail => 'ایمیل تأیید شد';
+
+  @override
+  String get authAllSetPhone => 'شماره تلفن تأیید شد';
+
+  @override
+  String get authAllSetAlertsOn => 'هشدار مأموریت روشن است';
+
+  @override
+  String get authAllSetAlertsOff =>
+      'هشدار مأموریت خاموش است · در تنظیمات روشن کن';
+
+  @override
+  String get authStartPlaying => 'شروع بازی';
+
+  @override
+  String get authWelcomeTitle => 'خوش برگشتی!';
+
+  @override
+  String get authWelcomeBody => 'خوشحالیم که برگشتی،';
+
+  @override
+  String get authWelcomeBodyTail => 'مأموریت‌های امروز منتظرند.';
+
+  @override
+  String get authLetsPlay => 'بزن بریم';
+
+  @override
+  String get authHelpTitle => 'کمک می‌خواهی؟';
+
+  @override
+  String get authHelpBody =>
+      'کد را نگرفتی یا قفل شدی؟ پشتیبانی هر روز از ۹ تا ۲۱ در گفتگوی داخل برنامه جواب می‌دهد.';
+
+  @override
+  String get authHelpClose => 'بستن';
+
+  @override
+  String get authContinueAs => 'ادامه به عنوان';
+
+  @override
+  String get authNotYou => 'شما نیستید؟';
+
+  @override
+  String get legalTerms => 'شرایط و قوانین';
+
+  @override
+  String get legalPrivacy => 'سیاست حریم خصوصی';
+
+  @override
+  String get legalUpdated => 'آخرین به‌روزرسانی ۱۲ اکتبر ۲۰۲۶';
+
+  @override
+  String get legalReadTerms => '۶ دقیقه مطالعه';
+
+  @override
+  String get legalReadPrivacy => '۵ دقیقه مطالعه';
+
+  @override
+  String get legalSummary => 'نسخه کوتاه';
+
+  @override
+  String get legalContents => 'فهرست';
+
+  @override
+  String get legalTitle => 'حقوقی';
+
+  @override
+  String get legalTldr => 'خلاصه';
+
+  @override
+  String get legalGotIt => 'فهمیدم';
+
+  @override
+  String get legalTop => 'بازگشت به بالا';
+
+  @override
+  String get legalTermsSummary =>
+      'برای ساخت حساب و گرفتن امتیاز باید ۱۸ سال یا بیشتر داشته باشید. امتیاز پول نیست.';
+
+  @override
+  String get legalPrivacySummary =>
+      'فقط آنچه برای حساب لازم است جمع می‌کنیم. داده شخصی را نمی‌فروشیم.';
+
+  @override
+  String get legalTermsPoint1 =>
+      'برای ساخت حساب و گرفتن جایزه باید ۱۸ سال یا بیشتر داشته باشی.';
+
+  @override
+  String get legalTermsPoint2 =>
+      'امتیاز با بازی و انجام مأموریت به دست می‌آید. پول نیست و خرید، فروش یا انتقال آن ممکن نیست.';
+
+  @override
+  String get legalTermsPoint3 =>
+      'امتیاز را فقط برای جایزه‌های فروشگاه و طبق قانون همان‌جا می‌توانی عوض کنی.';
+
+  @override
+  String get legalTermsPoint4 =>
+      'تقلب، ربات یا چند حساب می‌تواند امتیاز را از بین ببرد و حساب را ببندد.';
+
+  @override
+  String get legalTermsTitle1 => 'ما که هستیم';
+
+  @override
+  String get legalTermsBody1 =>
+      'این شرایط توافق تو با P2E، گرداننده برنامه، است. با ساخت حساب یا استفاده از برنامه این شرایط را می‌پذیری. اگر موافق نیستی از برنامه استفاده نکن.';
+
+  @override
+  String get legalTermsTitle2 => 'حساب تو';
+
+  @override
+  String get legalTermsBody2 =>
+      'برای ثبت‌نام باید حداقل ۱۸ سال، یا سن قانونی محل زندگی‌ات، داشته باشی. اطلاعات درست بده و ورودت را خصوصی نگه دار. هرچه روی حسابت رخ می‌دهد بر عهده توست. هر نفر یک حساب.';
+
+  @override
+  String get legalTermsTitle3 => 'امتیاز و جایزه';
+
+  @override
+  String get legalTermsBody3 =>
+      'امتیاز یک ویژگی وفاداری است، نه پول. بیرون از برنامه ارزش نقدی ندارد، خریده نمی‌شود و به حساب دیگری منتقل نمی‌شود. جایزه‌های فروشگاه ممکن است عوض شوند، تمام شوند یا شرط خودشان را داشته باشند. ممکن است بعد از ۱۲ ماه بی‌فعالیتی امتیاز منقضی شود و پیش از آن به تو می‌گوییم.';
+
+  @override
+  String get legalTermsTitle4 => 'بازی عادلانه';
+
+  @override
+  String get legalTermsBody4 =>
+      'از تقلب، اسکریپت، شبیه‌ساز، سوءاستفاده یا ربات استفاده نکن و بازی، مأموریت یا دعوت را دستکاری نکن. اگر بازی ناعادلانه ببینیم ممکن است امتیاز مربوط را برداریم، امکان‌ها را محدود کنیم یا حساب را ببندیم. هر تصمیم را می‌توانی از پشتیبانی پیگیری کنی.';
+
+  @override
+  String get legalTermsTitle5 => 'بازی‌های همکاران';
+
+  @override
+  String get legalTermsBody5 =>
+      'بسیاری از بازی‌ها را استودیوهای دیگر ساخته‌اند. شرایط خودشان هنگام بازی اعمال می‌شود و مسئولیت بازی با آن‌هاست. امتیاز روی کارت بازی را P2E می‌دهد، نه استودیو.';
+
+  @override
+  String get legalTermsTitle6 => 'خریدها';
+
+  @override
+  String get legalTermsBody6 =>
+      'بعضی بازی‌ها خرید درون‌برنامه‌ای اختیاری دارند. خرید را فروشگاه برنامه انجام می‌دهد و قانون بازپرداخت همان فروشگاه است. برای گرفتن امتیاز لازم نیست چیزی بخری.';
+
+  @override
+  String get legalTermsTitle7 => 'پایان توافق';
+
+  @override
+  String get legalTermsBody7 =>
+      'هر وقت بخواهی می‌توانی حساب را در تنظیمات حذف کنی. امتیاز استفاده‌نشده با حذف حساب از بین می‌رود. ممکن است حسابی را که این شرایط را می‌شکند معلق یا بسته کنیم.';
+
+  @override
+  String get legalTermsTitle8 => 'مسئولیت';
+
+  @override
+  String get legalTermsBody8 =>
+      'برنامه به همین شکل ارائه می‌شود. تا جایی که قانون اجازه می‌دهد مسئول زیان غیرمستقیم یا قطعی که در اختیار ما نیست نیستیم. هیچ‌چیز اینجا حق مصرف‌کننده تو را محدود نمی‌کند.';
+
+  @override
+  String get legalTermsTitle9 => 'تغییرها';
+
+  @override
+  String get legalTermsBody9 =>
+      'اگر این شرایط را به شکل مهمی عوض کنیم، حداقل ۱۴ روز پیش از اجرا در برنامه خبر می‌دهیم.';
+
+  @override
+  String get legalTermsEnd =>
+      'پرسشی درباره این توافق داری؟ از منوی راهنما در برنامه با پشتیبانی تماس بگیر.';
+
+  @override
+  String get legalPrivacyPoint1 =>
+      'فقط آنچه برای حساب، امتیاز و عادلانه ماندن بازی لازم است جمع می‌کنیم.';
+
+  @override
+  String get legalPrivacyPoint2 => 'داده شخصی را نمی‌فروشیم.';
+
+  @override
+  String get legalPrivacyPoint3 =>
+      'استودیوهای همکار رویداد بازی را بدون نام، ایمیل یا شماره می‌گیرند.';
+
+  @override
+  String get legalPrivacyPoint4 =>
+      'هر وقت بخواهی می‌توانی داده‌ات را از تنظیمات بگیری یا حذف کنی.';
+
+  @override
+  String get legalPrivacyTitle1 => 'چه جمع می‌کنیم';
+
+  @override
+  String get legalPrivacyBody1 =>
+      'جزئیات حسابی که می‌دهی: ایمیل یا شماره، نام کاربری و آواتار. داده بازی: کدام بازی، چقدر، مأموریت‌های تمام‌شده و امتیاز. داده دستگاه: مدل، نسخه سیستم، نسخه برنامه و شناسه‌ای برای بررسی تقلب.';
+
+  @override
+  String get legalPrivacyTitle2 => 'چرا استفاده می‌کنیم';
+
+  @override
+  String get legalPrivacyBody2 =>
+      'برای حساب و کیف، ثبت امتیاز و رساندن جایزه، جلوگیری از تقلب و چند حساب، اعلان‌هایی که روشن کرده‌ای و بهتر کردن برنامه. تکیه ما بر قرارداد با تو، علاقه مشروع به بازی عادلانه و رضایت تو جایی است که قانون لازم دارد.';
+
+  @override
+  String get legalPrivacyTitle3 => 'با چه کسی به اشتراک می‌گذاریم';
+
+  @override
+  String get legalPrivacyBody3 =>
+      'سرویس‌هایی که داده را نگه می‌دارند، کد می‌فرستند و جایزه می‌رسانند، با قراردادی که آن‌ها را به حفاظت موظف می‌کند. استودیوهای همکار فقط رویداد بی‌نام بازی را می‌گیرند. مراجع، وقتی قانون لازم بداند. داده شخصی را نمی‌فروشیم و برای تبلیغ دیگران به اشتراک نمی‌گذاریم.';
+
+  @override
+  String get legalPrivacyTitle4 => 'چقدر نگه می‌داریم';
+
+  @override
+  String get legalPrivacyBody4 =>
+      'تا وقتی حساب فعال است. بعد از حذف حساب، داده شخصی را تا ۳۰ روز برمی‌داریم، جز رکوردهایی که قانون نگه داشتنشان را لازم می‌داند، مثل تراکنش جایزه، که تا ۵ سال می‌ماند.';
+
+  @override
+  String get legalPrivacyTitle5 => 'حق‌های تو';
+
+  @override
+  String get legalPrivacyBody5 =>
+      'می‌توانی داده‌ات را ببینی، اصلاح کنی، بگیری یا حذف کنی، به بعضی استفاده‌ها اعتراض کنی و رضایت را هر وقت پس بگیری. بیشتر این‌ها در تنظیمات، حریم خصوصی است. برای بقیه با پشتیبانی تماس بگیر؛ تا ۳۰ روز جواب می‌دهیم.';
+
+  @override
+  String get legalPrivacyTitle6 => 'امنیت';
+
+  @override
+  String get legalPrivacyBody6 =>
+      'داده در انتقال و نگهداری رمز می‌شود، دسترسی محدود به کسانی است که لازم دارند و سیستم‌ها را منظم آزمایش می‌کنیم. اگر رخنه‌ای به تو مربوط شود، بدون تأخیر بی‌جهت می‌گوییم.';
+
+  @override
+  String get legalPrivacyTitle7 => 'کودکان';
+
+  @override
+  String get legalPrivacyBody7 =>
+      'برنامه برای افراد زیر ۱۸ سال نیست. اگر بفهمیم خردسالی حساب ساخته، آن را می‌بندیم و داده را حذف می‌کنیم.';
+
+  @override
+  String get legalPrivacyTitle8 => 'تغییرها';
+
+  @override
+  String get legalPrivacyBody8 =>
+      'پیش از هر تغییر مهم این سیاست، در برنامه خبر می‌دهیم.';
+
+  @override
+  String get legalPrivacyEnd =>
+      'پرسشی درباره این سیاست داری؟ از منوی راهنما در برنامه با پشتیبانی تماس بگیر.';
+
+  @override
+  String get legalTermsBody =>
+      'این شرایط توافق شما با P2E است. باید حداقل ۱۸ سال داشته باشید. امتیاز یک ویژگی وفاداری است، نه پول. تقلب نکنید. حساب را می‌توانید در تنظیمات حذف کنید.';
+
+  @override
+  String get legalPrivacyBody =>
+      'ایمیل یا شماره، نام کاربری و آواتاری که می‌دهید، به‌علاوه داده بازی و دستگاه برای عادلانه ماندن بازی جمع می‌شود. داده را از تنظیمات می‌توانید دریافت یا حذف کنید.';
+
+  @override
+  String get tourWalletTitle => 'کیف امتیاز';
+
+  @override
+  String get tourWalletBody =>
+      'امتیازی که از بازی‌ها و مأموریت‌ها می‌گیری اینجا نشان داده می‌شود. سکه‌ها امکانات بیشتری باز می‌کنند؛ برای شارژ روی + بزن.';
+
+  @override
+  String get tourFeaturedTitle => 'بازی ویژه';
+
+  @override
+  String get tourFeaturedBody =>
+      'یک بازی دست‌چین برای شروع. روی «شروع بازی» بزن و بدون دانلود وارد شو.';
+
+  @override
+  String get tourScoreTitle => 'امتیاز روی هر بازی';
+
+  @override
+  String get tourScoreBody =>
+      'نشان، امتیازی را که بازی می‌دهد نشان می‌دهد و ستاره، امتیاز بازیکنان دیگر است.';
+
+  @override
+  String get tourQuestsTitle => 'مأموریت‌ها';
+
+  @override
+  String get tourQuestsBody =>
+      'هر گام را پیش از پایان زمان تمام کن تا علاوه بر جایزه بازی، امتیاز اضافه بگیری.';
+
+  @override
+  String get tourNavTitle => 'بقیه چیزها اینجاست';
+
+  @override
+  String get tourNavBody =>
+      'مأموریت‌ها، همه بازی‌ها، دوستان و فروشگاه. نشان قرمز یعنی خبر تازه‌ای منتظر توست.';
+
+  @override
+  String get tourGotIt => 'فهمیدم';
+
+  @override
+  String gameStatsLabel(
+    String rating,
+    String reviews,
+    String downloads,
+    String size,
+  ) {
+    return 'امتیاز $rating، $reviews نظر، $downloads دانلود، $size';
+  }
 }

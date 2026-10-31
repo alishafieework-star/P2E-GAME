@@ -1,5 +1,14 @@
 {
   "decision": "D-056",
   "status": "provisional",
-  "toastDurationMilliseconds": 4000
+  "toastDurationMilliseconds": 4000,
+  "keyboardTransitionDecision": "D-063",
+  "keyboardTransitionMilliseconds": 250,
+  "keyboardTransitionCurve": "easeOut",
+  "socialIconPressDecision": "D-066",
+  "socialIconPressedScale": 1.12,
+  "socialIconPressMilliseconds": 160,
+  "socialIconReleaseMilliseconds": 200,
+  "otpSuccessHoldDecision": "D-070",
+  "otpSuccessHoldMilliseconds": 900
 }

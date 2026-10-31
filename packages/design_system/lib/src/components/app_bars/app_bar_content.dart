@@ -6,11 +6,17 @@ import '../../icons/app_icon.dart';
 import '../../identity/element_identity.dart';
 import '../../interaction/press_action.dart';
 import '../../tokens/app_bar_spec.dart';
+import '../../tokens/button_motion.dart';
 import '../../tokens/generated/readiness_tokens.g.dart';
 import 'app_bar_configuration.dart';
 import 'app_bar_layout.dart';
 
 /// Transparent 64-high content, with no system inset or product side effects.
+/// Public anchor for the Home wallet. The bar does not know about the tour.
+final class AppBarAnchors {
+  static final wallet = GlobalKey(debugLabel: 'appBar.wallet');
+}
+
 class AppBarContent extends StatelessWidget {
   const AppBarContent({
     super.key,
@@ -159,16 +165,20 @@ class _AppBarPresentation extends StatelessWidget {
   final UiRuntimeLocator? runtimeLocator;
   final bool persian;
 
-  Widget surface(String role, Widget child) => DecoratedBox(
-    key: ValueKey('$elementId.$role.surface'),
-    decoration: BoxDecoration(
-      color: spec.color(role),
-      borderRadius: BorderRadiusDirectional.all(
-        Radius.circular(spec.metric(role, 'cornerRadius')),
+  Widget surface(String role, Widget child) {
+    final color = spec.color(role);
+    return DecoratedBox(
+      key: ValueKey('$elementId.$role.surface'),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadiusDirectional.all(
+          Radius.circular(spec.metric(role, 'cornerRadius')),
+        ),
       ),
-    ),
-    child: child,
-  );
+      child: child,
+    );
+  }
+
   Widget icon(String role) => AssetAppIcon(
     spec.icon(role).id,
     key: ValueKey('$elementId.$role.artwork'),
@@ -199,7 +209,7 @@ class _AppBarPresentation extends StatelessWidget {
   Widget action(
     String role,
     AppBarAction data,
-    Widget artwork, {
+    Widget Function(bool pressed, bool hovered) artwork, {
     String? label,
   }) {
     final nodeRole = role == 'profile'
@@ -237,16 +247,7 @@ class _AppBarPresentation extends StatelessWidget {
               )
             : BorderSide.none,
       ),
-      overlayColor: WidgetStateProperty.resolveWith(
-        (states) => focusColor.withValues(
-          alpha:
-              states.contains(WidgetState.hovered) ||
-                  states.contains(WidgetState.focused)
-              ? (AppBarSpec.engineering['interactionOverlayAlpha'] as num)
-                    .toDouble()
-              : 0,
-        ),
-      ),
+      overlayColor: WidgetStatePropertyAll(focusColor.withValues(alpha: 0)),
       splashFactory: NoSplash.splashFactory,
     );
     final text = label ?? data.label;
@@ -287,7 +288,17 @@ class _AppBarPresentation extends StatelessWidget {
             child: PressAction(
               onPressed: data.onPressed,
               style: style,
-              child: IgnorePointer(child: ExcludeSemantics(child: artwork)),
+              pressedScale: role == 'help' || role == 'profile'
+                  ? ButtonMotion.quietPressedScale
+                  : ButtonMotion.iconPressedScale,
+              childBuilder: (_, pressed, hovered) => Opacity(
+                opacity: (role == 'help' || role == 'profile') && pressed
+                    ? ButtonMotion.quietPressedOpacity
+                    : 1,
+                child: IgnorePointer(
+                  child: ExcludeSemantics(child: artwork(pressed, hovered)),
+                ),
+              ),
             ),
           ),
         ),
@@ -295,13 +306,16 @@ class _AppBarPresentation extends StatelessWidget {
     );
   }
 
-  Widget backArtwork() {
+  Widget backArtwork(BuildContext context, bool hovered) {
     // Nested source surface = action's first child; resolved separately from hit region.
     final source = spec.part('backSurface');
+    final hoveredFill = SkinTheme.of(context)
+        .valuesFor(Theme.of(context).brightness)
+        .color('Surface Container/High');
     return DecoratedBox(
       key: ValueKey('$elementId.back.surface'),
       decoration: BoxDecoration(
-        color: spec.paint(source),
+        color: hovered ? hoveredFill : spec.paint(source),
         borderRadius: BorderRadiusDirectional.all(
           Radius.circular((source['cornerRadius'] as num).toDouble()),
         ),
@@ -313,7 +327,7 @@ class _AppBarPresentation extends StatelessWidget {
   Widget downloads(DownloadableGameAppBar game) => action(
     'downloads',
     game.downloads,
-    SizedBox.expand(
+    (_, _) => SizedBox.expand(
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
@@ -457,7 +471,7 @@ class _AppBarPresentation extends StatelessWidget {
             child: action(
               'addCoins',
               home.addCoins,
-              Align(
+              (_, _) => Align(
                 alignment: AlignmentDirectional.centerEnd,
                 child: Padding(
                   padding: EdgeInsetsDirectional.only(
@@ -478,16 +492,19 @@ class _AppBarPresentation extends StatelessWidget {
         ],
       ),
     );
-    return SizedBox(
-      key: ValueKey('$elementId.wallet'),
-      width: layout.walletWidth,
-      height: spec.actionExtent,
-      child: Row(
-        children: [
-          points,
-          SizedBox(width: spec.metric('wallet', 'itemSpacing')),
-          coins,
-        ],
+    return KeyedSubtree(
+      key: AppBarAnchors.wallet,
+      child: SizedBox(
+        key: ValueKey('$elementId.wallet'),
+        width: layout.walletWidth,
+        height: spec.actionExtent,
+        child: Row(
+          children: [
+            points,
+            SizedBox(width: spec.metric('wallet', 'itemSpacing')),
+            coins,
+          ],
+        ),
       ),
     );
   }
@@ -498,22 +515,30 @@ class _AppBarPresentation extends StatelessWidget {
     child: Row(
       children: switch (configuration) {
         final HomeAppBar home => [
-          action('profile', home.profile, avatar(home.avatar)),
+          action('profile', home.profile, (_, _) => avatar(home.avatar)),
           const Spacer(),
           wallet(context, home),
-          action('help', home.help, icon('help')),
+          action('help', home.help, (_, _) => icon('help')),
         ],
         final DownloadableGameAppBar game => [
-          action('back', game.back, backArtwork()),
+          action(
+            'back',
+            game.back,
+            (_, hovered) => backArtwork(context, hovered),
+          ),
           const Spacer(),
           downloads(game),
-          action('bookmark', game.bookmark, icon('bookmark')),
-          action('profile', game.profile, avatar(game.avatar)),
+          action('bookmark', game.bookmark, (_, _) => icon('bookmark')),
+          action('profile', game.profile, (_, _) => avatar(game.avatar)),
         ],
         final BackAppBar bar => [
-          action('back', bar.back, backArtwork()),
+          action(
+            'back',
+            bar.back,
+            (_, hovered) => backArtwork(context, hovered),
+          ),
           const Spacer(),
-          action('help', bar.help, icon('help')),
+          action('help', bar.help, (_, _) => icon('help')),
         ],
       },
     ),

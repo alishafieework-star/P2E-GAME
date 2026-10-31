@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 enum FrameMode { free, fitWindow }
@@ -40,6 +42,7 @@ class FrameSettings {
       disableAnimations: data['disableAnimations'] as bool,
       boldText: data['boldText'] as bool,
       highContrast: data['highContrast'] as bool,
+      testSkin: data['testSkin'] as bool? ?? false,
     );
   }
   const FrameSettings({
@@ -138,8 +141,41 @@ class FrameSettings {
     'disableAnimations': disableAnimations,
     'boldText': boldText,
     'highContrast': highContrast,
+    'testSkin': testSkin,
   };
 }
+
+/// Engineering size probe. Marketing presets stay on [SimulatedDevice.presets].
+class FramePreset {
+  const FramePreset(this.id, this.size, {this.insets, this.settings});
+  final String id;
+  final Size size;
+  final EdgeInsets? insets;
+
+  /// Full device snapshot for a saved preset. Null for a built-in size probe.
+  final FrameSettings? settings;
+}
+
+/// Boundary widths and heights the Android emulator does not enumerate.
+const engineeringPresets = <FramePreset>[
+  FramePreset('navigator-below', Size(251, 800)),
+  FramePreset('navigator-min', Size(252, 800)),
+  FramePreset('navigator-above', Size(253, 800)),
+  FramePreset('compact-edge', Size(599, 800)),
+  FramePreset('medium-min', Size(600, 800)),
+  FramePreset('medium-above', Size(601, 800)),
+  FramePreset('medium-edge', Size(839, 900)),
+  FramePreset('expanded-min', Size(840, 900)),
+  FramePreset('expanded-above', Size(841, 900)),
+  FramePreset('short', Size(360, 300)),
+  FramePreset('tall', Size(360, 1400)),
+  FramePreset('landscape', Size(874, 402)),
+  FramePreset(
+    'asymmetric-inset',
+    Size(402, 874),
+    insets: EdgeInsets.fromLTRB(40, 12, 8, 48),
+  ),
+];
 
 /// Scriptable state driver. No app callbacks, navigation, or input injection.
 class SimulatedDevice extends ChangeNotifier {
@@ -159,6 +195,7 @@ class SimulatedDevice extends ChangeNotifier {
     Size(820, 1180),
     Size(1024, 1366),
   ];
+  final List<FramePreset> customPresets = [];
   void apply(FrameSettings value) {
     settings = value.copyWith(
       size: Size(
@@ -187,18 +224,61 @@ class SimulatedDevice extends ChangeNotifier {
     notifyListeners();
   }
 
+  static EdgeInsets insetsFor(Size value) => value == const Size(320, 568)
+      ? const EdgeInsets.fromLTRB(0, 20, 0, 0)
+      : value.width < 600
+      ? const EdgeInsets.fromLTRB(0, 24, 0, 24)
+      : const EdgeInsets.fromLTRB(0, 24, 0, 20);
+
   void preset(Size value) {
     mode = FrameMode.free;
+    apply(settings.copyWith(size: value, insets: insetsFor(value)));
+  }
+
+  void applyPreset(FramePreset preset) {
+    mode = FrameMode.free;
+    final saved = preset.settings;
+    if (saved != null) {
+      apply(saved);
+      return;
+    }
     apply(
       settings.copyWith(
-        size: value,
-        insets: value == const Size(320, 568)
-            ? const EdgeInsets.fromLTRB(0, 20, 0, 0)
-            : value.width < 600
-            ? const EdgeInsets.fromLTRB(0, 24, 0, 24)
-            : const EdgeInsets.fromLTRB(0, 24, 0, 20),
+        size: preset.size,
+        insets: preset.insets ?? insetsFor(preset.size),
       ),
     );
+  }
+
+  void rememberPreset(String id) {
+    customPresets.removeWhere((preset) => preset.id == id);
+    customPresets.add(FramePreset(id, settings.size, settings: settings));
+    notifyListeners();
+  }
+
+  String exportPresets() => const JsonEncoder.withIndent('  ').convert({
+    'format': 'p2e-inspector-presets-v1',
+    'presets': [
+      for (final preset in customPresets)
+        {'id': preset.id, 'settings': preset.settings!.toJson()},
+    ],
+  });
+
+  void importPresets(String raw) {
+    final data = jsonDecode(raw);
+    if (data is! Map || data['format'] != 'p2e-inspector-presets-v1') {
+      throw const FormatException('Unsupported preset document');
+    }
+    final presets = data['presets'];
+    if (presets is! List) throw const FormatException('Preset list missing');
+    for (final item in presets) {
+      if (item is! Map) continue;
+      final settings = FrameSettings.fromJson(item['settings'] as Map);
+      final id = item['id'] as String;
+      customPresets.removeWhere((preset) => preset.id == id);
+      customPresets.add(FramePreset(id, settings.size, settings: settings));
+    }
+    notifyListeners();
   }
 
   void rotate() {

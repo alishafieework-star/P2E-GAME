@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../identity/element_identity.dart';
 import '../theme/skin_theme.dart';
 import '../tokens/generated/adaptive_tokens.g.dart';
+import 'page_motion.dart';
 import 'size_class.dart';
 
 enum PageScaffoldLayout { scrolling, viewport }
@@ -15,10 +16,12 @@ class PageScaffold extends StatelessWidget {
     required this.child,
     this.runtimeLocator,
     this.layout = PageScaffoldLayout.scrolling,
+    this.appBar,
   });
   final String elementId;
   final UiRuntimeLocator? runtimeLocator;
   final Widget child;
+  final PreferredSizeWidget? appBar;
 
   /// D-056: bounded viewport for edge-to-edge hero and keyboard-pinned actions.
   /// The default retains the original SafeArea/scroll/content-cap behavior.
@@ -26,6 +29,7 @@ class PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sizeClass = SizeClass.of(context);
+    final motion = PageMotionScope.maybeOf(context);
     return ElementIdentity(
       elementId: elementId,
       runtimeLocator: UiIdentityScope.resolve(
@@ -46,30 +50,42 @@ class PageScaffold extends StatelessWidget {
       resolved: {'sizeClass': sizeClass.name},
       declared: const {},
       child: Scaffold(
-        backgroundColor: layout == PageScaffoldLayout.viewport
+        appBar: appBar == null || motion == null
+            ? appBar
+            : PreferredSize(
+                preferredSize: appBar!.preferredSize,
+                child: PageBarMotion(child: appBar!),
+              ),
+        // D-145: while a route moves, the page below must stay visible.
+        backgroundColor: motion != null
+            ? const Color(0x00000000)
+            : layout == PageScaffoldLayout.viewport
             ? SkinTheme.of(context)
                   .valuesFor(Theme.of(context).brightness)
                   .color('Surface/Base')
             : null,
         resizeToAvoidBottomInset: true,
-        body: layout == PageScaffoldLayout.viewport
-            ? child
-            : SafeArea(
-                child: Align(
-                  alignment: AlignmentDirectional.topCenter,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: sizeClass == SizeClass.compact
-                          ? double.infinity
-                          : AdaptiveTokens.contentMaxWidth,
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: SingleChildScrollView(child: child),
+        body: PageBodyMotion(
+          child: layout == PageScaffoldLayout.viewport
+              ? child
+              : SafeArea(
+                  top: appBar == null,
+                  child: Align(
+                    alignment: AlignmentDirectional.topCenter,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: sizeClass == SizeClass.compact
+                            ? double.infinity
+                            : AdaptiveTokens.contentMaxWidth,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: SingleChildScrollView(child: child),
+                      ),
                     ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }

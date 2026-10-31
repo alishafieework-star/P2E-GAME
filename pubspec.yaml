@@ -13,8 +13,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.0.0
+  flutter_svg: ^2.2.0
   go_router: ^18.1.1
   intl: ^0.20.3
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.1
   p2e_design_system:
     path: packages/design_system
   riverpod_annotation: ^4.0.7
@@ -23,6 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  crypto: 3.0.7
   flutter_lints: ^6.0.0
   riverpod_generator: ^4.0.9
   riverpod_lint: ^3.1.9
@@ -30,6 +34,21 @@ dev_dependencies:
 flutter:
   # Bundled framework font for the accepted native text-selection toolbar.
   # Product control artwork continues to use Figma SVGs through AppIcon only.
+  # D-067: Auth Entry hero and brand artwork belong to the feature.
   uses-material-design: true
   generate: true
+  assets:
+    - assets/images/auth/
+    - assets/images/brand/logo/
+    - assets/images/onboarding/
+    - assets/images/onboarding/cards/
+    - assets/images/avatars/
+    - assets/icons/brands/
+    - assets/icons/platforms/
+    # D-150: served by the in-app development media/API servers in fake mode;
+    # product UI never references these keys and remote builds tree-shake the
+    # servers that read them.
+    - docs/snapshots/2026-10-24_home/assets/
+    - docs/snapshots/2026-10-25_game-details/assets/
+    - tool/fake_backend/fixtures/games/
 

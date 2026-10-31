@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/button_theme_tokens.dart';
+import '../button_motion.dart';
 import '../generated/button_tokens.g.dart';
 import 'generated/app_button_spec.g.dart';
 
@@ -13,6 +14,9 @@ enum AppButtonType { filled, tonal, outlined, text, disabled }
 /// D-056: accent is a provisional screen-instance color role, not a new source row.
 enum AppButtonTone { source, accent }
 
+/// D-136. Play Now keeps the Figma rest paint and uses the HTML hover and press.
+enum AppButtonFeedback { standard, playNow }
+
 /// Figma: none = Icon:false; fill/outline = Icon:true and one visible child.
 enum ButtonIconMode { none, fill, outline }
 
@@ -21,23 +25,34 @@ class ButtonSpec {
   const ButtonSpec(this.data);
   final Map<String, dynamic> data;
 
-  static List<ButtonSpec> get all => [
+  static final List<ButtonSpec> all = [
     for (final row in appButtonSpecData['variants'] as List)
       ButtonSpec(row as Map<String, dynamic>),
   ];
+
+  /// O(1) variant access; the 90-row source list is built once and keyed by
+  /// the lookup axes, so a button build no longer re-wraps every variant.
+  static final Map<
+    (AppButtonFamily, AppButtonSize, AppButtonType, Brightness),
+    ButtonSpec
+  >
+  _byVariant = {
+    for (final spec in all)
+      (spec.family, spec.size, spec.type, spec.brightness): spec,
+  };
 
   static ButtonSpec lookup({
     required AppButtonFamily family,
     required AppButtonSize size,
     required AppButtonType type,
     required Brightness brightness,
-  }) => all.singleWhere(
-    (s) =>
-        s.family == family &&
-        s.size == size &&
-        s.type == type &&
-        s.brightness == brightness,
-  );
+  }) {
+    final spec = _byVariant[(family, size, type, brightness)];
+    if (spec == null) {
+      throw StateError('No Button variant $family/$size/$type/$brightness');
+    }
+    return spec;
+  }
 
   String get id => data['variantId'] as String;
   String get setId => data['componentSetId'] as String;
@@ -184,6 +199,7 @@ class ResolvedButtonStyle {
     required this.sourceForeground,
     required this.sourceIconColor,
     required this.readabilityOverride,
+    this.hoverBackground,
   });
   final ButtonSpec spec;
   final ButtonIconMode iconMode;
@@ -193,6 +209,21 @@ class ResolvedButtonStyle {
   final BorderSide border;
   final Color sourceForeground, sourceIconColor;
   final bool readabilityOverride;
+  final Color? hoverBackground;
+
+  ResolvedButtonStyle copyWith({Color? hoverBackground}) => ResolvedButtonStyle(
+    spec: spec,
+    iconMode: iconMode,
+    background: background,
+    foreground: foreground,
+    iconColor: iconColor,
+    border: border,
+    sourceForeground: sourceForeground,
+    sourceIconColor: sourceIconColor,
+    readabilityOverride: readabilityOverride,
+    hoverBackground: hoverBackground ?? this.hoverBackground,
+  );
+
   Map<String, Object?>? get engineeringOverride => readabilityOverride
       ? {
           'decision': 'D-029',
@@ -208,7 +239,14 @@ class ResolvedButtonStyle {
       : null;
 
   ButtonStyle get material => ButtonStyle(
-    backgroundColor: WidgetStatePropertyAll(background),
+    backgroundColor: WidgetStateProperty.resolveWith(
+      (states) =>
+          hoverBackground != null &&
+              states.contains(WidgetState.hovered) &&
+              !states.contains(WidgetState.disabled)
+          ? hoverBackground
+          : background,
+    ),
     foregroundColor: WidgetStatePropertyAll(foreground),
     textStyle: WidgetStatePropertyAll(spec.textStyle),
     minimumSize: WidgetStatePropertyAll(
@@ -230,7 +268,9 @@ class ResolvedButtonStyle {
     shadowColor: WidgetStatePropertyAll(foreground.withValues(alpha: 0)),
     surfaceTintColor: WidgetStatePropertyAll(foreground.withValues(alpha: 0)),
     splashFactory: NoSplash.splashFactory,
-    animationDuration: Duration.zero,
+    animationDuration: hoverBackground == null
+        ? Duration.zero
+        : ButtonMotion.hoverDuration,
     visualDensity: VisualDensity.standard,
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     alignment: AlignmentDirectional.center,

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="pod-svg" width="370" height="120" viewBox="0 0 370 120" fill="none" aria-hidden="true">
+<mask id="podMask" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="370" height="120"><rect width="370" height="120" fill="url(#podFade)"/></mask>
+<g mask="url(#podMask)">
+<path d="M120 120V60H0V120H120Z" fill="#171717"/>
+<path d="M250 85V120H370V85H250Z" fill="#171717"/>
+<path d="M250 20H120V40V60V120H250V85V65V20Z" fill="#262626"/>
+<path d="M340 65H250V85H370L340 65Z" fill="#262626"/>
+<path d="M120 40H30.5L0 60H120V40Z" fill="#262626"/>
+<path d="M120 20H250L230 0H140L120 20Z" fill="#404040"/>
+<g filter="url(#podBlur)"><ellipse cx="185" cy="10" rx="45" ry="8" fill="url(#podSh1)" fill-opacity="0.8"/></g>
+<g filter="url(#podBlur)"><ellipse cx="65" cy="50" rx="35" ry="8" fill="url(#podSh2)" fill-opacity="0.8"/></g>
+<g filter="url(#podBlur)"><ellipse cx="306" cy="75" rx="35" ry="8" fill="url(#podSh3)" fill-opacity="0.8"/></g>
+<g fill="#A1A1A1" font-family="Outfit, sans-serif" font-weight="600" text-anchor="middle">
+<text x="64" y="103.8" font-size="40">2</text>
+<text x="185" y="88.2" font-size="60">1</text>
+<text x="309" y="114.1" font-size="30">3</text>
+</g></g>
+<defs>
+<filter id="podBlur" x="-30%" y="-120%" width="160%" height="340%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="5"/></filter>
+<linearGradient id="podFade" x1="185" y1="0" x2="185" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient>
+<radialGradient id="podSh1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(185 10) scale(45 8)"><stop/><stop offset="1" stop-opacity="0"/></radialGradient>
+<radialGradient id="podSh2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(65 50) scale(35 8)"><stop/><stop offset="1" stop-opacity="0"/></radialGradient>
+<radialGradient id="podSh3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(306 75) scale(35 8)"><stop/><stop offset="1" stop-opacity="0"/></radialGradient>
+</defs></svg>

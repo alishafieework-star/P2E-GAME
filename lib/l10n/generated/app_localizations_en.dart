@@ -137,5 +137,935 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authBack => 'Back';
 
   @override
+  String get authOtpTitle => 'Check Your Inbox';
+
+  @override
+  String get authOtpSubtitleLead => 'Enter the code we sent to ';
+
+  @override
+  String get authOtpSubtitleEnd => '.';
+
+  @override
+  String get authOtpLabel => 'One-time code';
+
+  @override
+  String get authOtpResendPrompt => 'Didn’t get it?';
+
+  @override
+  String get authOtpResend => 'Resend code';
+
+  @override
+  String get authOtpWrongPhone => 'Wrong Phone?';
+
+  @override
+  String get authOtpChange => 'Change it';
+
+  @override
+  String get authOtpVerify => 'Verify Phone Number';
+
+  @override
+  String get authOtpInvalid => 'That code is not correct. Please try again.';
+
+  @override
+  String get authOtpHelp => 'Help';
+
+  @override
+  String get authOtpLoading => 'Verifying';
+
+  @override
+  String get authPasswordTitle => 'Enter Your Password';
+
+  @override
+  String get authPasswordSubtitle =>
+      'Enter your password to jump back into the game.';
+
+  @override
+  String get authPasswordLoggingIn => 'Logging in as';
+
+  @override
+  String get authPasswordChange => 'Change';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authPasswordHint => 'Enter your password';
+
+  @override
+  String get authPasswordShow => 'Show password';
+
+  @override
+  String get authPasswordHide => 'Hide password';
+
+  @override
+  String get authPasswordRemember => 'Remember me';
+
+  @override
+  String get authPasswordForgot => 'Forgot password?';
+
+  @override
+  String get authPasswordLogin => 'Login';
+
+  @override
+  String get authPasswordInvalid =>
+      'That password is not correct. Please try again.';
+
+  @override
+  String get authResetWrongEmail => 'Wrong Email?';
+
+  @override
+  String get authResetAction => 'Reset Password';
+
+  @override
+  String get authResetLoading => 'Resetting password';
+
+  @override
+  String get authCreateTitle => 'Set a New Password';
+
+  @override
+  String get authCreateSubtitle =>
+      'Use something you haven\'t used here before.';
+
+  @override
+  String get authCreatePasswordLabel => 'New Password';
+
+  @override
+  String get authCreatePasswordHint => 'Enter new password';
+
+  @override
+  String get authCreateConfirmLabel => 'Confirm Password';
+
+  @override
+  String get authCreateConfirmHint => 'Confirm your password';
+
+  @override
+  String get authCreateSubmit => 'Create Password';
+
+  @override
+  String get authPasswordStrength => 'Password strength';
+
+  @override
+  String get authPasswordWeak => 'Weak';
+
+  @override
+  String get authPasswordFair => 'Fair';
+
+  @override
+  String get authPasswordGood => 'Good';
+
+  @override
+  String get authPasswordStrong => 'Strong';
+
+  @override
+  String get authPasswordRuleLength => '8+ characters';
+
+  @override
+  String get authPasswordRuleNumber => 'At least a number';
+
+  @override
+  String get authPasswordRuleCase => 'Upper & lowercase';
+
+  @override
+  String get authPasswordRuleSymbol => 'A symbol (#, !, @, ...)';
+
+  @override
   String get authHomePlaceholder => 'Home — screen coming next';
+
+  @override
+  String get homeSectionRecommended => 'Recommended for You';
+
+  @override
+  String get homeSectionMultiplayer => 'Multiplayer Games';
+
+  @override
+  String get homeSectionCompetition => 'Competition Games';
+
+  @override
+  String get homeSectionQuests => 'Mission and Quest';
+
+  @override
+  String get homeViewMore => 'View More';
+
+  @override
+  String get homeViewAllMissions => 'View All Missions';
+
+  @override
+  String get homePlayNow => 'Play Now';
+
+  @override
+  String get homeFreeToPlay => 'Free to Play';
+
+  @override
+  String get homeInAppPurchases => 'In-app Purchases';
+
+  @override
+  String get homePointsUnit => 'pts';
+
+  @override
+  String homeRating(String rating) {
+    return 'Rated $rating out of 5';
+  }
+
+  @override
+  String homeGameCard(String name, String creator) {
+    return '$name, $creator';
+  }
+
+  @override
+  String homePageLabel(String page, String count) {
+    return 'Page $page of $count';
+  }
+
+  @override
+  String get homeQuestContinue => 'Continue';
+
+  @override
+  String get homeQuestStart => 'Start Quest';
+
+  @override
+  String homeQuestCompleted(String done, String total) {
+    return 'Completed $done of $total';
+  }
+
+  @override
+  String get homeQuestNotStarted => 'Not Started Yet!';
+
+  @override
+  String homeQuestProgress(String done, String total) {
+    return '$done of $total steps completed';
+  }
+
+  @override
+  String get homeCountdownDay => 'Day';
+
+  @override
+  String get homeCountdownHour => 'Hour';
+
+  @override
+  String get homeCountdownMinute => 'Minute';
+
+  @override
+  String get homeCountdownSecond => 'Second';
+
+  @override
+  String homeCountdownLabel(int days, int hours, int minutes, int seconds) {
+    final intl.NumberFormat daysNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String daysString = daysNumberFormat.format(days);
+    final intl.NumberFormat hoursNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+    final intl.NumberFormat minutesNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String minutesString = minutesNumberFormat.format(minutes);
+    final intl.NumberFormat secondsNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String secondsString = secondsNumberFormat.format(seconds);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$daysString days',
+      one: '1 day',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hoursString hours',
+      one: '1 hour',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutesString minutes',
+      one: '1 minute',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: '$secondsString seconds',
+      one: '1 second',
+    );
+    return 'Time left: $_temp0, $_temp1, $_temp2, $_temp3';
+  }
+
+  @override
+  String get homeSectionError => 'This section couldn\'t load.';
+
+  @override
+  String get homeRetry => 'Try again';
+
+  @override
+  String get homeValueUnknown => '—';
+
+  @override
+  String get homeProfile => 'Profile';
+
+  @override
+  String get homeHelp => 'Help';
+
+  @override
+  String get homeAddCoins => 'Add coins';
+
+  @override
+  String homePointsLabel(String points) {
+    return '$points points';
+  }
+
+  @override
+  String homeCoinsLabel(String coins) {
+    return '$coins coins';
+  }
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMission => 'Mission';
+
+  @override
+  String get navGames => 'Games';
+
+  @override
+  String get navLeaderboard => 'Leaderboard';
+
+  @override
+  String get navShop => 'Shop';
+
+  @override
+  String navBadge(String label, String count) {
+    return '$label, $count new';
+  }
+
+  @override
+  String shellComingSoon(String name) {
+    return '$name — screen coming next';
+  }
+
+  @override
+  String get shellGameDetails => 'Game details';
+
+  @override
+  String get shellQuestDetails => 'Quest details';
+
+  @override
+  String get shellBack => 'Back';
+
+  @override
+  String get gameDownload => 'Download and Install';
+
+  @override
+  String get gameBookmark => 'Bookmark';
+
+  @override
+  String get gameBookmarked => 'Bookmarked';
+
+  @override
+  String get gameReviews => 'Reviews';
+
+  @override
+  String get gameDownloads => 'Downloads';
+
+  @override
+  String get gameAboutLead => 'About';
+
+  @override
+  String get gameReadMore => 'Read More';
+
+  @override
+  String get gameReadLess => 'Show less';
+
+  @override
+  String get gameUpdatedOn => 'Updated On';
+
+  @override
+  String get gameAvailableOn => 'Available On';
+
+  @override
+  String get gamePlatformAndroid => 'Android';
+
+  @override
+  String get gamePlatformIos => 'iOS';
+
+  @override
+  String get gameEvents => 'Events & Offers';
+
+  @override
+  String get gameRatings => 'Ratings & Reviews';
+
+  @override
+  String get gameSeeAll => 'See All';
+
+  @override
+  String get gameSeeMoreComments => 'See More Comments';
+
+  @override
+  String get gameSummarizedByAi => 'Summarized by AI';
+
+  @override
+  String get gameLike => 'Like';
+
+  @override
+  String get gameDislike => 'Dislike';
+
+  @override
+  String get gameMore => 'More';
+
+  @override
+  String get gameMoreLikeLead => 'More Like';
+
+  @override
+  String get gameMoreByLead => 'More by';
+
+  @override
+  String gameSeeAllStudio(String studio) {
+    return 'See All $studio Games';
+  }
+
+  @override
+  String get gameStudioTitle => 'Studio';
+
+  @override
+  String get gameOffline => 'Showing saved information.';
+
+  @override
+  String get gameLoadError => 'This game couldn\'t load.';
+
+  @override
+  String get gameNotFound => 'This game is not available.';
+
+  @override
+  String get gameLoading => 'Loading game';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get Started';
+
+  @override
+  String get onboardingPlayTitle => 'Play Games You Love';
+
+  @override
+  String get onboardingPlayBody =>
+      '20+ instant games, no downloads. Jump in and start playing in seconds.';
+
+  @override
+  String get onboardingQuestTitle => 'Complete Daily Quests';
+
+  @override
+  String get onboardingQuestBody =>
+      'Clear each step of a game quest before the timer runs out to stack up points.';
+
+  @override
+  String get onboardingClimbTitle => 'Climb & Get Rewarded';
+
+  @override
+  String get onboardingClimbBody =>
+      'Rank up on the leaderboard and turn your points into real rewards.';
+
+  @override
+  String get onboardingRegisteredMark => '®';
+
+  @override
+  String get onboardingGameSifu => 'Sifu';
+
+  @override
+  String get onboardingGameKings => '9 Kings';
+
+  @override
+  String get onboardingGameDome => 'Dome Keeper';
+
+  @override
+  String get onboardingGameSnack => 'Oh, Snack!';
+
+  @override
+  String get onboardingGameChess => 'Chess';
+
+  @override
+  String get onboardingGameHokm => 'Hokm';
+
+  @override
+  String get onboardingGameBackgammon => 'Backgammon';
+
+  @override
+  String get onboardingGamePoker => 'Poker';
+
+  @override
+  String get onboardingGameRailway => 'Railway Canyon';
+
+  @override
+  String get onboardingGameLetter => 'Letter Burp';
+
+  @override
+  String get onboardingGameGrabby => 'Grabby Crab';
+
+  @override
+  String get onboardingStudioKepler => 'Kepler Interactive';
+
+  @override
+  String get onboardingStudioPlaydigious => 'Playdigious';
+
+  @override
+  String get onboardingStudioRawFury => 'Raw Fury';
+
+  @override
+  String get onboardingStudioTepes => 'Tepes Ovidiu';
+
+  @override
+  String get onboardingStudioChess => 'Chess.com';
+
+  @override
+  String get onboardingStudioToofun => 'Toofun Games';
+
+  @override
+  String get onboardingStudioEasybrain => 'Easybrain';
+
+  @override
+  String get onboardingStudioZynga => 'Zynga';
+
+  @override
+  String get onboardingStudioDarkmater => 'Darkmater';
+
+  @override
+  String get onboardingStudioOlivia => 'Olivia Can';
+
+  @override
+  String get onboardingQuestEnds => 'Ends in';
+
+  @override
+  String get onboardingQuestSeconds => 'sec';
+
+  @override
+  String get onboardingQuestStepPlay => 'Play 3 rounds';
+
+  @override
+  String get onboardingQuestStepScore => 'Score 1,000 in one run';
+
+  @override
+  String get onboardingQuestStepWin => 'Win without a miss';
+
+  @override
+  String get onboardingYou => 'You';
+
+  @override
+  String get authUsernameTitle => 'Choose a Username';
+
+  @override
+  String get authUsernameBody => 'Pick a name others will see.';
+
+  @override
+  String get authUsernameLabel => 'Nickname';
+
+  @override
+  String get authUsernameHint => 'Enter your nickname here';
+
+  @override
+  String get authUsernameRule =>
+      '3–16 letters or numbers · You can change it later';
+
+  @override
+  String get authUsernameInvalid =>
+      'Use only letters, numbers and _ (no spaces).';
+
+  @override
+  String get authUsernameShort => 'Too short. Use 3–16 characters.';
+
+  @override
+  String get authUsernameIdeas => 'Need ideas?';
+
+  @override
+  String get authUsernameChecking => 'Checking';
+
+  @override
+  String get authUsernameAvailable => 'Available';
+
+  @override
+  String get authUsernameTaken => 'Not Available';
+
+  @override
+  String get authAvatarTitle => 'Pick Your Avatar';
+
+  @override
+  String get authAvatarBody => 'Choose one that feels like you.';
+
+  @override
+  String get authSmsTitle => 'Fill in your code automatically?';
+
+  @override
+  String get authSmsBody =>
+      'Let P2E read the one-time code we text you, so you don\'t have to type it.';
+
+  @override
+  String get authSmsItemCode => 'Only the one-time code is used';
+
+  @override
+  String get authSmsItemPrivate => 'Nothing else from your messages is stored';
+
+  @override
+  String get authSmsItemManual => 'You can always type the code yourself';
+
+  @override
+  String get authSmsAllow => 'Allow SMS Access';
+
+  @override
+  String get authSmsLater => 'Not Now';
+
+  @override
+  String get authAvatarAll => 'All Avatars';
+
+  @override
+  String get authAvatarChoose => 'Choose an Avatar';
+
+  @override
+  String get authAvatarTheme => 'Change Theme';
+
+  @override
+  String get authAvatarSheetBody =>
+      'Pick a character, then choose its theme on the main screen.';
+
+  @override
+  String get authAvatarDone => 'Done';
+
+  @override
+  String get authAvatarMore => 'More avatars';
+
+  @override
+  String get authAvatarInitial => 'Initial';
+
+  @override
+  String get authNotifyTitle => 'Get mission and reward alerts?';
+
+  @override
+  String get authNotifyBody =>
+      'We\'ll tell you when a mission is done, new daily missions arrive, or a payment is confirmed.';
+
+  @override
+  String get authNotifyAllow => 'Allow Notifications';
+
+  @override
+  String get authNotifyLater => 'Not Now';
+
+  @override
+  String get authNotifyMission => 'Mission complete · claim your Points';
+
+  @override
+  String get authNotifyDaily => 'New daily missions are ready';
+
+  @override
+  String get authNotifyPayment => 'Payment confirmed and Coins added';
+
+  @override
+  String get authAllSetTitle => 'You\'re All Set!';
+
+  @override
+  String get authAllSetBody => 'Welcome to the game,';
+
+  @override
+  String get authAllSetBonus => 'Welcome bonus added to your balance';
+
+  @override
+  String get authAllSetPts => 'pts';
+
+  @override
+  String get authAllSetEmail => 'Email address verified';
+
+  @override
+  String get authAllSetPhone => 'Phone number verified';
+
+  @override
+  String get authAllSetAlertsOn => 'Mission alerts on';
+
+  @override
+  String get authAllSetAlertsOff => 'Mission alerts off · turn on in Settings';
+
+  @override
+  String get authStartPlaying => 'Start Playing';
+
+  @override
+  String get authWelcomeTitle => 'Welcome Back!';
+
+  @override
+  String get authWelcomeBody => 'Good to see you,';
+
+  @override
+  String get authWelcomeBodyTail => 'Your daily missions are waiting.';
+
+  @override
+  String get authLetsPlay => 'Lets Play';
+
+  @override
+  String get authHelpTitle => 'Need help?';
+
+  @override
+  String get authHelpBody =>
+      'Can\'t get your code, or locked out? Our support team answers in the in-app chat every day, 9:00–21:00.';
+
+  @override
+  String get authHelpClose => 'Close';
+
+  @override
+  String get authContinueAs => 'Continue as';
+
+  @override
+  String get authNotYou => 'Not You?';
+
+  @override
+  String get legalTerms => 'Terms & Conditions';
+
+  @override
+  String get legalPrivacy => 'Privacy Policy';
+
+  @override
+  String get legalUpdated => 'Last updated October 12, 2026';
+
+  @override
+  String get legalReadTerms => '6 min read';
+
+  @override
+  String get legalReadPrivacy => '5 min read';
+
+  @override
+  String get legalSummary => 'The short version';
+
+  @override
+  String get legalContents => 'Contents';
+
+  @override
+  String get legalTitle => 'Legal';
+
+  @override
+  String get legalTldr => 'TL;DR';
+
+  @override
+  String get legalGotIt => 'Got it';
+
+  @override
+  String get legalTop => 'Back to top';
+
+  @override
+  String get legalTermsSummary =>
+      'You need to be 18 or older to create an account and earn rewards. Points are not money.';
+
+  @override
+  String get legalPrivacySummary =>
+      'We collect only what we need to run your account. We never sell your personal data.';
+
+  @override
+  String get legalTermsPoint1 =>
+      'You need to be 18 or older to create an account and earn rewards.';
+
+  @override
+  String get legalTermsPoint2 =>
+      'Points are earned by playing and completing quests. They are not money and cannot be bought, sold or transferred.';
+
+  @override
+  String get legalTermsPoint3 =>
+      'You can redeem points only for rewards listed in the Shop, under the rules shown there.';
+
+  @override
+  String get legalTermsPoint4 =>
+      'Cheating, bots or multiple accounts can lead to lost points and a closed account.';
+
+  @override
+  String get legalTermsTitle1 => 'Who we are';
+
+  @override
+  String get legalTermsBody1 =>
+      'These Terms are an agreement between you and P2E, the operator of the app. By creating an account or using the app you accept these Terms. If you do not agree, please do not use the app.';
+
+  @override
+  String get legalTermsTitle2 => 'Your account';
+
+  @override
+  String get legalTermsBody2 =>
+      'You must be at least 18, or the age of majority where you live, to register. Give accurate details and keep your login private. You are responsible for everything that happens on your account. One person, one account.';
+
+  @override
+  String get legalTermsTitle3 => 'Points and rewards';
+
+  @override
+  String get legalTermsBody3 =>
+      'Points are a loyalty feature, not currency. They have no cash value outside the app, cannot be purchased, and cannot be moved to another account. Rewards in the Shop may change, sell out or have their own conditions. We may expire points after 12 months of account inactivity and will tell you before that happens.';
+
+  @override
+  String get legalTermsTitle4 => 'Fair play';
+
+  @override
+  String get legalTermsBody4 =>
+      'Do not use cheats, scripts, emulators, exploits or bots, and do not manipulate games, quests or referrals. If we find unfair play we may remove the points involved, limit features or close the account. You can appeal any decision through Support.';
+
+  @override
+  String get legalTermsTitle5 => 'Games from partners';
+
+  @override
+  String get legalTermsBody5 =>
+      'Many games are made by other studios. Their own terms and rules apply while you play them, and they are responsible for their games. Points shown on a game card are paid by P2E, not by the studio.';
+
+  @override
+  String get legalTermsTitle6 => 'Purchases';
+
+  @override
+  String get legalTermsBody6 =>
+      'Some games offer optional in-app purchases. Purchases are handled by the app store you use and follow its refund rules. Buying anything is never required to earn points.';
+
+  @override
+  String get legalTermsTitle7 => 'Ending the agreement';
+
+  @override
+  String get legalTermsBody7 =>
+      'You can delete your account at any time in Settings. Unredeemed points are lost when the account is deleted. We may suspend or close accounts that break these Terms.';
+
+  @override
+  String get legalTermsTitle8 => 'Liability';
+
+  @override
+  String get legalTermsBody8 =>
+      'The app is provided as is. To the extent the law allows, we are not liable for indirect losses or for outages outside our control. Nothing here limits rights you have under consumer law.';
+
+  @override
+  String get legalTermsTitle9 => 'Changes';
+
+  @override
+  String get legalTermsBody9 =>
+      'If we change these Terms in a way that matters, we will let you know in the app at least 14 days before the change takes effect.';
+
+  @override
+  String get legalTermsEnd =>
+      'Questions about this agreement? Contact Support from the Help menu in the app.';
+
+  @override
+  String get legalPrivacyPoint1 =>
+      'We collect only what we need to run your account, track your points and keep play fair.';
+
+  @override
+  String get legalPrivacyPoint2 => 'We never sell your personal data.';
+
+  @override
+  String get legalPrivacyPoint3 =>
+      'Partner studios receive anonymous gameplay events, not your name, email or phone number.';
+
+  @override
+  String get legalPrivacyPoint4 =>
+      'You can download or delete your data at any time from Settings.';
+
+  @override
+  String get legalPrivacyTitle1 => 'What we collect';
+
+  @override
+  String get legalPrivacyBody1 =>
+      'Account details you give us: email or phone number, username and avatar. Gameplay data: which games you play, for how long, quests completed and points earned. Device data: device model, OS version, app version and a device identifier used for fraud checks.';
+
+  @override
+  String get legalPrivacyTitle2 => 'Why we use it';
+
+  @override
+  String get legalPrivacyBody2 =>
+      'To run your account and wallet, credit points and deliver rewards, prevent cheating and multiple accounts, send notifications you turned on, and improve the app. We rely on our contract with you, our legitimate interest in fair play, and your consent where the law requires it.';
+
+  @override
+  String get legalPrivacyTitle3 => 'Who we share it with';
+
+  @override
+  String get legalPrivacyBody3 =>
+      'Service providers that host data, send codes and deliver rewards, under contracts that bind them to protect it. Partner studios, which receive anonymous gameplay events only. Authorities, when the law requires it. We do not sell personal data and we do not share it for third-party advertising.';
+
+  @override
+  String get legalPrivacyTitle4 => 'How long we keep it';
+
+  @override
+  String get legalPrivacyBody4 =>
+      'While your account is active. After you delete your account we remove personal data within 30 days, except records we must keep by law, such as reward transactions, which are kept for up to 5 years.';
+
+  @override
+  String get legalPrivacyTitle5 => 'Your rights';
+
+  @override
+  String get legalPrivacyBody5 =>
+      'You can access, correct, download or delete your data, object to some uses, and withdraw consent at any time. Most of this is in Settings, Privacy. For anything else contact Support and we reply within 30 days.';
+
+  @override
+  String get legalPrivacyTitle6 => 'Security';
+
+  @override
+  String get legalPrivacyBody6 =>
+      'Data is encrypted in transit and at rest, access is limited to staff who need it, and we test our systems regularly. If a breach affects you, we will tell you without undue delay.';
+
+  @override
+  String get legalPrivacyTitle7 => 'Children';
+
+  @override
+  String get legalPrivacyBody7 =>
+      'The app is not meant for anyone under 18. If we learn that a minor has created an account, we close it and delete the data.';
+
+  @override
+  String get legalPrivacyTitle8 => 'Changes';
+
+  @override
+  String get legalPrivacyBody8 =>
+      'We will tell you in the app before any important change to this policy takes effect.';
+
+  @override
+  String get legalPrivacyEnd =>
+      'Questions about this policy? Contact Support from the Help menu in the app.';
+
+  @override
+  String get legalTermsBody =>
+      'These Terms are an agreement between you and P2E. You must be at least 18. Points are a loyalty feature, not currency. Do not cheat. You can delete your account in Settings.';
+
+  @override
+  String get legalPrivacyBody =>
+      'We collect the email or phone number, username and avatar you give us, plus gameplay and device data used to keep play fair. You can download or delete your data from Settings.';
+
+  @override
+  String get tourWalletTitle => 'Your wallet';
+
+  @override
+  String get tourWalletBody =>
+      'Points you earn from games and quests show up here. Coins unlock extras, tap + to top up.';
+
+  @override
+  String get tourFeaturedTitle => 'Featured game';
+
+  @override
+  String get tourFeaturedBody =>
+      'A hand-picked game to start with. Tap Play Now and you are in, no download needed.';
+
+  @override
+  String get tourScoreTitle => 'Points on every game';
+
+  @override
+  String get tourScoreBody =>
+      'The badge shows how many points a game pays out, the star is its rating from other players.';
+
+  @override
+  String get tourQuestsTitle => 'Missions and quests';
+
+  @override
+  String get tourQuestsBody =>
+      'Clear each step before the timer runs out to stack up bonus points on top of your game rewards.';
+
+  @override
+  String get tourNavTitle => 'Everything else lives here';
+
+  @override
+  String get tourNavBody =>
+      'Missions, all games, friends and the shop. A red badge means something new is waiting for you.';
+
+  @override
+  String get tourGotIt => 'Got it';
+
+  @override
+  String gameStatsLabel(
+    String rating,
+    String reviews,
+    String downloads,
+    String size,
+  ) {
+    return 'Rated $rating, $reviews reviews, $downloads downloads, $size';
+  }
 }

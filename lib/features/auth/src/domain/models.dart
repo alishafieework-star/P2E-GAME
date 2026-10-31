@@ -19,6 +19,16 @@ final class OtpChallenge {
 
 enum EmailAccountStatus { registered, notRegistered }
 
+/// HTML account split for a phone number (D-139).
+enum PhoneAccountStatus { registeredWithPassword, registered, notRegistered }
+
+/// Username availability from the development account contract (D-139).
+final class UsernameCheck {
+  const UsernameCheck({required this.available, this.suggestions = const []});
+  final bool available;
+  final List<String> suggestions;
+}
+
 enum SocialProvider { playStation, xbox, google }
 
 /// Per-operation cancellation, not a singleton or transport dependency.

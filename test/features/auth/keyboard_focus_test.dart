@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mygame_p2e/app/app.dart';
 import 'package:mygame_p2e/app/config/app_config.dart';
 import 'package:mygame_p2e/features/auth/auth.dart';
+import 'package:mygame_p2e/features/auth/src/presentation/entry/widgets/auth_entry_widgets.dart';
 import 'package:p2e_design_system/design_system.dart';
 
 import '../../support/auth_harness.dart';

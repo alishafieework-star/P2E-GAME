@@ -8,6 +8,8 @@ analyzer:
     # Independently analyzed with their own package configurations.
     - packages/**
     - apps/**
+    # Dev-only inspector packages, analyzed in their own contexts (D-037–D-042).
+    - dev_tools/**
     - build/**
     - android/**
     - ios/**

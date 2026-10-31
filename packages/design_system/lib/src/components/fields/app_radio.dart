@@ -197,7 +197,7 @@ class _AppRadioState<T> extends State<AppRadio<T>> with RadioClient<T> {
   late FocusNode node;
   bool hover = false, focused = false;
   Duration duration = Duration.zero;
-  String? published;
+  Map<String, Object?>? published;
   @override
   T get radioValue => widget.value;
   @override
@@ -301,8 +301,8 @@ class _AppRadioState<T> extends State<AppRadio<T>> with RadioClient<T> {
           ? 'focus uses source hover paint'
           : null,
     );
-    final descriptor = snapshot.toJson().toString();
-    if (descriptor != published) {
+    final descriptor = snapshot.toJson();
+    if (!identityValueEquals(published, descriptor)) {
       published = descriptor;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) widget.onSnapshot?.call(snapshot);

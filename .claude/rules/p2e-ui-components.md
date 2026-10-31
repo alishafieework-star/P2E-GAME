@@ -32,3 +32,7 @@ Design System runtime now lives in packages/design_system/lib/src (D-019). Apply
 ## D-032 / D-033 / D-034 identity adoption
 
 Identity v1.1 is adopted. Public controls require elementId only; runtimeLocator is an optional explicit override of UiIdentityScope. Route instance IDs are allocated once, never in build. Password visibility and OTP fixed cells use owner-relative slotPath; no new semantics or focus nodes. Unlinked designRef is omitted, not null. Identity-only corrections do not authorize visual changes or new golden baselines.
+
+## D-136 hover and press
+
+Filled buttons, App Bar actions, text links and the controls named in D-136 use the HTML hover and press values from `design/engineering/button_motion.json`. Disabled and reduced motion stay at rest. Hover is pointer and stylus only. `AppSheet` is provisional and has no Figma node. Do not add a press tint to the add-coins control.

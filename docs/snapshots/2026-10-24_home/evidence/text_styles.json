@@ -1,0 +1,18 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "source": "figma.getLocalTextStylesAsync and node 18457:13109",
+  "styles": {
+    "English/Muted/Label-Small": {"id": "S:7f290765a47faa91ca51dac9eaedcae84f8d477b,", "family": "Outfit", "style": "Regular", "fontSize": 14, "lineHeight": {"unit": "PIXELS", "value": 18}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Muted/Number-Medium": {"id": "S:aec377574df5023d77c92202eea4987ded345234,", "family": "Outfit", "style": "Regular", "fontSize": 14, "lineHeight": {"unit": "PIXELS", "value": 18}, "letterSpacing": {"unit": "PERCENT", "value": 0}},
+    "English/Baseline/Title-Medium": {"id": "S:9a181b69bcbede1bfb718d21a72cdab9a99813db,", "family": "Outfit", "style": "SemiBold", "fontSize": 20, "lineHeight": {"unit": "PIXELS", "value": 26}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Baseline/Title-Small": {"id": "S:8679b588b3317f8cb28f3a118fce2c6d7a0171ea,", "family": "Outfit", "style": "SemiBold", "fontSize": 18, "lineHeight": {"unit": "PIXELS", "value": 24}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Baseline/Label-Small": {"id": "S:c25d9b67263c5f76f96f5bc4494430cc8fee9a93,", "family": "Outfit", "style": "SemiBold", "fontSize": 14, "lineHeight": {"unit": "PIXELS", "value": 18}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Baseline/Button-Small": {"id": "S:f0c4c3280f72ff2fb10e27032012bb2d7a3c947f,", "family": "Outfit", "style": "SemiBold", "fontSize": 14, "lineHeight": {"unit": "PIXELS", "value": 18}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Baseline/Status-Medium": {"id": "S:94d3924fd7649ef03d5e4d438ef8956a4633dff5,", "family": "Outfit", "style": "SemiBold", "fontSize": 10, "lineHeight": {"unit": "PIXELS", "value": 12}, "letterSpacing": {"unit": "PERCENT", "value": -4}},
+    "English/Baseline/Number-Large": {"id": "S:9a1476d098e002fc833e56f44aca2874657771b6,", "family": "Outfit", "style": "SemiBold", "fontSize": 16, "lineHeight": {"unit": "PIXELS", "value": 20}, "letterSpacing": {"unit": "PERCENT", "value": 0}},
+    "English/Baseline/Number-Medium": {"id": "S:c2810981c66b2b926e6ccc7b5fae6cea72fe2a36,", "family": "Outfit", "style": "SemiBold", "fontSize": 14, "lineHeight": {"unit": "PIXELS", "value": 18}, "letterSpacing": {"unit": "PERCENT", "value": 0}},
+    "English/Baseline/Number-Small": {"id": "S:d48e06485b4646731427d3823e14b85568d80a4f,", "family": "Outfit", "style": "SemiBold", "fontSize": 12, "lineHeight": {"unit": "PIXELS", "value": 14}, "letterSpacing": {"unit": "PERCENT", "value": 0}}
+  },
+  "unstyledCaption": {"id": "18457:13109", "characters": "Free to Play", "textStyleId": null, "family": "Outfit", "style": "SemiBold", "fontSize": 10, "lineHeight": {"unit": "AUTO"}, "letterSpacing": {"unit": "PERCENT", "value": -4}}
+}

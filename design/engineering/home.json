@@ -1,0 +1,11 @@
+{
+  "shelfPageDurationMs": 250,
+  "shelfPageCurve": "easeOut",
+  "heroParallaxBackground": 0.25,
+  "heroParallaxForeground": 0.55,
+  "heroParallaxMax": 48,
+  "heroVignetteFallbackRoles": {
+    "dark": ["Surface/Base", "Surface/Base"],
+    "light": ["Alpha/White", "Outline/Variant"]
+  }
+}

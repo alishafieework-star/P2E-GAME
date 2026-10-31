@@ -16,6 +16,7 @@ import 'package:mygame_p2e/features/auth/auth.dart';
 import 'package:mygame_p2e/shared/formatting/rewards.dart';
 import 'package:mygame_p2e/shared/platform/external_links.dart';
 import 'package:mygame_p2e/shared/session/session.dart';
+import 'package:mygame_p2e/features/auth/src/presentation/entry/widgets/auth_entry_widgets.dart';
 import 'package:p2e_design_system/design_system.dart';
 
 import '../../support/auth_harness.dart';
@@ -58,7 +59,10 @@ void main() {
       tester.widget<AppTextField>(find.byType(AppTextField)).options.enabled,
       false,
     );
-    expect(tester.widget<AppToggle>(find.byType(AppToggle)).onChanged, isNull);
+    expect(
+      tester.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged,
+      isNull,
+    );
     expect(tester.widget<LinkText>(find.byType(LinkText)).enabled, false);
     expect(
       tester
@@ -80,7 +84,7 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
-  testWidgets('ready gate exposes only the Home placeholder', (tester) async {
+  testWidgets('ready gate opens the Home tab', (tester) async {
     addTearDown(tester.view.reset);
     await pumpAuth(tester);
     final container = ProviderScope.containerOf(
@@ -90,7 +94,7 @@ void main() {
         .read(sessionControllerProvider.notifier)
         .update(SessionStatus.signedIn);
     await tester.pumpAndSettle();
-    expect(find.text('Home — screen coming next'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home.page')), findsOneWidget);
     expect(
       container.read(appRouterProvider).routeInformationProvider.value.uri.path,
       '/home',
@@ -121,7 +125,7 @@ void main() {
       }
 
       for (final owner in [
-        find.byType(AppToggle),
+        find.byType(AppCheckbox),
         find.byKey(const ValueKey('auth.continue')),
         for (final brand in SocialAuthBrand.values)
           find.byWidgetPredicate(
@@ -190,9 +194,9 @@ void main() {
     );
   });
   for (final scenario in {
-    '09123456789': 'OTP — screen coming next',
-    'user@example.com': 'Password — screen coming next',
-    'new.person@example.com': 'Create password — screen coming next',
+    '09123456789': 'Check Your Inbox',
+    'user@example.com': 'Enter Your Password',
+    'new.person@example.com': 'Set a New Password',
   }.entries) {
     testWidgets(
       'keyboard go routes ${scenario.key.contains('@') ? 'email' : 'phone'} through flow',
@@ -234,7 +238,7 @@ void main() {
     addTearDown(tester.view.reset);
     await pumpAuth(tester);
     final toggle = tester
-        .getSemantics(find.byType(AppToggle))
+        .getSemantics(find.byType(AppCheckbox))
         .getSemanticsData();
     expect(toggle.flagsCollection.isChecked, isNot(CheckedState.none));
     expect(toggle.flagsCollection.isInMutuallyExclusiveGroup, false);

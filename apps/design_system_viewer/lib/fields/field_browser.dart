@@ -32,7 +32,8 @@ class _FieldBrowserState extends State<FieldBrowser> {
       coverage = 'all',
       visibility = 'all',
       direction = 'auto',
-      feedback = 'neutral';
+      feedback = 'neutral',
+      tone = 'source';
   double scale = 1;
   bool required = true,
       indicator = true,
@@ -76,6 +77,8 @@ class _FieldBrowserState extends State<FieldBrowser> {
     required: l.fieldRequired,
     optional: l.fieldOptional,
   );
+  AppOtpFeedbackTone get otpTone =>
+      tone == 'status' ? AppOtpFeedbackTone.status : AppOtpFeedbackTone.source;
   FieldFeedback get validation => feedback == 'error'
       ? FieldFeedback.error(longCopy ? l.fieldLongHelper : l.fieldError)
       : feedback == 'success'
@@ -354,6 +357,7 @@ class _FieldBrowserState extends State<FieldBrowser> {
                     controller: otp,
                     sourceDivider: true,
                     feedback: validation,
+                    feedbackTone: otpTone,
                     supportingText: supporting
                         ? (longCopy ? l.fieldLongHelper : l.fieldHelper)
                         : null,
@@ -431,6 +435,7 @@ class _FieldBrowserState extends State<FieldBrowser> {
         spec: spec,
         value: spec.part('otpText')?['characters'] as String? ?? '',
         visualKey: ValueKey('$id.visual'),
+        feedbackTone: otpTone,
       );
     } else if (spec.family == FieldFamily.radio) {
       content = AppRadioPresentation(
@@ -536,6 +541,7 @@ class _FieldBrowserState extends State<FieldBrowser> {
       selected: spec.family == FieldFamily.radio
           ? (spec.data['state'] as String).startsWith('Selected')
           : null,
+      feedbackTone: spec.family == FieldFamily.otp ? otpTone : null,
     );
     records[id] = snapshot;
     return SizedBox(
@@ -632,6 +638,11 @@ class _FieldBrowserState extends State<FieldBrowser> {
                         'shown': l.fieldShown,
                         'hidden': l.fieldHidden,
                       }, (v) => change(() => visibility = v)),
+                    if (widget.family == FieldFamily.otp)
+                      control('otp-tone', l.fieldOtpTone, tone, {
+                        'source': l.fieldOtpToneSource,
+                        'status': l.fieldOtpToneStatus,
+                      }, (v) => change(() => tone = v)),
                     if (!isRadio)
                       control('feedback', l.fieldFeedback, feedback, {
                         'neutral': l.fieldNeutral,

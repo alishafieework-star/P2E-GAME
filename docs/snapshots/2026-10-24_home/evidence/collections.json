@@ -1,0 +1,93 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "format": "path | type | WxH | layout direction, gap, padding top,right,bottom,left | radius | fill:<collection>:<variable>=<hex>[@opacity] or RAW=<hex>@opacity | stroke | fx | ts:<text style> | characters",
+  "out": {
+    "dark.sectionHeader": {"id": "18457:13111", "lines": [
+      "Section Header | FRAM | 370x36 | H gap10 pad0,0,0,0",
+      "Section Header/Section Title | FRAM | 194x24 | H gap0 pad0,12,0,12",
+      "Section Header/Section Title/Recommended for You | TEXT | 170x24 | fill:Dark Mode:On Surface/Emphasis=#ffffff | ts:English/Baseline/Title-Small | \"Recommended for You\"",
+      "Section Header/Text Button | FRAM | 103x36 | H gap4 pad8,8,8,8 | r10",
+      "Section Header/Text Button/Text Label | FRAM | 63x18 | H gap10 pad0,0,0,0",
+      "Section Header/Text Button/Text Label/Text Label | TEXT | 63x18 | fill:Color Palette:Sky/500=#00a6f4 | ts:English/Baseline/Button-Small | \"View More\"",
+      "Section Header/Text Button/Icon (Optional) | FRAM | 20x20 | H gap0 pad0,0,0,0",
+      "Section Header/Text Button/Icon (Optional)/Fill | INST | 20x20 | ->Fill / Icon=Chevron Right"
+    ]},
+    "light.sectionHeader": {"id": "18457:14912", "lines": [
+      "Section Header | FRAM | 370x36 | H gap10 pad0,0,0,0",
+      "Section Header/Section Title | FRAM | 194x24 | H gap0 pad0,12,0,12",
+      "Section Header/Section Title/Recommended for You | TEXT | 170x24 | fill:Light Mode:On Surface/Base=#525252 | ts:English/Baseline/Title-Small | \"Recommended for You\"",
+      "Section Header/Text Button | FRAM | 103x36 | H gap4 pad8,8,8,8 | r10",
+      "Section Header/Text Button/Text Label | FRAM | 63x18 | H gap10 pad0,0,0,0",
+      "Section Header/Text Button/Text Label/View More | TEXT | 63x18 | fill:Color Palette:Sky/500=#00a6f4 | ts:English/Baseline/Button-Small | \"View More\"",
+      "Section Header/Text Button/Icon (Optional) | FRAM | 20x20 | H gap0 pad0,0,0,0",
+      "Section Header/Text Button/Icon (Optional)/Fill | INST | 20x20 | ->Fill / Icon=Chevron Right"
+    ]},
+    "dark.pagination": {"id": "18457:13149", "lines": [
+      "Pagination | FRAM | 370x7.5 | H gap5 pad0,0,0,0",
+      "Pagination/Active Indicator | ELLI | 7.5x7.5 | fill:Dark Mode:On Surface/Emphasis=#ffffff",
+      "Pagination/Indicator | ELLI | 5x5 | fill:Dark Mode:On Surface/Muted=#525252",
+      "Pagination/Indicator | ELLI | 5x5 | fill:Dark Mode:On Surface/Muted=#525252"
+    ]},
+    "light.pagination": {"id": "18457:14936", "lines": [
+      "Pagination | FRAM | 370x7.5 | H gap5 pad0,0,0,0",
+      "Pagination/Active Indicator | ELLI | 7.5x7.5 | fill:Light Mode:On Surface/Variant=#737373",
+      "Pagination/Indicator | ELLI | 5x5 | fill:Light Mode:On Surface/Muted=#a1a1a1",
+      "Pagination/Indicator | ELLI | 5x5 | fill:Light Mode:On Surface/Muted=#a1a1a1"
+    ]},
+    "dark.featuredRow": {"id": "18457:13097", "lines": [
+      "Game Card | FRAM | 370x78 | H gap14 pad12,12,12,12 | r20 | fill:Dark Mode:Surface Container/Base=#171717",
+      "Game Card/Game Icon | FRAM | 54x54 | H gap0 pad0,0,0,0 | r10",
+      "Game Card/Game Icon/Icon | RECT | 54x54 | fill:IMAGE",
+      "Game Card/Game Information | FRAM | 184x44 | V gap0 pad0,0,0,0",
+      "Game Card/Game Information/Game Name | FRAM | 118x26 | H gap10 pad0,0,0,0",
+      "Game Card/Game Information/Game Name/Clash of Clans | TEXT | 118x26 | fill:Dark Mode:On Surface/Emphasis=#ffffff | ts:English/Baseline/Title-Medium | \"Clash of Clans\"",
+      "Game Card/Game Information/Game Creator | FRAM | 64x18 | H gap2 pad0,0,0,0",
+      "Game Card/Game Information/Game Creator/Supercell | TEXT | 54x18 | fill:Dark Mode:On Surface/Base=#a1a1a1 | ts:English/Baseline/Label-Small | \"Supercell\"",
+      "Game Card/Game Information/Game Creator/® | TEXT | 8x18 | fill:Dark Mode:On Surface/Base=#a1a1a1 | ts:English/Baseline/Label-Small | \"®\"",
+      "Game Card/CTA Section | FRAM | 80x53 | V gap4 pad0,0,0,0",
+      "Game Card/CTA Section/Small Button - Dark Mode | INST | 80x36 | H gap8 pad12,12,12,12 | r10 | fill:Dark Mode:Surface Container/Low=#0a0a0a | ->Small Button - Dark Mode / Button=Tonal",
+      "Game Card/CTA Section/Label | FRAM | 50x13 | H gap10 pad0,0,0,0",
+      "Game Card/CTA Section/Label/Free to Play | TEXT | 50x13 | fill:Dark Mode:On Surface/Base=#a1a1a1 | ts:NONE | \"Free to Play\""
+    ]},
+    "light.featuredRow": {"id": "18457:14898", "lines": [
+      "Game Card | FRAM | 370x78 | H gap14 pad12,12,12,12 | r20 | fill:Light Mode:Surface Container/Lowest=#ffffff | fx:DROP_SHADOW(r10,s0,x0,y0)#000000@20",
+      "Game Card/Game Icon | FRAM | 54x54 | H gap0 pad0,0,0,0 | r10",
+      "Game Card/Game Icon/Icon | RECT | 54x54 | fill:IMAGE",
+      "Game Card/Game Information | FRAM | 184x44 | V gap0 pad0,0,0,0",
+      "Game Card/Game Information/Game Name | FRAM | 118x26 | H gap10 pad0,0,0,0",
+      "Game Card/Game Information/Game Name/Clash of Clans | TEXT | 118x26 | fill:Light Mode:On Surface/Emphasis=#404040 | ts:English/Baseline/Title-Medium | \"Clash of Clans\"",
+      "Game Card/Game Information/Game Creator | FRAM | 64x18 | H gap2 pad0,0,0,0",
+      "Game Card/Game Information/Game Creator/Supercell | TEXT | 54x18 | fill:Light Mode:On Surface/Muted=#a1a1a1 | ts:English/Baseline/Label-Small | \"Supercell\"",
+      "Game Card/Game Information/Game Creator/® | TEXT | 8x18 | fill:Light Mode:On Surface/Muted=#a1a1a1 | ts:English/Baseline/Label-Small | \"®\"",
+      "Game Card/CTA Section | FRAM | 80x53 | V gap4 pad0,0,0,0",
+      "Game Card/CTA Section/Small Button - Light Mode | INST | 80x36 | H gap8 pad12,12,12,12 | r10 | fill:Light Mode:Surface Container/High=#e5e5e5 | ->Small Button - Light Mode / Button=Tonal",
+      "Game Card/CTA Section/Label | FRAM | 50x13 | H gap10 pad0,0,0,0",
+      "Game Card/CTA Section/Label/Free to Play | TEXT | 50x13 | fill:Light Mode:On Surface/Muted=#a1a1a1 | ts:NONE | \"Free to Play\""
+    ]},
+    "dark.heroBanner": {"id": "18457:13090", "lines": [
+      "Hero Section Banner | FRAM | 402x343 | V gap10 pad16,16,16,16",
+      "Hero Section Banner/Parallax | FRAM | 402x343",
+      "Hero Section Banner/Parallax/Parallax  Background | FRAM | 402x343 | fx:INNER_SHADOW(50)#0a0a0a@100,INNER_SHADOW(120)#0a0a0a@100",
+      "Hero Section Banner/Parallax/Parallax  Background/Graveyard Girl | RECT | 402x343 | fill:IMAGE",
+      "Hero Section Banner/Parallax/Parallax Obejct | FRAM | 402x343",
+      "Hero Section Banner/Parallax/Parallax Obejct/Object | RECT | 246x248 | fill:IMAGE"
+    ]},
+    "light.heroBanner": {"id": "18457:14891", "lines": [
+      "Hero Section Banner | FRAM | 402x343 | V gap10 pad16,16,16,16",
+      "Hero Section Banner/Parallax | FRAM | 402x343",
+      "Hero Section Banner/Parallax/Parallax  Background | FRAM | 402x421 | fx:INNER_SHADOW(40)#ffffff@100,INNER_SHADOW(90)#03a7e2@100",
+      "Hero Section Banner/Parallax/Parallax  Background/Image | RECT | 494x421 | fill:IMAGE",
+      "Hero Section Banner/Parallax/Parallax Obejct | FRAM | 402x343",
+      "Hero Section Banner/Parallax/Parallax Obejct/Object | RECT | 206x119 | fill:IMAGE"
+    ]}
+  },
+  "sliders": {
+    "dark.compactSlider": {"id": "18457:13119", "layout": "HORIZONTAL", "gap": 12, "w": 370, "h": 204, "children": [{"name": "Game Compact Card", "x": 0, "w": 120, "h": 204}, {"name": "Game Compact Card", "x": 132, "w": 120, "h": 204}, {"name": "Game Compact Card", "x": 264, "w": 120, "h": 204}, {"name": "Game Compact Card", "x": 396, "w": 120, "h": 204}]},
+    "dark.pagedSlider": {"id": "18457:13147", "layout": "HORIZONTAL", "gap": 12, "w": 370, "h": 226, "children": [{"name": "Games Expand Card", "x": 0, "w": 370, "h": 226}]},
+    "dark.questSlider": {"id": "18457:13162", "layout": "HORIZONTAL", "gap": 16, "w": 370, "h": 315, "children": [{"name": "Game Card", "x": 0, "w": 370, "h": 315}, {"name": "Game Card", "x": 386, "w": 370, "h": 315}]},
+    "light.pagedSlider": {"id": "18457:14934", "layout": "HORIZONTAL", "gap": 12, "w": 370, "h": 226},
+    "light.compactSlider": {"id": "18457:14920", "layout": "HORIZONTAL", "gap": 12, "w": 370, "h": 204}
+  },
+  "sectionFrame": {"id": "18457:13110", "layout": "VERTICAL", "gap": 12, "pad": [16, 16, 16, 16]}
+}

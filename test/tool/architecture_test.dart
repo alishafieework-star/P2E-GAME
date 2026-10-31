@@ -128,6 +128,10 @@ void main() {
       'lib/features/games/bad.dart',
       "import '../home/home.dart';",
     ),
+    'missions cannot reach games': (
+      'lib/features/missions/bad.dart',
+      "import '../games/games.dart';",
+    ),
     'domain is pure Dart': (
       'lib/features/entry/src/domain/bad.dart',
       "import 'package:flutter/widgets.dart';",
@@ -192,6 +196,21 @@ void main() {
       expect(checkArchitecture(root), isNotEmpty);
     });
   }
+  test('analysis_options analyzer exclude may name dev_tools', () {
+    write(
+      'analysis_options.yaml',
+      'include: package:flutter_lints/flutter.yaml\n'
+          'analyzer:\n'
+          '  exclude:\n'
+          '    # Independently analyzed dev-only packages.\n'
+          '    - dev_tools/**\n',
+    );
+    expect(checkArchitecture(root), isEmpty);
+  });
+  test('rejects dev_tools reference outside an analyzer exclude', () {
+    write('analysis_options.yaml', 'include: dev_tools/options.yaml\n');
+    expect(checkArchitecture(root).join('\n'), contains('dev_tools reference'));
+  });
   for (final uri in [
     'package:mygame_p2e/core/errors/app_failure.dart',
     '../../../../core/errors/app_failure.dart',
@@ -253,8 +272,62 @@ void main() {
     );
   });
 
+  final presentational = <String, (String, String)>{
+    'shared widget reads Riverpod': (
+      'lib/shared/widgets/bad.dart',
+      "import 'package:flutter_riverpod/flutter_riverpod.dart';",
+    ),
+    'feature widget routes': (
+      'lib/features/games/src/presentation/widgets/bad.dart',
+      "import 'package:go_router/go_router.dart';",
+    ),
+    'nested feature widget reads Riverpod': (
+      'lib/features/games/src/presentation/home/widgets/bad.dart',
+      "import 'package:riverpod_annotation/riverpod_annotation.dart';",
+    ),
+    'shared widget reads localizations': (
+      'lib/shared/widgets/bad.dart',
+      "import '../../l10n/generated/app_localizations.dart';",
+    ),
+    'feature widget reads domain': (
+      'lib/features/games/src/presentation/widgets/bad.dart',
+      "import '../../domain/game.dart';",
+    ),
+    'shared widget reads a read model': (
+      'lib/shared/widgets/bad.dart',
+      "import '../balance/balance.dart';",
+    ),
+  };
+  for (final entry in presentational.entries) {
+    test('D-101 rejects ${entry.key}', () {
+      write(entry.value.$1, entry.value.$2);
+      expect(
+        checkArchitecture(root).join('\n'),
+        contains('presentational widget imports'),
+      );
+    });
+  }
+  test('D-101 widgets may use Flutter and the Design System; sections may read state', () {
+    write(
+      'lib/shared/widgets/good.dart',
+      "import 'package:flutter/widgets.dart'; "
+          "import 'package:p2e_design_system/design_system.dart';",
+    );
+    write(
+      'lib/features/games/src/presentation/home/section.dart',
+      "import 'package:flutter_riverpod/flutter_riverpod.dart'; "
+          "import 'widgets/card.dart';",
+    );
+    write('lib/features/games/src/presentation/home/widgets/card.dart', '');
+    expect(checkArchitecture(root), isEmpty);
+  });
+
   test('approved feature/public and foundation edges remain legal', () {
-    write('lib/features/home/home.dart', "import '../missions/missions.dart';");
+    write(
+      'lib/features/home/home.dart',
+      "import '../missions/missions.dart'; import '../games/games.dart';",
+    );
+    write('lib/features/games/games.dart', '');
     write(
       'lib/features/missions/missions.dart',
       "export 'src/domain/model.dart';",

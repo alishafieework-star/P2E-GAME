@@ -593,6 +593,18 @@
   "@fieldSuccess": {
     "description": "Text Field Viewer: fieldSuccess"
   },
+  "fieldOtpTone": "OTP feedback",
+  "@fieldOtpTone": {
+    "description": "Text Field Viewer: source keeps Figma OTP colors; status uses the engineering green and red treatment."
+  },
+  "fieldOtpToneSource": "Source",
+  "@fieldOtpToneSource": {
+    "description": "Text Field Viewer: Figma OTP appearance."
+  },
+  "fieldOtpToneStatus": "Status",
+  "@fieldOtpToneStatus": {
+    "description": "Text Field Viewer: engineering OTP success and error colors."
+  },
   "fieldNeutral": "Neutral",
   "@fieldNeutral": {
     "description": "Text Field Viewer: fieldNeutral"
@@ -976,6 +988,30 @@
   "@navBadgeEmpty": {
     "description": "Navigator Bar Viewer: navBadgeEmpty"
   },
+  "collectionsTitle": "Collections (provisional)",
+  "@collectionsTitle": {
+    "description": "Viewer category for the provisional section header, page indicator and shelf."
+  },
+  "collectionsSampleTitle": "Recommended for You",
+  "@collectionsSampleTitle": {
+    "description": "Sample section title in the collections gallery."
+  },
+  "collectionsSampleLead": "About",
+  "@collectionsSampleLead": {"description": "Muted prefix in the collections gallery."},
+  "collectionsSampleSubject": "Clash of Clans",
+  "@collectionsSampleSubject": {"description": "Emphasized subject in the collections gallery."},
+  "collectionsSampleAction": "View More",
+  "@collectionsSampleAction": {
+    "description": "Sample section action in the collections gallery."
+  },
+  "collectionsPageLabel": "Page {page} of {count}",
+  "@collectionsPageLabel": {
+    "description": "Page-indicator semantics in the collections gallery.",
+    "placeholders": {
+      "page": {"type": "int"},
+      "count": {"type": "int"}
+    }
+  },
   "pageScaffoldTitle": "PageScaffold (provisional)",
   "pageScaffoldDescription": "Engineering layout example: scroll to focus the field. No Figma appearance claim.",
   "pageScaffoldField": "Email",
@@ -1004,14 +1040,5 @@
   "buttonLoadingSemantics": "Loading",
   "skin": "Skin",
   "productSkin": "Product",
-  "testSkin": "Test",
-  "authContinue": "Continue",
-  "authDivider": "or continue with",
-  "authRemember": "Remember me for next time.",
-  "authTerms": "Terms & Conditions",
-  "authPrivacy": "Privacy Policy",
-  "authPlayStation": "PlayStation",
-  "authXbox": "Xbox",
-  "authGoogle": "Google",
-  "authPrimitives": "Auth primitives"
+  "testSkin": "Test"
 }

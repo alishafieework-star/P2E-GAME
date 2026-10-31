@@ -9,5 +9,10 @@
   "rationale": "Short, reversible typing transitions using the source Radio easing family; no plaintext crossfade, caret delay, shake or bounce.",
   "minTapExtent": 48,
   "zero": 0,
-  "hiddenOpacity": 0
+  "hiddenOpacity": 0,
+  "statusDecision": "D-069",
+  "statusColorMs": 250,
+  "statusShakeMs": 400,
+  "statusShakeAmplitude": 8,
+  "statusShakeCycles": 3
 }

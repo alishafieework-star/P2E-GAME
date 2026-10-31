@@ -80,7 +80,9 @@ class SkinRoleValues {
   final Color whiteVariant;
   final Color actionAccent;
   final Color actionOnAccent;
-  Map<String, Color> get byName => {
+  static final Expando<Map<String, Color>> _byNameCache =
+      Expando<Map<String, Color>>();
+  Map<String, Color> get byName => _byNameCache[this] ??= {
     'Actions/Error/On Container': actionsErrorOnContainer,
     'Actions/Error/On Surface': actionsErrorOnSurface,
     'Actions/Info/On Surface': actionsInfoOnSurface,

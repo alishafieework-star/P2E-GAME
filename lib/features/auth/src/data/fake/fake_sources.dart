@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import '../../domain/models.dart';
 import '../sources.dart';
+import 'otp_api.dart';
 
 enum FakeAuthScenario {
   success,
@@ -91,6 +93,139 @@ final class FakePhoneSignInSource implements PhoneSignInSource {
       destination: '+98 ••• ••• ${e164.substring(e164.length - 4)}',
     );
   }
+
+  @override
+  Future<OtpChallengeDto> resendOtp(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) => requestOtp(e164, rememberDevice, cancellation);
+
+  @override
+  Future<void> verifyOtp(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/otp/verify',
+          body: jsonEncode({'challengeId': challengeId, 'code': code}),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<PhoneStatusDto> checkPhone(
+    String e164,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    final response = DevOtpApi.handle(
+      OtpApiRequest(
+        method: 'POST',
+        path: '/auth/phone/status',
+        body: jsonEncode({'phone': e164}),
+      ),
+    );
+    final decoded = jsonDecode(response.body);
+    final name = decoded is Map ? decoded['status'] : null;
+    return PhoneStatusDto(
+      PhoneAccountStatus.values.byName(name is String ? name : 'registered'),
+    );
+  }
+
+  @override
+  Future<void> signIn(
+    String e164,
+    String password,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/phone/password',
+          body: jsonEncode({
+            'phone': e164,
+            'password': password,
+            'rememberDevice': rememberDevice,
+          }),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<OtpChallengeDto> requestReset(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    return DevOtpApi.challengeFrom(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/phone/reset/request',
+          body: jsonEncode({
+            'destination': e164,
+            'rememberDevice': rememberDevice,
+          }),
+        ),
+        clock: environment.clock,
+      ),
+    );
+  }
+
+  @override
+  Future<OtpChallengeDto> resendReset(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) => requestReset(e164, rememberDevice, cancellation);
+
+  @override
+  Future<void> verifyReset(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/phone/reset/verify',
+          body: jsonEncode({'challengeId': challengeId, 'code': code}),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<void> createPassword(
+    String e164,
+    String password,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/phone/password/create',
+          body: jsonEncode({'phone': e164, 'password': password}),
+        ),
+      ),
+    );
+  }
 }
 
 final class FakeEmailSignInSource implements EmailSignInSource {
@@ -104,6 +239,209 @@ final class FakeEmailSignInSource implements EmailSignInSource {
     await environment.wait(cancellation);
     return EmailStatusDto(
       !email.split('@').first.toLowerCase().startsWith('new'),
+    );
+  }
+
+  @override
+  Future<void> signIn(
+    String email,
+    String password,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/password',
+          body: jsonEncode({
+            'email': email,
+            'password': password,
+            'rememberDevice': rememberDevice,
+          }),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<OtpChallengeDto> requestReset(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    return DevOtpApi.challengeFrom(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/reset/request',
+          body: jsonEncode({
+            'destination': email,
+            'rememberDevice': rememberDevice,
+          }),
+        ),
+        clock: environment.clock,
+      ),
+    );
+  }
+
+  @override
+  Future<OtpChallengeDto> resendReset(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) => requestReset(email, rememberDevice, cancellation);
+
+  @override
+  Future<void> verifyReset(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/reset/verify',
+          body: jsonEncode({'challengeId': challengeId, 'code': code}),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<void> createPassword(
+    String email,
+    String password,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/password/create',
+          body: jsonEncode({'email': email, 'password': password}),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<OtpChallengeDto> requestVerification(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    return DevOtpApi.challengeFrom(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/verify/request',
+          body: jsonEncode({
+            'destination': email,
+            'rememberDevice': rememberDevice,
+          }),
+        ),
+        clock: environment.clock,
+      ),
+    );
+  }
+
+  @override
+  Future<void> verifyRegistration(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async {
+    await environment.wait(cancellation);
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/email/verify/confirm',
+          body: jsonEncode({'challengeId': challengeId, 'code': code}),
+        ),
+      ),
+    );
+  }
+}
+
+final class LocalAccountSetupSource implements AccountSetupSource {
+  const LocalAccountSetupSource();
+
+  @override
+  Future<UsernameCheckDto> checkUsername(
+    String username,
+    AuthCancellation? cancellation,
+  ) async {
+    final response = DevOtpApi.handle(
+      OtpApiRequest(
+        method: 'POST',
+        path: '/auth/account/username',
+        body: jsonEncode({'username': username}),
+      ),
+    );
+    if (response.status != 200) {
+      throw const AuthDataException(AuthDataFault.server);
+    }
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map) {
+      throw const AuthDataException(AuthDataFault.server);
+    }
+    final suggestions = decoded['suggestions'];
+    return UsernameCheckDto(
+      available: decoded['available'] == true,
+      suggestions: suggestions is List
+          ? [
+              for (final item in suggestions)
+                if (item is String) item,
+            ]
+          : const [],
+    );
+  }
+
+  @override
+  Future<List<String>> usernameIdeas(
+    String base,
+    AuthCancellation? cancellation,
+  ) async {
+    final response = DevOtpApi.handle(
+      OtpApiRequest(
+        method: 'POST',
+        path: '/auth/account/username/ideas',
+        body: jsonEncode({'base': base}),
+      ),
+    );
+    if (response.status != 200) {
+      throw const AuthDataException(AuthDataFault.server);
+    }
+    final decoded = jsonDecode(response.body);
+    final names = decoded is Map ? decoded['suggestions'] : null;
+    return [
+      if (names is List)
+        for (final item in names)
+          if (item is String) item,
+    ];
+  }
+
+  @override
+  Future<void> complete(
+    Map<String, Object?> body,
+    AuthCancellation? cancellation,
+  ) async {
+    DevOtpApi.requireVerified(
+      DevOtpApi.handle(
+        OtpApiRequest(
+          method: 'POST',
+          path: '/auth/account/complete',
+          body: jsonEncode(body),
+        ),
+      ),
     );
   }
 }

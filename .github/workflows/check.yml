@@ -24,5 +24,24 @@ jobs:
       - run: dart run tool/check_architecture.dart
       - run: dart run tool/agents/sync_agent_files.dart --check
       - run: node tool/tokens/generate_adaptive.cjs --check
+      - run: node tool/tokens/generate_home.cjs --check
       - run: node tool/tokens/generate_readiness.cjs --check
       - run: node tool/tokens/generate_skins.cjs --check
+      - run: dart run tool/tokens/generate_motion_defaults.dart --check
+      - run: dart run tool/tokens/generate_html_journey.dart --check
+
+  goldens:
+    # D-047: reference golden pixels belong to Windows. This lane runs the
+    # Design System golden suites on the pinned Flutter version so baselines
+    # stay verified even though the Linux job excludes the golden tag.
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          cache: true
+      - run: flutter pub get
+        working-directory: packages/design_system
+      - run: flutter test --no-pub --tags golden
+        working-directory: packages/design_system

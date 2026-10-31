@@ -1,6 +1,6 @@
 # Optional Windows Inspector v1.1 — simulated device
 
-This replaces the v1 host layout and device controls. Core identity, geometric selection, privacy-safe snapshot export, public source lookups and comparisons remain. Everything optional is inside this independently removable folder; no workspace, runtime, pubspec or required CI dependency points back here. No screens, backend scenarios, monkey runner, Figma calls or golden updates are added.
+This replaces the v1 host layout and device controls. Core identity, geometric selection, privacy-safe snapshot export, public source lookups and comparisons remain. Everything optional is inside this independently removable folder; no workspace, runtime, pubspec or required CI dependency points back here. The product host can mount registered routes with in-process fixtures. There is no monkey runner, no Figma call and no golden update. See [SWEEP-v2.md](SWEEP-v2.md).
 
 ## Run
 
@@ -61,7 +61,7 @@ await hostState.sweep.run(
 final json = hostState.sweep.exportJson();
 ```
 
-FrameSettings.toJson/fromJson round-trip all device fields; Dev skin is separate. Future input drivers can use this state API; no monkey runner or input simulator is implemented.
+FrameSettings.toJson/fromJson round-trip all device fields, including the separate Dev skin flag. `p2e-sweep-v1.1` remains the classic export. Gorilla mode writes `p2e-sweep-v2` inside `p2e-inspector-bundle-v2`: seeded pairwise environments, boundary sizes, sampled 1px refinement, non-monotonic local samples and a minimal replay case. Accessibility and performance sections are diagnostics for this embed, not platform certification or a device benchmark. No monkey runner or input simulator is implemented.
 
 ## Selection, inspection and limits retained from v1
 

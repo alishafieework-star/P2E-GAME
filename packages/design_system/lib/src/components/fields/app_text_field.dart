@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../icons/app_icon.dart';
 import '../../identity/element_identity.dart';
+import '../../tokens/button_motion.dart';
 import '../../tokens/field_spec.dart';
 import '../../tokens/generated/auth_entry_tokens.g.dart';
 import 'field_identity.dart';
@@ -42,6 +43,7 @@ class FieldInputOptions {
     this.identifierPrivacy = false,
     this.wrapHint = false,
     this.presentation = FieldInputPresentation.source,
+    this.trailing,
   });
   final TextEditingController? controller;
   final FocusNode? focusNode;
@@ -68,6 +70,9 @@ class FieldInputOptions {
   /// Grow a long localized placeholder; editing remains a single LTR line.
   final bool wrapHint;
   final FieldInputPresentation presentation;
+
+  /// Optional status widget at the field end (for example an availability badge).
+  final Widget? trailing;
 }
 
 class AppTextField extends StatelessWidget {
@@ -141,7 +146,8 @@ class _EditableField extends StatefulWidget {
 class _EditableFieldState extends State<_EditableField> {
   late InputLease lease;
   late bool visible;
-  String? published;
+  bool eyeDown = false;
+  Map<String, Object?>? published;
   @override
   void initState() {
     super.initState();
@@ -263,13 +269,20 @@ class _EditableFieldState extends State<_EditableField> {
           ),
       },
     );
-    final descriptor = snapshot.toJson().toString();
-    if (published != descriptor) {
+    final descriptor = snapshot.toJson();
+    if (!identityValueEquals(published, descriptor)) {
       published = descriptor;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) o.onSnapshot?.call(snapshot);
       });
     }
+    // One focused-state lookup serves the inline and the collapsed hint.
+    final hintStyle = FieldSpec.lookup(
+      family,
+      FieldVisualState.focused,
+      Theme.of(context).brightness,
+      passwordVisible: visible,
+    ).withSkin(SkinTheme.of(context)).textStyle('input', persian: persian);
     final editor = Semantics(
       label: widget.label,
       child: TextField(
@@ -303,29 +316,9 @@ class _EditableFieldState extends State<_EditableField> {
         decoration: InputDecoration.collapsed(
           hintText: o.wrapHint ? null : o.hint ?? '',
           hint: o.wrapHint
-              ? Text(
-                  o.hint ?? '',
-                  softWrap: true,
-                  style:
-                      FieldSpec.lookup(
-                            family,
-                            FieldVisualState.focused,
-                            Theme.of(context).brightness,
-                            passwordVisible: visible,
-                          )
-                          .withSkin(SkinTheme.of(context))
-                          .textStyle('input', persian: persian),
-                )
+              ? Text(o.hint ?? '', softWrap: true, style: hintStyle)
               : null,
-          hintStyle:
-              FieldSpec.lookup(
-                    family,
-                    FieldVisualState.focused,
-                    Theme.of(context).brightness,
-                    passwordVisible: visible,
-                  )
-                  .withSkin(SkinTheme.of(context))
-                  .textStyle('input', persian: persian),
+          hintStyle: hintStyle,
         ),
       ),
     );
@@ -356,16 +349,31 @@ class _EditableFieldState extends State<_EditableField> {
           child: GestureDetector(
             excludeFromSemantics: true,
             behavior: HitTestBehavior.opaque,
+            onTapDown: o.enabled ? (_) => setState(() => eyeDown = true) : null,
+            onTapUp: (_) => setState(() => eyeDown = false),
+            onTapCancel: () => setState(() => eyeDown = false),
             onTap: o.enabled ? toggle : null,
             child: SizedBox(
               width: FieldMotion.tapExtent,
               height: FieldMotion.tapExtent,
               child: Center(
-                child: AssetAppIcon(
-                  spec.icon(icon).id,
-                  style: AppIconStyle.values.byName(icon['style'] as String),
-                  size: (icon['width'] as num).toDouble(),
-                  color: spec.iconPaint(icon),
+                child: AnimatedScale(
+                  scale:
+                      eyeDown &&
+                          o.enabled &&
+                          !MediaQuery.disableAnimationsOf(context)
+                      ? ButtonMotion.togglePressedScale
+                      : ButtonMotion.restScale,
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : ButtonMotion.pressDuration,
+                  curve: ButtonMotion.curve,
+                  child: AssetAppIcon(
+                    spec.icon(icon).id,
+                    style: AppIconStyle.values.byName(icon['style'] as String),
+                    size: (icon['width'] as num).toDouble(),
+                    color: spec.iconPaint(icon),
+                  ),
                 ),
               ),
             ),
@@ -395,7 +403,7 @@ class _EditableFieldState extends State<_EditableField> {
           supportingText: o.supportingText,
           showSupporting: o.showSupporting,
           showSupportingIcon: o.showSupportingIcon,
-          trailing: action,
+          trailing: action ?? o.trailing,
           visualKey: ValueKey('${widget.elementId}.visual'),
           onTap: o.enabled ? lease.focus.requestFocus : null,
         ),

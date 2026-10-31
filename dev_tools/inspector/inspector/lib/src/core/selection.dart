@@ -37,7 +37,17 @@ class InspectionSession extends ChangeNotifier {
 
   void setSelecting(bool value) {
     selecting = value;
-    if (value) scan();
+    if (value) {
+      scan();
+    } else {
+      // Leaving Select drops the highlight. The click layer is already gone.
+      selected = null;
+      snapshot = null;
+      candidates = [];
+      retainedKey = null;
+      disposedSelection = false;
+      notice = null;
+    }
     notifyListeners();
   }
 

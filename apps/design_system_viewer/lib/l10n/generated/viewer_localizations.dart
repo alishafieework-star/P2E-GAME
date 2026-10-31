@@ -957,6 +957,24 @@ abstract class ViewerLocalizations {
   /// **'Application-controlled success'**
   String get fieldSuccess;
 
+  /// Text Field Viewer: source keeps Figma OTP colors; status uses the engineering green and red treatment.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP feedback'**
+  String get fieldOtpTone;
+
+  /// Text Field Viewer: Figma OTP appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get fieldOtpToneSource;
+
+  /// Text Field Viewer: engineering OTP success and error colors.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get fieldOtpToneStatus;
+
   /// Text Field Viewer: fieldNeutral
   ///
   /// In en, this message translates to:
@@ -1449,6 +1467,42 @@ abstract class ViewerLocalizations {
   /// **'Enter badge text or turn the badge off.'**
   String get navBadgeEmpty;
 
+  /// Viewer category for the provisional section header, page indicator and shelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections (provisional)'**
+  String get collectionsTitle;
+
+  /// Sample section title in the collections gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for You'**
+  String get collectionsSampleTitle;
+
+  /// Muted prefix in the collections gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get collectionsSampleLead;
+
+  /// Emphasized subject in the collections gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Clash of Clans'**
+  String get collectionsSampleSubject;
+
+  /// Sample section action in the collections gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'View More'**
+  String get collectionsSampleAction;
+
+  /// Page-indicator semantics in the collections gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {count}'**
+  String collectionsPageLabel(int page, int count);
+
   /// Provisional engineering adaptive primitive catalog.
   ///
   /// In en, this message translates to:
@@ -1502,60 +1556,6 @@ abstract class ViewerLocalizations {
   /// In en, this message translates to:
   /// **'Test'**
   String get testSkin;
-
-  /// No description provided for @authContinue.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get authContinue;
-
-  /// No description provided for @authDivider.
-  ///
-  /// In en, this message translates to:
-  /// **'or continue with'**
-  String get authDivider;
-
-  /// No description provided for @authRemember.
-  ///
-  /// In en, this message translates to:
-  /// **'Remember me for next time.'**
-  String get authRemember;
-
-  /// No description provided for @authTerms.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms & Conditions'**
-  String get authTerms;
-
-  /// No description provided for @authPrivacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy Policy'**
-  String get authPrivacy;
-
-  /// No description provided for @authPlayStation.
-  ///
-  /// In en, this message translates to:
-  /// **'PlayStation'**
-  String get authPlayStation;
-
-  /// No description provided for @authXbox.
-  ///
-  /// In en, this message translates to:
-  /// **'Xbox'**
-  String get authXbox;
-
-  /// No description provided for @authGoogle.
-  ///
-  /// In en, this message translates to:
-  /// **'Google'**
-  String get authGoogle;
-
-  /// No description provided for @authPrimitives.
-  ///
-  /// In en, this message translates to:
-  /// **'Auth primitives'**
-  String get authPrimitives;
 }
 
 class _ViewerLocalizationsDelegate

@@ -4,10 +4,10 @@ import '../app_bars/app_bar_browser.dart';
 import '../navigation/navigation_browser.dart';
 import '../inspection/inspection_record.dart';
 import '../l10n/generated/viewer_localizations.dart';
+import 'collections_gallery.dart';
 import 'page_scaffold_gallery.dart';
-import 'auth_primitives_gallery.dart';
 
-enum _Category { appBar, navigation, adaptive, auth }
+enum _Category { appBar, navigation, adaptive, collections }
 
 class ComponentsBrowser extends StatefulWidget {
   const ComponentsBrowser({
@@ -35,15 +35,6 @@ class _ComponentsBrowserState extends State<ComponentsBrowser> {
             spacing: 12,
             children: [
               ChoiceChip(
-                key: const ValueKey('components-auth'),
-                label: Text(l.authPrimitives),
-                selected: category == _Category.auth,
-                onSelected: (_) {
-                  setState(() => category = _Category.auth);
-                  widget.onInspect(null);
-                },
-              ),
-              ChoiceChip(
                 key: const ValueKey('components-app-bar'),
                 label: Text(l.appBarTitle),
                 selected: category == _Category.appBar,
@@ -70,12 +61,20 @@ class _ComponentsBrowserState extends State<ComponentsBrowser> {
                   widget.onInspect(null);
                 },
               ),
+              ChoiceChip(
+                key: const ValueKey('components-collections'),
+                label: Text(l.collectionsTitle),
+                selected: category == _Category.collections,
+                onSelected: (_) {
+                  setState(() => category = _Category.collections);
+                  widget.onInspect(null);
+                },
+              ),
             ],
           ),
         ),
         Expanded(
           child: switch (category) {
-            _Category.auth => const AuthPrimitivesGallery(),
             _Category.navigation => NavigationBrowser(
               selected: widget.selected,
               onInspect: widget.onInspect,
@@ -85,6 +84,7 @@ class _ComponentsBrowserState extends State<ComponentsBrowser> {
               onInspect: widget.onInspect,
             ),
             _Category.adaptive => const PageScaffoldGallery(),
+            _Category.collections => const CollectionsGallery(),
           },
         ),
       ],

@@ -37,6 +37,21 @@ for(const [field,name] of Object.entries({playStation:'Blue/700',xbox:'Green/600
 source+='}\n';
 const engineering=JSON.parse(fs.readFileSync('design/engineering/auth_entry.json','utf8'));
 source+=`abstract final class AuthToastTokens { static const duration = Duration(milliseconds: ${engineering.toastDurationMilliseconds}); }\n`;
+const keyboardCurves={easeOut:'Curves.easeOut'};
+const keyboardCurve=keyboardCurves[engineering.keyboardTransitionCurve];
+if(!keyboardCurve)throw Error('Unsupported keyboard transition curve '+engineering.keyboardTransitionCurve);
+const keyboardMs=engineering.keyboardTransitionMilliseconds;
+if(!Number.isInteger(keyboardMs)||keyboardMs<0)throw Error('Unsupported keyboard transition duration');
+const socialScale=engineering.socialIconPressedScale;
+if(typeof socialScale!=='number'||socialScale<=1||socialScale>1.2)throw Error('Unsupported social icon press scale');
+const socialPressMs=engineering.socialIconPressMilliseconds;
+const socialReleaseMs=engineering.socialIconReleaseMilliseconds;
+if(!Number.isInteger(socialPressMs)||socialPressMs<=0||socialPressMs>400)throw Error('Unsupported social icon press duration');
+if(!Number.isInteger(socialReleaseMs)||socialReleaseMs<=0||socialReleaseMs>400)throw Error('Unsupported social icon release duration');
+const otpHold=engineering.otpSuccessHoldMilliseconds;
+if(!Number.isInteger(otpHold)||otpHold<0||otpHold>5000)throw Error('Unsupported OTP success hold');
+source+=`abstract final class AuthEntryMotion {\n  /// ${engineering.keyboardTransitionDecision}: engineering timing. Figma defines no keyboard motion.\n  static const duration = Duration(milliseconds: ${keyboardMs});\n  static const curve = ${keyboardCurve};\n  /// ${engineering.socialIconPressDecision}: plate and brand-mark press. The label stays at rest.\n  static const socialIconPressedScale = ${socialScale};\n  static const socialIconPressDuration = Duration(milliseconds: ${socialPressMs});\n  static const socialIconReleaseDuration = Duration(milliseconds: ${socialReleaseMs});\n}\n`;
+source+=`abstract final class AuthOtpMotion {\n  /// ${engineering.otpSuccessHoldDecision}: verified OTP stays visible before the session continues.\n  static const successHold = Duration(milliseconds: ${otpHold});\n}\n`;
 const textDefs=JSON.parse(JSON.parse(fs.readFileSync(base+'evidence/18608-11451.variables.json','utf8')).content[0].text);
 source+='abstract final class AuthTextTokens { static final Map<String, TextStyle> byName = {\n';
 for(const [name,definition] of Object.entries(textDefs)) {
@@ -45,6 +60,13 @@ for(const [name,definition] of Object.entries(textDefs)) {
  if(!match)throw Error('Unsupported text style '+name);
  const [,size,weight,line,spacing]=match;
  source+=` '${name}': BundledTypography.resolve(const TextStyle(fontFamily: 'Outfit',package: 'p2e_design_system',fontSize: ${size},fontWeight: FontWeight.w${weight},fontVariations: [FontVariation('wght', ${weight}.0)],height: ${Number(line)/Number(size)},letterSpacing: ${Number(size)*Number(spacing)/100})),\n`;
+}
+const foundations=JSON.parse(fs.readFileSync('docs/snapshots/2026-10-20_development-text-fields/evidence/foundations.json','utf8'));
+const headline=foundations.styles.find(style=>style.name==='English/Baseline/Headline-Small');
+if(!headline) throw Error('Missing Headline-Small');
+{
+ const size=headline.fontSize, weight=headline.fontName.variationSettings.wght, line=headline.lineHeight.value, spacing=headline.letterSpacing.value;
+ source+=` 'English/Baseline/Headline-Small': BundledTypography.resolve(const TextStyle(fontFamily: 'Outfit',package: 'p2e_design_system',fontSize: ${size},fontWeight: FontWeight.w${weight},fontVariations: [FontVariation('wght', ${weight}.0)],height: ${Number(line)/Number(size)},letterSpacing: ${Number(size)*Number(spacing)/100})),\n`;
 }
 source+='}; }\n';
 const phoneSource=JSON.parse(JSON.parse(fs.readFileSync('docs/snapshots/2026-10-23_auth-conformance/figma-text-evidence.json','utf8')).content[0].text).frames.find(f=>f.id==='18618:12126').texts.find(t=>t.text.startsWith('+98')).segments[0];

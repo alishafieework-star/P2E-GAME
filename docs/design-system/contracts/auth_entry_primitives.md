@@ -1,5 +1,9 @@
 # Auth Entry primitives (D-056)
 
+D-067 places the single-owner widgets in
+`lib/features/auth/src/presentation/entry/widgets/auth_entry_widgets.dart`.
+Generated tokens stay in the Design System. This is not a generic overlay set.
+
 Sources: read-only snapshot `docs/snapshots/2026-10-23_auth-entry/`;
 file `7PGTHT5CQzbTsWZQnPIQce`. All additions are provisional. Light and
 Persian derive from the existing skin and typography contract (R-001/R-003).
@@ -11,7 +15,7 @@ Persian derive from the existing skin and typography contract (R-001/R-003).
 | `LabeledDivider` | Flexible lines and wrapping label; horizontal32, gap10,14/18 Muted body. Source18613:11493. |
 | `LinkText` | Localized prose and separate link segments, each with native focus and link semantics. D-059 uses the inline target exception; no target padding enlarges prose. Source18618:11677; source prose is14/18 Regular, links14/18 SemiBold, two lines at the reference size. |
 | `HeroBanner` | Original exported illustration plus the exact source SVG elliptical radial alpha-mask matrix (generated). Surface behind alpha. The opaque composite export remains evidence only and is not used as a runtime fade. Source18618:12122,402×264. Source header height is system top inset plus180; artwork starts at physical top under system UI. No simulated status bar. |
-| `SocialAuthTile` | Equal flexible widths, source38 tile,12 radius, label14/18 below6 gap, total minimum48 hit target. Enum PlayStation/Xbox/Google; source18613:11500,11505,11516. Original local artwork through AppIcon, never tinted. Brand colors explicitly excluded from alternate-skin leak tests: Blue/700, Green/600, Alpha/White and original artwork. Google asset provisional svgrepo source. |
+| `SocialAuthTile` | Equal flexible widths, source38 tile,12 radius, label14/18 below6 gap, total minimum48 hit target. Enum PlayStation/Xbox/Google; source18613:11500,11505,11516. Original local artwork through AppIcon, never tinted. Brand colors explicitly excluded from alternate-skin leak tests: Blue/700, Green/600, Alpha/White and original artwork. Google asset provisional svgrepo source. Press scales the colored plate and brand mark together to AuthEntryMotion.socialIconPressedScale (D-066); the label stays still and the control draws no splash. Timing is AuthEntryMotion.socialIconPressDuration and socialIconReleaseDuration. Reduced motion stays at rest. |
 | `AppToast` | Engineering provisional live region, surface/foreground skin roles, safe-area and keyboard aware. Generated engineering inset/radius/duration; auto-dismiss. Reduced motion renders without transition. No Figma node. |
 
 AppToggle also reuses the Radio focus/hover presentation. PlayStation and Xbox artwork is40 logical pixels within the source38-high tile (one pixel bleed on each vertical edge); Google remains20. AppToast exposes the full message once in a live region and scrolls long messages within the available keyboard-safe space.
@@ -22,7 +26,11 @@ RewardPill is product composition in shared/widgets, not a DS domain concept.
 
 AppToast uses the explicit provisional4-second engineering duration in
 design/engineering/auth_entry.json. It has no entrance/exit motion, including
-reduced-motion mode. The keyboard transition uses direct layout; existing field
+reduced-motion mode. When motion is enabled, opening or closing the keyboard
+animates through AuthEntryMotion (D-063): the hero, remember row, divider,
+social row and legal copy collapse, and the CTA moves to the pinned slot.
+Reduced motion and disableAnimations keep that settled layout directly, with
+no AnimatedSize. Existing field
 motion retains D-054 behavior.
 
 PageScaffold adds opt-in `viewport` layout: bounded Scaffold body, keyboard resize,
@@ -39,4 +47,4 @@ single-line editing or source typography. Existing fields remain unchanged.
 
 The source CTA is362×46 before idle Body inside-stroke width reduction. Rendered fixed frame wins over contradictory vertical padding; vertical centering replaces padding-derived52. E-011 records the conflict but no longer requires enlargement. Native Button hit/semantic bounds are at least48 without consuming layout space.
 
-Idle AuthEntryBodyFrame includes its1px inside stroke in layout. Its live social frame is129 high. FieldInputPresentation.phoneNumber resolves the explicit16/24 zero-tracking source instance; email retains18/24. The native caret uses the source20px extent and2px stroke. Small native caret anchoring/pixel snapping differences are documented in the conformance comparison.
+Idle AuthEntryBodyFrame includes its1px inside stroke in layout only. The stroke is not painted in either brightness, because an opaque edge cuts the hero fade. Its live social frame is129 high. FieldInputPresentation.phoneNumber resolves the explicit16/24 zero-tracking source instance; email retains18/24. The native caret uses the source20px extent and2px stroke. Small native caret anchoring/pixel snapping differences are documented in the conformance comparison.

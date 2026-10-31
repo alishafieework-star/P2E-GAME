@@ -20,6 +20,54 @@ final class RemotePhoneSignInSource implements PhoneSignInSource {
     bool rememberDevice,
     AuthCancellation? cancellation,
   ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> resendOtp(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> verifyOtp(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<PhoneStatusDto> checkPhone(
+    String e164,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> signIn(
+    String e164,
+    String password,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> requestReset(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> resendReset(
+    String e164,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> verifyReset(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> createPassword(
+    String e164,
+    String password,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
 }
 
 final class RemoteEmailSignInSource implements EmailSignInSource {
@@ -27,6 +75,68 @@ final class RemoteEmailSignInSource implements EmailSignInSource {
   @override
   Future<EmailStatusDto> checkEmail(
     String email,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> signIn(
+    String email,
+    String password,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> requestReset(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> resendReset(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> verifyReset(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> createPassword(
+    String email,
+    String password,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<OtpChallengeDto> requestVerification(
+    String email,
+    bool rememberDevice,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> verifyRegistration(
+    String challengeId,
+    String code,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+}
+
+final class RemoteAccountSetupSource implements AccountSetupSource {
+  const RemoteAccountSetupSource();
+  @override
+  Future<UsernameCheckDto> checkUsername(
+    String username,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<List<String>> usernameIdeas(
+    String base,
+    AuthCancellation? cancellation,
+  ) async => _unconfigured();
+  @override
+  Future<void> complete(
+    Map<String, Object?> body,
     AuthCancellation? cancellation,
   ) async => _unconfigured();
 }

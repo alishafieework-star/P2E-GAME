@@ -1,0 +1,46 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "fileKey": "7PGTHT5CQzbTsWZQnPIQce",
+  "note": "instanceCount includes instances nested inside App Bar and Navigator. Those nested instances belong to components that already exist.",
+  "frames": {
+    "18457:13084": {
+      "name": "Home Page - Dark (Expand)",
+      "instanceCount": 44,
+      "groups": [
+        {"setId": "14433:645", "setName": "iPhone - Status Bar", "page": "ios Components", "count": 1, "variants": {"Theme=Dark": 1}},
+        {"setId": "18422:12447", "setName": "App Bar Container", "page": "- App Bar", "count": 1, "variants": {"Therme=Home - Dark": 1}},
+        {"setId": "14466:925", "setName": "Fill", "page": "-> Icons", "count": 18, "variants": {"Icon=Crown": 5, "Icon=Poker Chip": 1, "Icon=Add Larg": 1, "Icon=Chevron Right": 4, "Icon=Verified": 2, "Icon=Trophy": 2, "Icon=Workspace Premium 2": 2, "Icon=Home": 1}},
+        {"setId": "14466:880", "setName": "Outline", "page": "-> Icons", "count": 5, "variants": {"Icon=Help": 1, "Icon=Target Check": 1, "Icon=Stadia Controller": 1, "Icon=Leaderboard": 1, "Icon=Store": 1}},
+        {"setId": "18436:1673", "setName": "Small Button - Dark Mode", "page": "- Button System", "count": 3, "variants": {"Button=Tonal": 3}},
+        {"setId": "18457:14096", "setName": "Game Compact Card", "page": "- Games", "count": 8, "variants": {"Theme=Detailed - Dark": 8}},
+        {"setId": "18457:14486", "setName": "Games Expand Card", "page": "- Games", "count": 1, "variants": {"Theme=Dark": 1}},
+        {"setId": "18422:11475", "setName": "Navigator Bar Container", "page": "- Navigator Bar", "count": 1, "variants": {"Theme=Dark": 1}},
+        {"setId": "18422:11155", "setName": "Vertical Navigation Item - Dark", "page": "- Navigator Bar", "count": 5, "variants": {"State=Active": 1, "State=Default": 4}},
+        {"setId": "14433:676", "setName": "ios Keyboard Basic", "page": "ios Components", "count": 1, "variants": {"Theme=EN - Dark": 1}, "visible": false}
+      ]
+    },
+    "18457:14885": {
+      "name": "Home Page - Light (Expand)",
+      "instanceCount": 44,
+      "groups": [
+        {"setId": "14433:645", "setName": "iPhone - Status Bar", "page": "ios Components", "count": 1, "variants": {"Theme=Light": 1}},
+        {"setId": "18422:12447", "setName": "App Bar Container", "page": "- App Bar", "count": 1, "variants": {"Therme=Home- Light": 1}},
+        {"setId": "14466:925", "setName": "Fill", "page": "-> Icons", "count": 18, "variants": {"Icon=Crown": 5, "Icon=Poker Chip": 1, "Icon=Add Larg": 1, "Icon=Chevron Right": 4, "Icon=Verified": 2, "Icon=Trophy": 2, "Icon=Workspace Premium 2": 2, "Icon=Home": 1}},
+        {"setId": "14466:880", "setName": "Outline", "page": "-> Icons", "count": 5, "variants": {"Icon=Help": 1, "Icon=Target Check": 1, "Icon=Stadia Controller": 1, "Icon=Leaderboard": 1, "Icon=Store": 1}},
+        {"setId": "18436:1704", "setName": "Small Button - Light Mode", "page": "- Button System", "count": 3, "variants": {"Button=Tonal": 3}},
+        {"setId": "18457:14096", "setName": "Game Compact Card", "page": "- Games", "count": 8, "variants": {"Theme=Detailed - Light": 8}},
+        {"setId": "18457:14486", "setName": "Games Expand Card", "page": "- Games", "count": 1, "variants": {"Theme=Light": 1}},
+        {"setId": "18422:11475", "setName": "Navigator Bar Container", "page": "- Navigator Bar", "count": 1, "variants": {"Theme=Light": 1}},
+        {"setId": "18422:11443", "setName": "Vertical Navigation Item - Light", "page": "- Navigator Bar", "count": 5, "variants": {"State=Active": 1, "State=Default": 4}},
+        {"setId": "14433:676", "setName": "ios Keyboard Basic", "page": "ios Components", "count": 1, "variants": {"Theme=EN - Light": 1}, "visible": false}
+      ]
+    }
+  },
+  "fourthSectionTitle": {
+    "darkFrame": "18457:13124",
+    "darkText": {"id": "18457:13127", "characters": "Competition Games"},
+    "lightFrame": {"id": "18457:15141", "name": "Competition Games"},
+    "lightText": {"id": "18457:15144", "name": "Recommended for You", "characters": "Recommended for You"}
+  }
+}

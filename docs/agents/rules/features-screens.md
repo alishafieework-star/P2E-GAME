@@ -8,15 +8,18 @@ globs:
 # Features and screens
 
 - Use the `p2e-build-screen` skill for any screen built from a Figma frame.
-- Compose `lib/ui` components and `lib/shared/widgets` only. If something is missing, stop and propose a component
-  (contract first). Do not hand-build a one-off look inside a feature.
+- Screens compose Design System components, `lib/shared/widgets`, and that feature's own `presentation/**/widgets/`.
+  A widget with one product owner stays in the feature (D-067). Do not put it in the Design System.
+  If a second feature needs it, promote it to the Design System or `shared` first.
 - No raw colors, sizes, radii, font sizes or durations. Spacing comes from spacing tokens. Overrides need `// OVERRIDE(O-###)`.
-- Banned widgets (v1.3 §15.3) stay banned; `tool/check_architecture.dart` enforces it.
+- Banned widgets (v1.3 §15.3) stay banned in screens and `lib/shared/widgets`. A file under `presentation/**/widgets/`
+  may use `TextButton` for a single-owner control. `tool/check_architecture.dart` enforces both.
 - Screens use `PageScaffold` / `SafeArea` and respect system insets (Android edge-to-edge).
 - Each screen implements loading, empty, error, offline and success states, even when Figma shows only success.
   Missing designs for those states → provisional pattern from `lib/ui/patterns` plus a designer request.
 - Product widgets used by several features (`CurrencyChip`, `RewardPill`, …) live in `lib/shared/widgets`; the game card stays in
-  the `games` feature public API. `lib/ui` stays product-agnostic.
+  the `games` feature public API. The Design System stays product-agnostic. Auth Entry controls listed in D-067 stay in
+  `lib/features/auth/src/presentation/entry/widgets/`, including their hero image and brand SVGs.
 - Tablet (Medium/Expanded): only the safe rules from the architecture (max content width, `AdaptiveGrid` column count).
   Do not invent tablet layouts; they arrive with the tablet design.
 - All user-visible strings come from ARB files. Mixed-direction content (nicknames, numbers) uses bidi isolation.
@@ -25,10 +28,56 @@ D-044: every product screen must be tested at compact width, scales1.0 and2.0, b
 
 D-049: in fa locale every user-visible digit is Persian (۰–۹), including values, counts, badges and validation copy. Stored/transmitted values remain ASCII under the existing normalization policy. Product callers perform display conversion through shared/formatting; DS widgets do not transform supplied text. Test display values separately from storage/wire values.
 
+D-068: the phone OTP screen lives in `lib/features/auth`. Its single-owner rows stay in `presentation/otp/widgets`. Dev request, resend and verify call the local HTTP fake; production still has no fake backend. Product locale and theme stay D-065.
+
+D-070: a verified OTP holds on the screen for the generated success duration. A server-rejected code shakes; offline and server failures do not. The rejected code stays. The session does not become signed in here (D-139).
+
+D-071: the OTP SMS listener starts before request and resend. Remote autofill stays off until a production SMS pattern exists.
+
+D-074: one parsed SMS code fills the OTP field and submits it. Typing a code still needs the button. The success hold then continues.
+
+D-072: a registered account with a password opens Enter Password. The development password is P12345. Forgot password reuses the OTP screen with reset copy. Product locale and theme stay D-065. Where the player goes next is D-139.
+
+D-073: Back and the auth primary buttons move with the shared horizontal page slide. Destinations follow D-139.
+
+D-075: Create a Password and Set a New Password share the four password rules. The dev server stores a password that matches its confirmation. Registered accounts that have not set one still accept P12345. Signing in waits for Welcome Back or All Set (D-139).
+
+D-135: when the HTML prototype and the current routes disagree, the HTML flow wins. Screens that already exist in Figma keep Figma appearance. Prototype test aids are not product features.
+
+D-138: Onboarding lives in `lib/features/onboarding`. It does not import auth. Finishing stores `onboardingSeen` and reveals Auth Entry.
+
+D-139: registration is verify, username, create password, avatar, notifications, then All Set. Sign-in ends on Welcome Back. `signedIn` starts only from Start Playing or Let's Play.
+
+D-140: username, avatar, notifications, All Set, Welcome Back, Continue as and the auth Help sheet stay in the auth feature and compose existing components. `PlayerAvatar` is shared. `AppSheet` is the provisional sheet. Notification permission goes through the shared port.
+
+D-141: Terms and Privacy open the in-app legal reader. They do not open the browser.
+
+D-142: the Home tour lives in `lib/features/tour`. Other features only mark `TourTarget` anchors from `lib/shared/tour`. They do not import the tour.
+
 D-058 exception: free-text Auth Entry identifiers are displayed exactly as typed,
 including ASCII digits inside email. Domain normalization changes only the
 classified wire value. Display-only welcome rewards still follow D-049.
 
+
+## Home components — D-101 / D-102
+
+- Game cards and the Home hero belong to the `games` public API. The quest card belongs to `missions`. `home` only orders sections.
+- `GameInfoRow` and `RewardBadge` live in `lib/shared/widgets` because games and missions both use them, and missions cannot import games.
+- `AppSectionHeader`, `AppPageIndicator` and `AppShelf` are provisional Design System collection primitives.
+- A widget under `presentation/**/widgets/` or in `lib/shared/widgets` is presentational. It takes display-ready text, formatted numbers, images, enums and callbacks. It imports no Riverpod, go_router, localizations, repositories, domain, data, shared read models or `lib/app`. Feature sections do that. `tool/check_architecture.dart` enforces it.
+- Home geometry, per-theme roles and text styles come from `docs/snapshots/2026-10-24_home/evidence` through `tool/tokens/generate_home.cjs`. Widgets read `ThemedRole` and `ThemedPaint` values; they do not pick colors by brightness.
+- D-103: `CollectionSection` (header, full-bleed content, optional footer) is a shared product widget, not a Design System component. `AppShelf` sits full-bleed inside it. Sections watch their own read model, show the provisional retry row on failure and hide when empty.
+- D-104: after Home scrolls, a `Surface/Base` scrim covers only the status-bar inset. Hero layers lag by the engineering parallax factors and stay still under reduced motion. From Medium upward the Home column is `contentMaxWidth` and centered.
+- D-121: Game Details is a games screen, not a shell placeholder. It is nested under the tab the player came from so the Navigator stays visible. Its geometry comes from `tool/tokens/generate_game_details.cjs`. Presentational pieces stay under `presentation/details/widgets/`; the screen and sections own providers, copy and navigation. Empty sections hide. A quest is shown on a game only through `gameId` on the missions read model (D-124).
+- D-125: See More Comments is shown only when `reviews.total` is greater than the comments already listed. A complete list omits the button.
+- D-126: Tapping a Game Details media tile opens a full-screen viewer of those pictures. A horizontal drag moves between them. Back uses the component arrow on the start corner.
+- D-128: The media viewer fades open and closed in 200ms, easeOut both ways. It does not scale. Reduced motion skips the animation. The duration lives in `design/engineering/game_details.json`.
+- D-129: Home hero parallax is a transform, not a per-frame rebuild. Cover images decode at display width. The reward overlay scrim does not use a live backdrop blur (E-120).
+- D-130: The hero does not move on each scroll frame. Measured raster time stayed high while that transform ticked.
+- D-132: Game Details opens before its payload arrives. The request starts with the entrance. The loaded body appears after that entrance. Until the response arrives, the page keeps its loading state.
+- D-133: Home profile, help and add-coins accept a press and do not navigate. Game Details profile stays unavailable. Press scales follow D-136. The Home profile shows the selected avatar (D-140).
+- D-136: Home Play Now, View More, the Navigator indicator and the expand-card image use the HTML hover and press values. Reduced motion stays at rest.
+- D-142: Home, games and missions expose tour anchors. They do not start or describe the tour.
 
 ## Domain repository contracts — D-055
 

@@ -1,0 +1,66 @@
+{
+  "readOnly": true,
+  "captured": "2026-10-24",
+  "fileKey": "7PGTHT5CQzbTsWZQnPIQce",
+  "pageId": "18448:10024",
+  "pageName": "- Games",
+  "sets": [
+    {
+      "id": "18457:14096",
+      "name": "Game Compact Card",
+      "homeScope": true,
+      "defs": {
+        "Game Name#18457:14": {"type": "TEXT", "defaultValue": "Sifu"},
+        "Game Creator#18457:10": {"type": "TEXT", "defaultValue": "Kepler Interactive"},
+        "® Sign#18457:11": {"type": "BOOLEAN", "defaultValue": true},
+        "Rate#18457:12": {"type": "TEXT", "defaultValue": "4.4"},
+        "Reward#18457:13": {"type": "TEXT", "defaultValue": "+250"},
+        "Theme": {"type": "VARIANT", "defaultValue": "Detailed - Dark", "variantOptions": ["Detailed - Dark", "Detailed - Light", "Dark", "Light"]}
+      },
+      "variants": [
+        {"id": "18451:10177", "name": "Theme=Detailed - Dark", "w": 120, "h": 204},
+        {"id": "18457:14097", "name": "Theme=Detailed - Light", "w": 120, "h": 204},
+        {"id": "18530:2907", "name": "Theme=Dark", "w": 120, "h": 178},
+        {"id": "18530:2929", "name": "Theme=Light", "w": 120, "h": 178}
+      ]
+    },
+    {
+      "id": "18457:14486",
+      "name": "Games Expand Card",
+      "homeScope": true,
+      "defs": {
+        "Game Name#18457:15": {"type": "TEXT", "defaultValue": "MONOPOLY"},
+        "Game Creator#18457:16": {"type": "TEXT", "defaultValue": "Marmalade Game"},
+        "® Sign#18457:17": {"type": "BOOLEAN", "defaultValue": true},
+        "Rate#18457:18": {"type": "TEXT", "defaultValue": "4.9"},
+        "Reward#18457:19": {"type": "TEXT", "defaultValue": "+1,500"},
+        "Theme": {"type": "VARIANT", "defaultValue": "Dark", "variantOptions": ["Dark", "Light"]}
+      },
+      "variants": [
+        {"id": "18457:12229", "name": "Theme=Dark", "w": 370, "h": 226},
+        {"id": "18457:14487", "name": "Theme=Light", "w": 370, "h": 226}
+      ],
+      "hiddenInSource": ["Rate row inside the card row"]
+    },
+    {
+      "id": "18526:11872",
+      "name": "Event and Offer Card",
+      "homeScope": false,
+      "note": "Used by Game (Downloadable), not by Home. Recorded so the Games page inventory is complete. Not built in the Home task.",
+      "variants": [
+        {"id": "18526:11871", "name": "Theme=Default", "w": 370, "h": 270},
+        {"id": "18526:11873", "name": "Theme=Light", "w": 370, "h": 270}
+      ]
+    },
+    {
+      "id": "18526:11914",
+      "name": "Comment",
+      "homeScope": false,
+      "note": "Used by Game (Downloadable), not by Home. Not built in the Home task.",
+      "variants": [
+        {"id": "18526:11913", "name": "Theme=Dark", "w": 338, "h": 190},
+        {"id": "18526:11915", "name": "Theme=Light", "w": 338, "h": 190}
+      ]
+    }
+  ]
+}

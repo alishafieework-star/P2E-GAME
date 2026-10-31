@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mygame_p2e/features/auth/src/presentation/entry/widgets/auth_entry_widgets.dart';
 import 'package:p2e_design_system/design_system.dart';
 
 import '../../support/auth_harness.dart';
@@ -44,7 +45,7 @@ void main() {
                     keyboard ? findsNothing : findsOneWidget,
                   );
                   expect(
-                    find.byType(AppToggle),
+                    find.byType(AppCheckbox),
                     keyboard ? findsNothing : findsOneWidget,
                   );
                   expect(
@@ -76,15 +77,17 @@ void main() {
     (tester) async {
       addTearDown(tester.view.reset);
       await pumpAuth(tester, raw: 'user@example.com', focused: true);
-      await tester.ensureVisible(find.byType(AppToggle));
-      await tester.tap(find.byType(AppToggle));
+      await tester.ensureVisible(find.byType(AppCheckbox));
+      await tester.tap(find.byType(AppCheckbox));
       await tester.ensureVisible(find.byKey(const ValueKey('auth.continue')));
       await tester.tap(find.byKey(const ValueKey('auth.continue')));
       await tester.pumpAndSettle();
-      expect(find.text('Password — screen coming next'), findsOneWidget);
-      await tester.tap(find.text('Back'));
+      expect(find.text('Enter Your Password'), findsOneWidget);
+      await tester.tap(
+        find.byKey(const ValueKey('auth.password.app-bar.back.hit')),
+      );
       await tester.pumpAndSettle();
-      expect(tester.widget<AppToggle>(find.byType(AppToggle)).value, true);
+      expect(tester.widget<AppCheckbox>(find.byType(AppCheckbox)).value, true);
       expect(
         tester
             .widget<AppTextField>(find.byType(AppTextField))

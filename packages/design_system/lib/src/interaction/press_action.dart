@@ -8,14 +8,19 @@ class PressAction extends StatefulWidget {
     super.key,
     required this.onPressed,
     required this.style,
-    required this.child,
+    this.child,
+    this.childBuilder,
+    this.pressedScale = ButtonMotion.pressedScale,
     this.statesController,
     this.focusNode,
     this.interactionSuppressed = false,
-  });
+  }) : assert(child != null || childBuilder != null);
   final VoidCallback? onPressed;
   final ButtonStyle style;
-  final Widget child;
+  final Widget? child;
+  final Widget Function(BuildContext context, bool pressed, bool hovered)?
+  childBuilder;
+  final double pressedScale;
   final WidgetStatesController? statesController;
   final FocusNode? focusNode;
   final bool interactionSuppressed;
@@ -26,6 +31,7 @@ class PressAction extends StatefulWidget {
 class _PressActionState extends State<PressAction> {
   late WidgetStatesController controller;
   bool pressed = false;
+  bool hovered = false;
   @override
   void initState() {
     super.initState();
@@ -34,10 +40,7 @@ class _PressActionState extends State<PressAction> {
 
   void attach() {
     controller = widget.statesController ?? WidgetStatesController();
-    pressed =
-        widget.onPressed != null &&
-        !widget.interactionSuppressed &&
-        controller.value.contains(WidgetState.pressed);
+    sync();
     controller.addListener(changed);
   }
 
@@ -46,12 +49,19 @@ class _PressActionState extends State<PressAction> {
     if (widget.statesController == null) controller.dispose();
   }
 
+  void sync() {
+    final allow = widget.onPressed != null && !widget.interactionSuppressed;
+    pressed = allow && controller.value.contains(WidgetState.pressed);
+    hovered = allow && controller.value.contains(WidgetState.hovered);
+  }
+
   void changed() {
-    final next =
-        widget.onPressed != null &&
-        !widget.interactionSuppressed &&
-        controller.value.contains(WidgetState.pressed);
-    if (next != pressed && mounted) setState(() => pressed = next);
+    final wasPressed = pressed;
+    final wasHovered = hovered;
+    sync();
+    if ((pressed != wasPressed || hovered != wasHovered) && mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -64,6 +74,9 @@ class _PressActionState extends State<PressAction> {
     }
     if (widget.onPressed == null || widget.interactionSuppressed) {
       pressed = false;
+      hovered = false;
+    } else {
+      sync();
     }
   }
 
@@ -80,7 +93,7 @@ class _PressActionState extends State<PressAction> {
         widget.onPressed == null ||
         widget.interactionSuppressed;
     final target = pressed && !reduced
-        ? ButtonMotion.pressedScale
+        ? widget.pressedScale
         : ButtonMotion.restScale;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: ButtonMotion.restScale, end: target),
@@ -101,7 +114,13 @@ class _PressActionState extends State<PressAction> {
         onPressed: widget.onPressed,
         style: widget.style,
         statesController: controller,
-        child: widget.child,
+        child:
+            widget.childBuilder?.call(
+              context,
+              pressed && !reduced,
+              hovered && !reduced,
+            ) ??
+            widget.child!,
       ),
     );
   }

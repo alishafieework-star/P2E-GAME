@@ -339,11 +339,1648 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get authBack;
 
+  /// OTP screen title from the Dark phone OTP frame.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Your Inbox'**
+  String get authOtpTitle;
+
+  /// Text before the typed phone number on the OTP screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code we sent to '**
+  String get authOtpSubtitleLead;
+
+  /// Text after the typed phone number on the OTP screen.
+  ///
+  /// In en, this message translates to:
+  /// **'.'**
+  String get authOtpSubtitleEnd;
+
+  /// Accessible name for the one-time code field.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time code'**
+  String get authOtpLabel;
+
+  /// Prompt beside the OTP countdown or resend action.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn’t get it?'**
+  String get authOtpResendPrompt;
+
+  /// Action shown after the OTP countdown reaches zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get authOtpResend;
+
+  /// Prompt beside the action that returns to the phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong Phone?'**
+  String get authOtpWrongPhone;
+
+  /// Action that returns to the phone field.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it'**
+  String get authOtpChange;
+
+  /// Primary OTP action.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Phone Number'**
+  String get authOtpVerify;
+
+  /// Field error when the development OTP server rejects the code.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not correct. Please try again.'**
+  String get authOtpInvalid;
+
+  /// Accessible name for the OTP help action. It has no destination yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get authOtpHelp;
+
+  /// Accessible name while OTP verification is in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying'**
+  String get authOtpLoading;
+
+  /// No description provided for @authPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your Password'**
+  String get authPasswordTitle;
+
+  /// No description provided for @authPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password to jump back into the game.'**
+  String get authPasswordSubtitle;
+
+  /// No description provided for @authPasswordLoggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in as'**
+  String get authPasswordLoggingIn;
+
+  /// No description provided for @authPasswordChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get authPasswordChange;
+
+  /// No description provided for @authPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// No description provided for @authPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get authPasswordHint;
+
+  /// No description provided for @authPasswordShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authPasswordShow;
+
+  /// No description provided for @authPasswordHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authPasswordHide;
+
+  /// No description provided for @authPasswordRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get authPasswordRemember;
+
+  /// No description provided for @authPasswordForgot.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get authPasswordForgot;
+
+  /// No description provided for @authPasswordLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get authPasswordLogin;
+
+  /// No description provided for @authPasswordInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is not correct. Please try again.'**
+  String get authPasswordInvalid;
+
+  /// No description provided for @authResetWrongEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong Email?'**
+  String get authResetWrongEmail;
+
+  /// No description provided for @authResetAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get authResetAction;
+
+  /// No description provided for @authResetLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Resetting password'**
+  String get authResetLoading;
+
+  /// No description provided for @authCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a New Password'**
+  String get authCreateTitle;
+
+  /// No description provided for @authCreateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use something you haven\'t used here before.'**
+  String get authCreateSubtitle;
+
+  /// No description provided for @authCreatePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get authCreatePasswordLabel;
+
+  /// No description provided for @authCreatePasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new password'**
+  String get authCreatePasswordHint;
+
+  /// No description provided for @authCreateConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get authCreateConfirmLabel;
+
+  /// No description provided for @authCreateConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get authCreateConfirmHint;
+
+  /// No description provided for @authCreateSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Password'**
+  String get authCreateSubmit;
+
+  /// No description provided for @authPasswordStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password strength'**
+  String get authPasswordStrength;
+
+  /// No description provided for @authPasswordWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get authPasswordWeak;
+
+  /// No description provided for @authPasswordFair.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get authPasswordFair;
+
+  /// No description provided for @authPasswordGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get authPasswordGood;
+
+  /// No description provided for @authPasswordStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get authPasswordStrong;
+
+  /// No description provided for @authPasswordRuleLength.
+  ///
+  /// In en, this message translates to:
+  /// **'8+ characters'**
+  String get authPasswordRuleLength;
+
+  /// No description provided for @authPasswordRuleNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'At least a number'**
+  String get authPasswordRuleNumber;
+
+  /// No description provided for @authPasswordRuleCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Upper & lowercase'**
+  String get authPasswordRuleCase;
+
+  /// No description provided for @authPasswordRuleSymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'A symbol (#, !, @, ...)'**
+  String get authPasswordRuleSymbol;
+
   /// Placeholder only; Home screen is outside the Auth Entry task.
   ///
   /// In en, this message translates to:
   /// **'Home — screen coming next'**
   String get authHomePlaceholder;
+
+  /// Home section title (Figma 18457:13110).
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended for You'**
+  String get homeSectionRecommended;
+
+  /// Home section title (Figma 18457:13138).
+  ///
+  /// In en, this message translates to:
+  /// **'Multiplayer Games'**
+  String get homeSectionMultiplayer;
+
+  /// Home section title (Figma 18457:13124; Light differs, E-101).
+  ///
+  /// In en, this message translates to:
+  /// **'Competition Games'**
+  String get homeSectionCompetition;
+
+  /// Home section title (Figma 18457:13153).
+  ///
+  /// In en, this message translates to:
+  /// **'Mission and Quest'**
+  String get homeSectionQuests;
+
+  /// Section action that opens the Games tab.
+  ///
+  /// In en, this message translates to:
+  /// **'View More'**
+  String get homeViewMore;
+
+  /// Section action that opens the Mission tab.
+  ///
+  /// In en, this message translates to:
+  /// **'View All Missions'**
+  String get homeViewAllMissions;
+
+  /// Primary game action on Home cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Now'**
+  String get homePlayNow;
+
+  /// Price caption under a game action.
+  ///
+  /// In en, this message translates to:
+  /// **'Free to Play'**
+  String get homeFreeToPlay;
+
+  /// Price caption under a game action.
+  ///
+  /// In en, this message translates to:
+  /// **'In-app Purchases'**
+  String get homeInAppPurchases;
+
+  /// Short points unit after an amount.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get homePointsUnit;
+
+  /// Accessible rating of a game.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated {rating} out of 5'**
+  String homeRating(String rating);
+
+  /// Accessible name of a game card.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {creator}'**
+  String homeGameCard(String name, String creator);
+
+  /// Accessible paged-shelf position.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {count}'**
+  String homePageLabel(String page, String count);
+
+  /// Action on a started quest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get homeQuestContinue;
+
+  /// Action on a quest that has not started.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Quest'**
+  String get homeQuestStart;
+
+  /// Quest status. Numbers use the number style; word order may change.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {done} of {total}'**
+  String homeQuestCompleted(String done, String total);
+
+  /// Quest status before the first step.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Started Yet!'**
+  String get homeQuestNotStarted;
+
+  /// Accessible quest progress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} steps completed'**
+  String homeQuestProgress(String done, String total);
+
+  /// Countdown unit label.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get homeCountdownDay;
+
+  /// Countdown unit label.
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get homeCountdownHour;
+
+  /// Countdown unit label.
+  ///
+  /// In en, this message translates to:
+  /// **'Minute'**
+  String get homeCountdownMinute;
+
+  /// Countdown unit label.
+  ///
+  /// In en, this message translates to:
+  /// **'Second'**
+  String get homeCountdownSecond;
+
+  /// Accessible quest countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left: {days, plural, =1{1 day} other{{days} days}}, {hours, plural, =1{1 hour} other{{hours} hours}}, {minutes, plural, =1{1 minute} other{{minutes} minutes}}, {seconds, plural, =1{1 second} other{{seconds} seconds}}'**
+  String homeCountdownLabel(int days, int hours, int minutes, int seconds);
+
+  /// Provisional section error (R-009).
+  ///
+  /// In en, this message translates to:
+  /// **'This section couldn\'t load.'**
+  String get homeSectionError;
+
+  /// Retry action of a failed section.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get homeRetry;
+
+  /// Shown while a wallet or profile value is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get homeValueUnknown;
+
+  /// App Bar avatar action.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get homeProfile;
+
+  /// App Bar help action.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get homeHelp;
+
+  /// App Bar add-coins action.
+  ///
+  /// In en, this message translates to:
+  /// **'Add coins'**
+  String get homeAddCoins;
+
+  /// Accessible wallet points.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} points'**
+  String homePointsLabel(String points);
+
+  /// Accessible wallet coins.
+  ///
+  /// In en, this message translates to:
+  /// **'{coins} coins'**
+  String homeCoinsLabel(String coins);
+
+  /// Navigator tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// Navigator tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission'**
+  String get navMission;
+
+  /// Navigator tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get navGames;
+
+  /// Navigator tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get navLeaderboard;
+
+  /// Navigator tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get navShop;
+
+  /// Accessible Navigator badge.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {count} new'**
+  String navBadge(String label, String count);
+
+  /// Honest placeholder for a destination that has not landed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — screen coming next'**
+  String shellComingSoon(String name);
+
+  /// Placeholder destination name.
+  ///
+  /// In en, this message translates to:
+  /// **'Game details'**
+  String get shellGameDetails;
+
+  /// Placeholder destination name.
+  ///
+  /// In en, this message translates to:
+  /// **'Quest details'**
+  String get shellQuestDetails;
+
+  /// Leaves a placeholder destination.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get shellBack;
+
+  /// Primary action on a downloadable game.
+  ///
+  /// In en, this message translates to:
+  /// **'Download and Install'**
+  String get gameDownload;
+
+  /// Save this game on the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark'**
+  String get gameBookmark;
+
+  /// This game is saved on the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarked'**
+  String get gameBookmarked;
+
+  /// Caption under the review count.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get gameReviews;
+
+  /// Caption under the download count, and the unavailable downloads action.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get gameDownloads;
+
+  /// Muted prefix of the about section title.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get gameAboutLead;
+
+  /// Expands the about copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Read More'**
+  String get gameReadMore;
+
+  /// Collapses the about copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get gameReadLess;
+
+  /// Label for the game's last update date.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated On'**
+  String get gameUpdatedOn;
+
+  /// Label for the platforms a game supports.
+  ///
+  /// In en, this message translates to:
+  /// **'Available On'**
+  String get gameAvailableOn;
+
+  /// Platform name.
+  ///
+  /// In en, this message translates to:
+  /// **'Android'**
+  String get gamePlatformAndroid;
+
+  /// Platform name.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS'**
+  String get gamePlatformIos;
+
+  /// Section title for events and this game's quests.
+  ///
+  /// In en, this message translates to:
+  /// **'Events & Offers'**
+  String get gameEvents;
+
+  /// Section title for ratings and reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratings & Reviews'**
+  String get gameRatings;
+
+  /// Opens the reviews placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get gameSeeAll;
+
+  /// Opens the reviews placeholder from the end of the list.
+  ///
+  /// In en, this message translates to:
+  /// **'See More Comments'**
+  String get gameSeeMoreComments;
+
+  /// Label of the review summary. The actions stay unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Summarized by AI'**
+  String get gameSummarizedByAi;
+
+  /// Unavailable like action on the AI summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get gameLike;
+
+  /// Unavailable dislike action on the AI summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Dislike'**
+  String get gameDislike;
+
+  /// Unavailable more action on a review.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get gameMore;
+
+  /// Muted prefix of the similar-games title.
+  ///
+  /// In en, this message translates to:
+  /// **'More Like'**
+  String get gameMoreLikeLead;
+
+  /// Muted prefix of the studio title.
+  ///
+  /// In en, this message translates to:
+  /// **'More by'**
+  String get gameMoreByLead;
+
+  /// Opens the studio placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'See All {studio} Games'**
+  String gameSeeAllStudio(String studio);
+
+  /// Placeholder name for a studio page.
+  ///
+  /// In en, this message translates to:
+  /// **'Studio'**
+  String get gameStudioTitle;
+
+  /// Shown when game details came from the device cache.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved information.'**
+  String get gameOffline;
+
+  /// Page error when game details fail and nothing is cached.
+  ///
+  /// In en, this message translates to:
+  /// **'This game couldn\'t load.'**
+  String get gameLoadError;
+
+  /// Shown when the server has no such game.
+  ///
+  /// In en, this message translates to:
+  /// **'This game is not available.'**
+  String get gameNotFound;
+
+  /// Accessible name of the game details progress indicator.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading game'**
+  String get gameLoading;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingPlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Games You Love'**
+  String get onboardingPlayTitle;
+
+  /// No description provided for @onboardingPlayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'20+ instant games, no downloads. Jump in and start playing in seconds.'**
+  String get onboardingPlayBody;
+
+  /// No description provided for @onboardingQuestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Daily Quests'**
+  String get onboardingQuestTitle;
+
+  /// No description provided for @onboardingQuestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear each step of a game quest before the timer runs out to stack up points.'**
+  String get onboardingQuestBody;
+
+  /// No description provided for @onboardingClimbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Climb & Get Rewarded'**
+  String get onboardingClimbTitle;
+
+  /// No description provided for @onboardingClimbBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank up on the leaderboard and turn your points into real rewards.'**
+  String get onboardingClimbBody;
+
+  /// No description provided for @onboardingRegisteredMark.
+  ///
+  /// In en, this message translates to:
+  /// **'®'**
+  String get onboardingRegisteredMark;
+
+  /// No description provided for @onboardingGameSifu.
+  ///
+  /// In en, this message translates to:
+  /// **'Sifu'**
+  String get onboardingGameSifu;
+
+  /// No description provided for @onboardingGameKings.
+  ///
+  /// In en, this message translates to:
+  /// **'9 Kings'**
+  String get onboardingGameKings;
+
+  /// No description provided for @onboardingGameDome.
+  ///
+  /// In en, this message translates to:
+  /// **'Dome Keeper'**
+  String get onboardingGameDome;
+
+  /// No description provided for @onboardingGameSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Oh, Snack!'**
+  String get onboardingGameSnack;
+
+  /// No description provided for @onboardingGameChess.
+  ///
+  /// In en, this message translates to:
+  /// **'Chess'**
+  String get onboardingGameChess;
+
+  /// No description provided for @onboardingGameHokm.
+  ///
+  /// In en, this message translates to:
+  /// **'Hokm'**
+  String get onboardingGameHokm;
+
+  /// No description provided for @onboardingGameBackgammon.
+  ///
+  /// In en, this message translates to:
+  /// **'Backgammon'**
+  String get onboardingGameBackgammon;
+
+  /// No description provided for @onboardingGamePoker.
+  ///
+  /// In en, this message translates to:
+  /// **'Poker'**
+  String get onboardingGamePoker;
+
+  /// No description provided for @onboardingGameRailway.
+  ///
+  /// In en, this message translates to:
+  /// **'Railway Canyon'**
+  String get onboardingGameRailway;
+
+  /// No description provided for @onboardingGameLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter Burp'**
+  String get onboardingGameLetter;
+
+  /// No description provided for @onboardingGameGrabby.
+  ///
+  /// In en, this message translates to:
+  /// **'Grabby Crab'**
+  String get onboardingGameGrabby;
+
+  /// No description provided for @onboardingStudioKepler.
+  ///
+  /// In en, this message translates to:
+  /// **'Kepler Interactive'**
+  String get onboardingStudioKepler;
+
+  /// No description provided for @onboardingStudioPlaydigious.
+  ///
+  /// In en, this message translates to:
+  /// **'Playdigious'**
+  String get onboardingStudioPlaydigious;
+
+  /// No description provided for @onboardingStudioRawFury.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw Fury'**
+  String get onboardingStudioRawFury;
+
+  /// No description provided for @onboardingStudioTepes.
+  ///
+  /// In en, this message translates to:
+  /// **'Tepes Ovidiu'**
+  String get onboardingStudioTepes;
+
+  /// No description provided for @onboardingStudioChess.
+  ///
+  /// In en, this message translates to:
+  /// **'Chess.com'**
+  String get onboardingStudioChess;
+
+  /// No description provided for @onboardingStudioToofun.
+  ///
+  /// In en, this message translates to:
+  /// **'Toofun Games'**
+  String get onboardingStudioToofun;
+
+  /// No description provided for @onboardingStudioEasybrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Easybrain'**
+  String get onboardingStudioEasybrain;
+
+  /// No description provided for @onboardingStudioZynga.
+  ///
+  /// In en, this message translates to:
+  /// **'Zynga'**
+  String get onboardingStudioZynga;
+
+  /// No description provided for @onboardingStudioDarkmater.
+  ///
+  /// In en, this message translates to:
+  /// **'Darkmater'**
+  String get onboardingStudioDarkmater;
+
+  /// No description provided for @onboardingStudioOlivia.
+  ///
+  /// In en, this message translates to:
+  /// **'Olivia Can'**
+  String get onboardingStudioOlivia;
+
+  /// No description provided for @onboardingQuestEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in'**
+  String get onboardingQuestEnds;
+
+  /// No description provided for @onboardingQuestSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get onboardingQuestSeconds;
+
+  /// No description provided for @onboardingQuestStepPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play 3 rounds'**
+  String get onboardingQuestStepPlay;
+
+  /// No description provided for @onboardingQuestStepScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score 1,000 in one run'**
+  String get onboardingQuestStepScore;
+
+  /// No description provided for @onboardingQuestStepWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Win without a miss'**
+  String get onboardingQuestStepWin;
+
+  /// No description provided for @onboardingYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get onboardingYou;
+
+  /// No description provided for @authUsernameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Username'**
+  String get authUsernameTitle;
+
+  /// No description provided for @authUsernameBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a name others will see.'**
+  String get authUsernameBody;
+
+  /// No description provided for @authUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
+  String get authUsernameLabel;
+
+  /// No description provided for @authUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your nickname here'**
+  String get authUsernameHint;
+
+  /// No description provided for @authUsernameRule.
+  ///
+  /// In en, this message translates to:
+  /// **'3–16 letters or numbers · You can change it later'**
+  String get authUsernameRule;
+
+  /// No description provided for @authUsernameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use only letters, numbers and _ (no spaces).'**
+  String get authUsernameInvalid;
+
+  /// No description provided for @authUsernameShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Too short. Use 3–16 characters.'**
+  String get authUsernameShort;
+
+  /// No description provided for @authUsernameIdeas.
+  ///
+  /// In en, this message translates to:
+  /// **'Need ideas?'**
+  String get authUsernameIdeas;
+
+  /// No description provided for @authUsernameChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get authUsernameChecking;
+
+  /// No description provided for @authUsernameAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get authUsernameAvailable;
+
+  /// No description provided for @authUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Available'**
+  String get authUsernameTaken;
+
+  /// No description provided for @authAvatarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Your Avatar'**
+  String get authAvatarTitle;
+
+  /// No description provided for @authAvatarBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one that feels like you.'**
+  String get authAvatarBody;
+
+  /// No description provided for @authSmsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in your code automatically?'**
+  String get authSmsTitle;
+
+  /// No description provided for @authSmsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Let P2E read the one-time code we text you, so you don\'t have to type it.'**
+  String get authSmsBody;
+
+  /// No description provided for @authSmsItemCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the one-time code is used'**
+  String get authSmsItemCode;
+
+  /// No description provided for @authSmsItemPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else from your messages is stored'**
+  String get authSmsItemPrivate;
+
+  /// No description provided for @authSmsItemManual.
+  ///
+  /// In en, this message translates to:
+  /// **'You can always type the code yourself'**
+  String get authSmsItemManual;
+
+  /// No description provided for @authSmsAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow SMS Access'**
+  String get authSmsAllow;
+
+  /// No description provided for @authSmsLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Now'**
+  String get authSmsLater;
+
+  /// No description provided for @authAvatarAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All Avatars'**
+  String get authAvatarAll;
+
+  /// No description provided for @authAvatarChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an Avatar'**
+  String get authAvatarChoose;
+
+  /// No description provided for @authAvatarTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Theme'**
+  String get authAvatarTheme;
+
+  /// No description provided for @authAvatarSheetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a character, then choose its theme on the main screen.'**
+  String get authAvatarSheetBody;
+
+  /// No description provided for @authAvatarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get authAvatarDone;
+
+  /// No description provided for @authAvatarMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More avatars'**
+  String get authAvatarMore;
+
+  /// No description provided for @authAvatarInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial'**
+  String get authAvatarInitial;
+
+  /// No description provided for @authNotifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get mission and reward alerts?'**
+  String get authNotifyTitle;
+
+  /// No description provided for @authNotifyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll tell you when a mission is done, new daily missions arrive, or a payment is confirmed.'**
+  String get authNotifyBody;
+
+  /// No description provided for @authNotifyAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get authNotifyAllow;
+
+  /// No description provided for @authNotifyLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Now'**
+  String get authNotifyLater;
+
+  /// No description provided for @authNotifyMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission complete · claim your Points'**
+  String get authNotifyMission;
+
+  /// No description provided for @authNotifyDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'New daily missions are ready'**
+  String get authNotifyDaily;
+
+  /// No description provided for @authNotifyPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment confirmed and Coins added'**
+  String get authNotifyPayment;
+
+  /// No description provided for @authAllSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re All Set!'**
+  String get authAllSetTitle;
+
+  /// No description provided for @authAllSetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to the game,'**
+  String get authAllSetBody;
+
+  /// No description provided for @authAllSetBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome bonus added to your balance'**
+  String get authAllSetBonus;
+
+  /// No description provided for @authAllSetPts.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get authAllSetPts;
+
+  /// No description provided for @authAllSetEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address verified'**
+  String get authAllSetEmail;
+
+  /// No description provided for @authAllSetPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number verified'**
+  String get authAllSetPhone;
+
+  /// No description provided for @authAllSetAlertsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission alerts on'**
+  String get authAllSetAlertsOn;
+
+  /// No description provided for @authAllSetAlertsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission alerts off · turn on in Settings'**
+  String get authAllSetAlertsOff;
+
+  /// No description provided for @authStartPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Playing'**
+  String get authStartPlaying;
+
+  /// No description provided for @authWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back!'**
+  String get authWelcomeTitle;
+
+  /// No description provided for @authWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Good to see you,'**
+  String get authWelcomeBody;
+
+  /// No description provided for @authWelcomeBodyTail.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily missions are waiting.'**
+  String get authWelcomeBodyTail;
+
+  /// No description provided for @authLetsPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets Play'**
+  String get authLetsPlay;
+
+  /// No description provided for @authHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help?'**
+  String get authHelpTitle;
+
+  /// No description provided for @authHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t get your code, or locked out? Our support team answers in the in-app chat every day, 9:00–21:00.'**
+  String get authHelpBody;
+
+  /// No description provided for @authHelpClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get authHelpClose;
+
+  /// No description provided for @authContinueAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as'**
+  String get authContinueAs;
+
+  /// No description provided for @authNotYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Not You?'**
+  String get authNotYou;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get legalTerms;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated October 12, 2026'**
+  String get legalUpdated;
+
+  /// No description provided for @legalReadTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'6 min read'**
+  String get legalReadTerms;
+
+  /// No description provided for @legalReadPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'5 min read'**
+  String get legalReadPrivacy;
+
+  /// No description provided for @legalSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'The short version'**
+  String get legalSummary;
+
+  /// No description provided for @legalContents.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get legalContents;
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legalTitle;
+
+  /// No description provided for @legalTldr.
+  ///
+  /// In en, this message translates to:
+  /// **'TL;DR'**
+  String get legalTldr;
+
+  /// No description provided for @legalGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get legalGotIt;
+
+  /// No description provided for @legalTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to top'**
+  String get legalTop;
+
+  /// No description provided for @legalTermsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to be 18 or older to create an account and earn rewards. Points are not money.'**
+  String get legalTermsSummary;
+
+  /// No description provided for @legalPrivacySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect only what we need to run your account. We never sell your personal data.'**
+  String get legalPrivacySummary;
+
+  /// No description provided for @legalTermsPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'You need to be 18 or older to create an account and earn rewards.'**
+  String get legalTermsPoint1;
+
+  /// No description provided for @legalTermsPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Points are earned by playing and completing quests. They are not money and cannot be bought, sold or transferred.'**
+  String get legalTermsPoint2;
+
+  /// No description provided for @legalTermsPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'You can redeem points only for rewards listed in the Shop, under the rules shown there.'**
+  String get legalTermsPoint3;
+
+  /// No description provided for @legalTermsPoint4.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheating, bots or multiple accounts can lead to lost points and a closed account.'**
+  String get legalTermsPoint4;
+
+  /// No description provided for @legalTermsTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Who we are'**
+  String get legalTermsTitle1;
+
+  /// No description provided for @legalTermsBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'These Terms are an agreement between you and P2E, the operator of the app. By creating an account or using the app you accept these Terms. If you do not agree, please do not use the app.'**
+  String get legalTermsBody1;
+
+  /// No description provided for @legalTermsTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get legalTermsTitle2;
+
+  /// No description provided for @legalTermsBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be at least 18, or the age of majority where you live, to register. Give accurate details and keep your login private. You are responsible for everything that happens on your account. One person, one account.'**
+  String get legalTermsBody2;
+
+  /// No description provided for @legalTermsTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Points and rewards'**
+  String get legalTermsTitle3;
+
+  /// No description provided for @legalTermsBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'Points are a loyalty feature, not currency. They have no cash value outside the app, cannot be purchased, and cannot be moved to another account. Rewards in the Shop may change, sell out or have their own conditions. We may expire points after 12 months of account inactivity and will tell you before that happens.'**
+  String get legalTermsBody3;
+
+  /// No description provided for @legalTermsTitle4.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair play'**
+  String get legalTermsTitle4;
+
+  /// No description provided for @legalTermsBody4.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not use cheats, scripts, emulators, exploits or bots, and do not manipulate games, quests or referrals. If we find unfair play we may remove the points involved, limit features or close the account. You can appeal any decision through Support.'**
+  String get legalTermsBody4;
+
+  /// No description provided for @legalTermsTitle5.
+  ///
+  /// In en, this message translates to:
+  /// **'Games from partners'**
+  String get legalTermsTitle5;
+
+  /// No description provided for @legalTermsBody5.
+  ///
+  /// In en, this message translates to:
+  /// **'Many games are made by other studios. Their own terms and rules apply while you play them, and they are responsible for their games. Points shown on a game card are paid by P2E, not by the studio.'**
+  String get legalTermsBody5;
+
+  /// No description provided for @legalTermsTitle6.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get legalTermsTitle6;
+
+  /// No description provided for @legalTermsBody6.
+  ///
+  /// In en, this message translates to:
+  /// **'Some games offer optional in-app purchases. Purchases are handled by the app store you use and follow its refund rules. Buying anything is never required to earn points.'**
+  String get legalTermsBody6;
+
+  /// No description provided for @legalTermsTitle7.
+  ///
+  /// In en, this message translates to:
+  /// **'Ending the agreement'**
+  String get legalTermsTitle7;
+
+  /// No description provided for @legalTermsBody7.
+  ///
+  /// In en, this message translates to:
+  /// **'You can delete your account at any time in Settings. Unredeemed points are lost when the account is deleted. We may suspend or close accounts that break these Terms.'**
+  String get legalTermsBody7;
+
+  /// No description provided for @legalTermsTitle8.
+  ///
+  /// In en, this message translates to:
+  /// **'Liability'**
+  String get legalTermsTitle8;
+
+  /// No description provided for @legalTermsBody8.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is provided as is. To the extent the law allows, we are not liable for indirect losses or for outages outside our control. Nothing here limits rights you have under consumer law.'**
+  String get legalTermsBody8;
+
+  /// No description provided for @legalTermsTitle9.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get legalTermsTitle9;
+
+  /// No description provided for @legalTermsBody9.
+  ///
+  /// In en, this message translates to:
+  /// **'If we change these Terms in a way that matters, we will let you know in the app at least 14 days before the change takes effect.'**
+  String get legalTermsBody9;
+
+  /// No description provided for @legalTermsEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about this agreement? Contact Support from the Help menu in the app.'**
+  String get legalTermsEnd;
+
+  /// No description provided for @legalPrivacyPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect only what we need to run your account, track your points and keep play fair.'**
+  String get legalPrivacyPoint1;
+
+  /// No description provided for @legalPrivacyPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'We never sell your personal data.'**
+  String get legalPrivacyPoint2;
+
+  /// No description provided for @legalPrivacyPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner studios receive anonymous gameplay events, not your name, email or phone number.'**
+  String get legalPrivacyPoint3;
+
+  /// No description provided for @legalPrivacyPoint4.
+  ///
+  /// In en, this message translates to:
+  /// **'You can download or delete your data at any time from Settings.'**
+  String get legalPrivacyPoint4;
+
+  /// No description provided for @legalPrivacyTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'What we collect'**
+  String get legalPrivacyTitle1;
+
+  /// No description provided for @legalPrivacyBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Account details you give us: email or phone number, username and avatar. Gameplay data: which games you play, for how long, quests completed and points earned. Device data: device model, OS version, app version and a device identifier used for fraud checks.'**
+  String get legalPrivacyBody1;
+
+  /// No description provided for @legalPrivacyTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Why we use it'**
+  String get legalPrivacyTitle2;
+
+  /// No description provided for @legalPrivacyBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'To run your account and wallet, credit points and deliver rewards, prevent cheating and multiple accounts, send notifications you turned on, and improve the app. We rely on our contract with you, our legitimate interest in fair play, and your consent where the law requires it.'**
+  String get legalPrivacyBody2;
+
+  /// No description provided for @legalPrivacyTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Who we share it with'**
+  String get legalPrivacyTitle3;
+
+  /// No description provided for @legalPrivacyBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'Service providers that host data, send codes and deliver rewards, under contracts that bind them to protect it. Partner studios, which receive anonymous gameplay events only. Authorities, when the law requires it. We do not sell personal data and we do not share it for third-party advertising.'**
+  String get legalPrivacyBody3;
+
+  /// No description provided for @legalPrivacyTitle4.
+  ///
+  /// In en, this message translates to:
+  /// **'How long we keep it'**
+  String get legalPrivacyTitle4;
+
+  /// No description provided for @legalPrivacyBody4.
+  ///
+  /// In en, this message translates to:
+  /// **'While your account is active. After you delete your account we remove personal data within 30 days, except records we must keep by law, such as reward transactions, which are kept for up to 5 years.'**
+  String get legalPrivacyBody4;
+
+  /// No description provided for @legalPrivacyTitle5.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rights'**
+  String get legalPrivacyTitle5;
+
+  /// No description provided for @legalPrivacyBody5.
+  ///
+  /// In en, this message translates to:
+  /// **'You can access, correct, download or delete your data, object to some uses, and withdraw consent at any time. Most of this is in Settings, Privacy. For anything else contact Support and we reply within 30 days.'**
+  String get legalPrivacyBody5;
+
+  /// No description provided for @legalPrivacyTitle6.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get legalPrivacyTitle6;
+
+  /// No description provided for @legalPrivacyBody6.
+  ///
+  /// In en, this message translates to:
+  /// **'Data is encrypted in transit and at rest, access is limited to staff who need it, and we test our systems regularly. If a breach affects you, we will tell you without undue delay.'**
+  String get legalPrivacyBody6;
+
+  /// No description provided for @legalPrivacyTitle7.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get legalPrivacyTitle7;
+
+  /// No description provided for @legalPrivacyBody7.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is not meant for anyone under 18. If we learn that a minor has created an account, we close it and delete the data.'**
+  String get legalPrivacyBody7;
+
+  /// No description provided for @legalPrivacyTitle8.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes'**
+  String get legalPrivacyTitle8;
+
+  /// No description provided for @legalPrivacyBody8.
+  ///
+  /// In en, this message translates to:
+  /// **'We will tell you in the app before any important change to this policy takes effect.'**
+  String get legalPrivacyBody8;
+
+  /// No description provided for @legalPrivacyEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about this policy? Contact Support from the Help menu in the app.'**
+  String get legalPrivacyEnd;
+
+  /// No description provided for @legalTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These Terms are an agreement between you and P2E. You must be at least 18. Points are a loyalty feature, not currency. Do not cheat. You can delete your account in Settings.'**
+  String get legalTermsBody;
+
+  /// No description provided for @legalPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We collect the email or phone number, username and avatar you give us, plus gameplay and device data used to keep play fair. You can download or delete your data from Settings.'**
+  String get legalPrivacyBody;
+
+  /// No description provided for @tourWalletTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet'**
+  String get tourWalletTitle;
+
+  /// No description provided for @tourWalletBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Points you earn from games and quests show up here. Coins unlock extras, tap + to top up.'**
+  String get tourWalletBody;
+
+  /// No description provided for @tourFeaturedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured game'**
+  String get tourFeaturedTitle;
+
+  /// No description provided for @tourFeaturedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A hand-picked game to start with. Tap Play Now and you are in, no download needed.'**
+  String get tourFeaturedBody;
+
+  /// No description provided for @tourScoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Points on every game'**
+  String get tourScoreTitle;
+
+  /// No description provided for @tourScoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The badge shows how many points a game pays out, the star is its rating from other players.'**
+  String get tourScoreBody;
+
+  /// No description provided for @tourQuestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions and quests'**
+  String get tourQuestsTitle;
+
+  /// No description provided for @tourQuestsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear each step before the timer runs out to stack up bonus points on top of your game rewards.'**
+  String get tourQuestsBody;
+
+  /// No description provided for @tourNavTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything else lives here'**
+  String get tourNavTitle;
+
+  /// No description provided for @tourNavBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions, all games, friends and the shop. A red badge means something new is waiting for you.'**
+  String get tourNavBody;
+
+  /// No description provided for @tourGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get tourGotIt;
+
+  /// Accessible summary of rating, reviews, downloads and install size.
+  ///
+  /// In en, this message translates to:
+  /// **'Rated {rating}, {reviews} reviews, {downloads} downloads, {size}'**
+  String gameStatsLabel(
+    String rating,
+    String reviews,
+    String downloads,
+    String size,
+  );
 }
 
 class _AppLocalizationsDelegate

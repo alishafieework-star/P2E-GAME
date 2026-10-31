@@ -321,11 +321,16 @@ void main() {
       tester.getCenter(key('help.hit')),
     );
     await tester.pump(const Duration(milliseconds: 110));
-    await tester.pump(const Duration(milliseconds: 40));
+    await tester.pump(ButtonMotion.pressDuration);
     expect(
       tester.widget<Transform>(transform('help')).transform.storage[0],
-      lessThan(1),
+      closeTo(ButtonMotion.quietPressedScale, 0.0001),
     );
+    final pressed = tester.widget<TextButton>(
+      find.descendant(of: key('help.hit'), matching: find.byType(TextButton)),
+    );
+    expect(pressed.style!.overlayColor!.resolve({WidgetState.pressed})!.a, 0);
+    expect(pressed.style!.overlayColor!.resolve({})!.a, 0);
     expect(
       tester.widget<Transform>(transform('profile')).transform.storage[0],
       1,

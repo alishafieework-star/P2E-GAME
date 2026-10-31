@@ -70,7 +70,7 @@ void main() {
           () => precacheImage(
             const AssetImage(
               'assets/images/auth/entry_illustration.png',
-              package: 'p2e_design_system',
+              package: 'mygame_p2e',
             ),
             tester.element(find.byType(P2EApp)),
           ),

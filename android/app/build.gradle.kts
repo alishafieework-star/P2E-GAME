@@ -29,6 +29,14 @@ android {
         versionName = flutter.versionName
     }
 
+    buildTypes {
+        // D-150: standalone demo installs use the debug key until the
+        // publisher keystore exists (D-042).
+        release {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
 }
 
 kotlin {
@@ -39,4 +47,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // D-071: SMS Retriever. Pinned so the development hash contract stays stable.
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.2.0")
 }

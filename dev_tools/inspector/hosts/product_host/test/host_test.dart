@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mygame_p2e/app/bootstrap.dart';
 import 'package:flutter/rendering.dart';
@@ -6,6 +7,7 @@ import 'package:mygame_p2e/app/config/app_config.dart';
 import 'package:p2e_dev_inspector/inspector.dart';
 import 'package:p2e_design_system/design_system.dart';
 import 'package:p2e_product_host/main.dart';
+import 'package:p2e_product_host/product_asset_bridge.dart';
 import 'package:mygame_p2e/features/auth/auth_data.dart';
 import 'package:mygame_p2e/features/auth/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,8 +125,9 @@ void main() {
         MediaQuery.paddingOf(tester.element(find.byType(PageScaffold))),
         const EdgeInsets.fromLTRB(5, 10, 7, 20),
       );
-      expect(Theme.of(next).brightness, Brightness.light);
-      expect(Directionality.of(next), TextDirection.rtl);
+      expect(MediaQuery.platformBrightnessOf(next), Brightness.light);
+      expect(Theme.of(next).brightness, Brightness.dark);
+      expect(Directionality.of(next), TextDirection.ltr);
       expect(tester.widget<Text>(texts.first).data, plainLabel);
       expect(tester.takeException(), isNull);
     },
@@ -159,8 +162,10 @@ void main() {
             height: 874,
             child: composeApp(
               config: const AppConfig(environment: AppEnvironment.dev),
-              rootWrapper: (root) =>
-                  MediaQuery(data: settings.media, child: root),
+              rootWrapper: (root) => DefaultAssetBundle(
+                bundle: ProductAssetBridge(rootBundle),
+                child: MediaQuery(data: settings.media, child: root),
+              ),
             ),
           ),
         ),
@@ -176,7 +181,7 @@ void main() {
     },
   );
   testWidgets(
-    'OS inputs preserve fa policy and reach app without app locale overrides',
+    'OS inputs keep en and dark while other device inputs reach the app',
     (tester) async {
       tester.view.physicalSize = const Size(1600, 1400);
       tester.view.devicePixelRatio = 1;
@@ -204,15 +209,16 @@ void main() {
         );
         await tester.pumpAndSettle();
         final c = tester.element(find.byType(PageScaffold));
-        expect(Localizations.localeOf(c).languageCode, 'fa');
-        expect(Directionality.of(c), TextDirection.rtl);
+        expect(Localizations.localeOf(c).languageCode, 'en');
+        expect(Directionality.of(c), TextDirection.ltr);
         expect(MediaQuery.textScalerOf(c).scale(16), 32);
         expect(MediaQuery.viewInsetsOf(c).bottom, 300);
         expect(MediaQuery.disableAnimationsOf(c), isTrue);
         expect(MediaQuery.boldTextOf(c), isTrue);
         expect(MediaQuery.highContrastOf(c), isTrue);
         expect(Theme.of(c).platform, TargetPlatform.iOS);
-        expect(Theme.of(c).brightness, Brightness.light);
+        expect(MediaQuery.platformBrightnessOf(c), Brightness.light);
+        expect(Theme.of(c).brightness, Brightness.dark);
         expect(
           tester.widget<Text>(find.byKey(const ValueKey('app-result'))).data,
           contains('effective in app: 2.0'),

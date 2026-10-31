@@ -57,12 +57,31 @@ abstract final class AppIconRegistry {
     for (final id in AppIconId.values)
       IconDefinition(id, iconRegistryData[appIconKeys[id]]!),
   ]);
-  static IconDefinition definition(AppIconId id) =>
-      all.firstWhere((icon) => icon.id == id);
-  static IconDefinition byKey(String key) => all.firstWhere(
-    (icon) => icon.key == key || (icon.data['aliases'] as List).contains(key),
-    orElse: () => throw MissingIconArtwork(key),
-  );
+
+  /// O(1) definition access; every icon build resolves its definition.
+  static final Map<AppIconId, IconDefinition> _byId = {
+    for (final icon in all) icon.id: icon,
+  };
+
+  static IconDefinition definition(AppIconId id) => _byId[id]!;
+
+  static final Map<String, IconDefinition> _byKey = () {
+    final map = <String, IconDefinition>{};
+    for (final icon in all) {
+      // First definition in registry order wins, like the previous scan.
+      map.putIfAbsent(icon.key, () => icon);
+      for (final alias in icon.data['aliases'] as List) {
+        map.putIfAbsent(alias as String, () => icon);
+      }
+    }
+    return map;
+  }();
+
+  static IconDefinition byKey(String key) {
+    final icon = _byKey[key];
+    if (icon == null) throw MissingIconArtwork(key);
+    return icon;
+  }
 
   /// Master links select a concept; the requested real style must exist.
   static IconDefinition buttonArtwork(String variantId, AppIconStyle style) {

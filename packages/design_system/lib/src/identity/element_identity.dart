@@ -3,10 +3,15 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 
 abstract final class UiIdentitySyntax {
+  /// Patterns recur across every identified widget build; compile once.
+  static final _patterns = <String, RegExp>{};
+  static RegExp _pattern(String source) =>
+      _patterns.putIfAbsent(source, () => RegExp(source));
+
   static void check(String field, String value, String pattern, int limit) {
     if (value.trim() != value ||
         value.length > limit ||
-        !RegExp(pattern).hasMatch(value)) {
+        !_pattern(pattern).hasMatch(value)) {
       throw ArgumentError.value(
         value,
         field,
@@ -143,11 +148,11 @@ bool identityValueEquals(Object? a, Object? b) {
         );
   }
   if (a is List && b is List) {
-    return a.length == b.length &&
-        List.generate(
-          a.length,
-          (i) => i,
-        ).every((i) => identityValueEquals(a[i], b[i]));
+    if (a.length != b.length) return false;
+    for (var index = 0; index < a.length; index++) {
+      if (!identityValueEquals(a[index], b[index])) return false;
+    }
+    return true;
   }
   return a == b;
 }
@@ -178,6 +183,7 @@ class ElementIdentity extends InheritedWidget {
     required Map<String, String> variants,
     required Map<String, Object?> resolved,
     required Map<String, Object?> declared,
+    this.status = 'provisional',
     required super.child,
   }) : assert(
          runtimeLocator != null,
@@ -205,7 +211,11 @@ class ElementIdentity extends InheritedWidget {
   final String? variantId, componentSetId;
   final Map<String, String> variants;
   final Map<String, Object?> resolved, declared;
-  String get status => 'provisional';
+
+  /// Identity contract v1.1 status: `final` | `provisional`. Every current
+  /// component is provisional pending design review; a component whose spec
+  /// is approved passes `status: 'final'` explicitly.
+  final String status;
   String get _sourceOrigin =>
       variantId == null ? 'runtime-resolver' : 'figma-reference';
   String get effectiveKey => jsonEncode([

@@ -29,6 +29,7 @@ class FieldRuntimeSnapshot {
     this.motionReduced = false,
     this.resolvedTypography = const {},
     this.identifierPrivacy = false,
+    this.feedbackTone,
   });
   final FieldSpec spec;
   final FieldVisualState state;
@@ -45,6 +46,9 @@ class FieldRuntimeSnapshot {
   final double textScale;
   final Map<String, Object?> resolvedTypography;
   final bool identifierPrivacy;
+
+  /// D-069: omitted for the source tone so existing snapshots stay stable.
+  final AppOtpFeedbackTone? feedbackTone;
   String get componentId => switch (spec.family) {
     FieldFamily.textField => 'text-field.general',
     FieldFamily.password => 'text-field.password',
@@ -86,6 +90,8 @@ class FieldRuntimeSnapshot {
     'codeLength': codeLength,
     'complete': complete,
     'selected': selected,
+    if (feedbackTone == AppOtpFeedbackTone.status)
+      'feedbackTone': feedbackTone!.name,
   };
   Widget wrap(Widget child, {String? slotPath}) => ElementIdentity(
     elementId: elementId,
@@ -105,6 +111,8 @@ class FieldRuntimeSnapshot {
       'state': state.name,
       'validation': validation.name,
       'type': enabled ? 'enabled' : 'disabled',
+      if (feedbackTone == AppOtpFeedbackTone.status)
+        'feedbackTone': feedbackTone!.name,
     },
     resolved: {
       'field': {

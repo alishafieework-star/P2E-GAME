@@ -593,6 +593,18 @@
   "@fieldSuccess": {
     "description": "Text Field Viewer: fieldSuccess"
   },
+  "fieldOtpTone": "بازخورد کد",
+  "@fieldOtpTone": {
+    "description": "Text Field Viewer: source keeps Figma OTP colors; status uses the engineering green and red treatment."
+  },
+  "fieldOtpToneSource": "منبع",
+  "@fieldOtpToneSource": {
+    "description": "Text Field Viewer: Figma OTP appearance."
+  },
+  "fieldOtpToneStatus": "وضعیت",
+  "@fieldOtpToneStatus": {
+    "description": "Text Field Viewer: engineering OTP success and error colors."
+  },
   "fieldNeutral": "خنثی",
   "@fieldNeutral": {
     "description": "Text Field Viewer: fieldNeutral"
@@ -976,6 +988,12 @@
   "@navBadgeEmpty": {
     "description": "Navigator Bar Viewer: navBadgeEmpty"
   },
+  "collectionsTitle": "مجموعه‌ها (موقت)",
+  "collectionsSampleTitle": "پیشنهادی برای شما",
+  "collectionsSampleLead": "درباره",
+  "collectionsSampleSubject": "Clash of Clans",
+  "collectionsSampleAction": "مشاهده بیشتر",
+  "collectionsPageLabel": "صفحه {page} از {count}",
   "pageScaffoldTitle": "PageScaffold (موقت)",
   "pageScaffoldDescription": "نمونهٔ مهندسی چیدمان: برای تمرکز روی فیلد پیمایش کنید. ظاهر مورد تأیید Figma نیست.",
   "pageScaffoldField": "ایمیل",
@@ -984,14 +1002,5 @@
   "buttonLoadingSemantics": "در حال انجام",
   "skin": "پوسته",
   "productSkin": "محصول",
-  "testSkin": "آزمایشی",
-  "authContinue": "ادامه",
-  "authDivider": "یا ادامه با",
-  "authRemember": "مرا برای دفعه بعد به خاطر بسپار.",
-  "authTerms": "شرایط و قوانین",
-  "authPrivacy": "سیاست حریم خصوصی",
-  "authPlayStation": "PlayStation",
-  "authXbox": "Xbox",
-  "authGoogle": "Google",
-  "authPrimitives": "اجزای ورود"
+  "testSkin": "آزمایشی"
 }

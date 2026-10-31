@@ -220,6 +220,7 @@ All other v1.3 §15.2 rules stay: all interactive states, 48 dp touch targets, s
 | Generic primitives and slots | `lib/ui` | Product-agnostic. |
 | `CurrencyChip`, `RewardPill` | `lib/shared/widgets` | Product widgets used by several features. |
 | Game card | `games` feature public API | `games` is its natural owner (v1.3 admission rule). |
+| Auth Entry controls (social tiles, hero, body frame, divider, links, remember toggle, engineering toast) | `features/auth` presentation widgets | D-067. One owner. Not Design System. |
 
 ---
 

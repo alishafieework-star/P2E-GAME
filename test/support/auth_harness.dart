@@ -5,6 +5,7 @@ import 'package:mygame_p2e/app/app.dart';
 import 'package:mygame_p2e/app/config/app_config.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:mygame_p2e/features/auth/auth.dart';
+import 'package:mygame_p2e/shared/platform/one_time_code.dart';
 import 'package:p2e_design_system/design_system.dart';
 
 class ImmediateRepositories
@@ -31,6 +32,24 @@ class ImmediateRepositories
     ),
   );
   @override
+  Future<Result<OtpChallenge>> resendOtp(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) => requestOtp(
+    phone,
+    rememberDevice: rememberDevice,
+    cancellation: cancellation,
+  );
+  @override
+  Future<Result<void>> verifyOtp(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => code == 'P12345'
+      ? const Success<void>(null)
+      : Failure(ValidationFailure({'otp': 'invalid'}));
+  @override
   Future<Result<EmailAccountStatus>> checkEmail(
     Email email, {
     AuthCancellation? cancellation,
@@ -39,6 +58,119 @@ class ImmediateRepositories
         ? EmailAccountStatus.notRegistered
         : EmailAccountStatus.registered,
   );
+  @override
+  Future<Result<void>> signIn(
+    Email email,
+    String password, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => password == 'P12345'
+      ? const Success<void>(null)
+      : Failure(ValidationFailure({'password': 'invalid'}));
+  @override
+  Future<Result<OtpChallenge>> requestReset(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => Success(
+    OtpChallenge(
+      challengeId: 'dev-challenge-1',
+      codeLength: 6,
+      resendAfter: const Duration(seconds: 94),
+      expiresAt: DateTime.utc(2026, 10, 24),
+      maskedDestination: 'm•••@gmail.com',
+    ),
+  );
+  @override
+  Future<Result<OtpChallenge>> resendReset(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) => requestReset(
+    email,
+    rememberDevice: rememberDevice,
+    cancellation: cancellation,
+  );
+  @override
+  Future<Result<void>> verifyReset(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) async => code == 'P12345'
+      ? const Success<void>(null)
+      : Failure(ValidationFailure({'otp': 'invalid'}));
+  @override
+  Future<Result<void>> createPassword(
+    Email email,
+    String password, {
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<PhoneAccountStatus>> checkPhone(
+    Phone phone, {
+    AuthCancellation? cancellation,
+  }) async => const Success(PhoneAccountStatus.registered);
+  @override
+  Future<Result<void>> signInPhone(
+    Phone phone,
+    String password, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => password == 'Play123!'
+      ? const Success<void>(null)
+      : Failure(ValidationFailure({'password': 'invalid'}));
+  @override
+  Future<Result<OtpChallenge>> requestPhoneReset(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) => requestOtp(
+    phone,
+    rememberDevice: rememberDevice,
+    cancellation: cancellation,
+  );
+  @override
+  Future<Result<OtpChallenge>> resendPhoneReset(
+    Phone phone, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) => requestPhoneReset(
+    phone,
+    rememberDevice: rememberDevice,
+    cancellation: cancellation,
+  );
+  @override
+  Future<Result<void>> verifyPhoneReset(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) => verifyOtp(challenge, code, cancellation: cancellation);
+  @override
+  Future<Result<void>> createPhonePassword(
+    Phone phone,
+    String password, {
+    AuthCancellation? cancellation,
+  }) async => const Success<void>(null);
+  @override
+  Future<Result<OtpChallenge>> requestVerification(
+    Email email, {
+    required bool rememberDevice,
+    AuthCancellation? cancellation,
+  }) async => Success(
+    OtpChallenge(
+      challengeId: 'verify-challenge',
+      codeLength: 6,
+      resendAfter: const Duration(seconds: 94),
+      expiresAt: DateTime.utc(2026, 10, 24),
+      maskedDestination: 'n•••@example.com',
+    ),
+  );
+  @override
+  Future<Result<void>> verifyRegistration(
+    OtpChallenge challenge,
+    String code, {
+    AuthCancellation? cancellation,
+  }) => verifyOtp(challenge, code, cancellation: cancellation);
   @override
   Future<Result<void>> start(
     SocialProvider provider, {
@@ -57,6 +189,8 @@ Future<void> pumpAuth(
   String raw = '',
   bool focused = false,
   ImmediateRepositories? repositories,
+  OneTimeCodePort? smsPort,
+  OtpSmsFormat? smsFormat,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = Size(width, height);
@@ -72,6 +206,9 @@ Future<void> pumpAuth(
         phoneSignInRepositoryProvider.overrideWith((_) => repos),
         emailSignInRepositoryProvider.overrideWith((_) => repos),
         socialSignInRepositoryProvider.overrideWith((_) => repos),
+        if (smsPort != null) oneTimeCodePortProvider.overrideWithValue(smsPort),
+        if (smsFormat != null)
+          otpSmsFormatProvider.overrideWithValue(smsFormat),
       ],
       child: RepaintBoundary(
         key: const ValueKey('auth-boundary'),
@@ -90,13 +227,12 @@ Future<void> pumpAuth(
       ),
     ),
   );
+  // D-135: the splash overlay releases routing after its own timer.
+  await tester.pump(const Duration(seconds: 1));
   await tester.pumpAndSettle();
   await tester.runAsync(
     () => precacheImage(
-      const AssetImage(
-        'assets/images/auth/entry_illustration.png',
-        package: 'p2e_design_system',
-      ),
+      const AssetImage('assets/images/auth/entry_illustration.png'),
       tester.element(find.byType(P2EApp)),
     ),
   );

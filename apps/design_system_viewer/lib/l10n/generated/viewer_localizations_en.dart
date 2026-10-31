@@ -646,6 +646,15 @@ class ViewerLocalizationsEn extends ViewerLocalizations {
   String get fieldSuccess => 'Application-controlled success';
 
   @override
+  String get fieldOtpTone => 'OTP feedback';
+
+  @override
+  String get fieldOtpToneSource => 'Source';
+
+  @override
+  String get fieldOtpToneStatus => 'Status';
+
+  @override
   String get fieldNeutral => 'Neutral';
 
   @override
@@ -919,6 +928,26 @@ class ViewerLocalizationsEn extends ViewerLocalizations {
   String get navBadgeEmpty => 'Enter badge text or turn the badge off.';
 
   @override
+  String get collectionsTitle => 'Collections (provisional)';
+
+  @override
+  String get collectionsSampleTitle => 'Recommended for You';
+
+  @override
+  String get collectionsSampleLead => 'About';
+
+  @override
+  String get collectionsSampleSubject => 'Clash of Clans';
+
+  @override
+  String get collectionsSampleAction => 'View More';
+
+  @override
+  String collectionsPageLabel(int page, int count) {
+    return 'Page $page of $count';
+  }
+
+  @override
   String get pageScaffoldTitle => 'PageScaffold (provisional)';
 
   @override
@@ -953,31 +982,4 @@ class ViewerLocalizationsEn extends ViewerLocalizations {
 
   @override
   String get testSkin => 'Test';
-
-  @override
-  String get authContinue => 'Continue';
-
-  @override
-  String get authDivider => 'or continue with';
-
-  @override
-  String get authRemember => 'Remember me for next time.';
-
-  @override
-  String get authTerms => 'Terms & Conditions';
-
-  @override
-  String get authPrivacy => 'Privacy Policy';
-
-  @override
-  String get authPlayStation => 'PlayStation';
-
-  @override
-  String get authXbox => 'Xbox';
-
-  @override
-  String get authGoogle => 'Google';
-
-  @override
-  String get authPrimitives => 'Auth primitives';
 }

@@ -1,7 +1,6 @@
 /// Public runtime API shared by the product and the independent viewer.
 library;
 
-export 'src/components/auth/auth_primitives.dart';
 export 'src/tokens/generated/auth_entry_tokens.g.dart';
 export 'src/tokens/generated/adaptive_tokens.g.dart';
 
@@ -9,7 +8,16 @@ export 'src/tokens/generated/readiness_tokens.g.dart'
     show chromeTextScaleCap, contentTextScaleCap;
 
 export 'src/adaptive/size_class.dart';
+export 'src/adaptive/page_motion.dart';
 export 'src/adaptive/page_scaffold.dart';
+
+export 'src/components/collections/app_page_indicator.dart';
+export 'src/components/collections/app_section_header.dart';
+export 'src/components/collections/app_shelf.dart';
+export 'src/theme/themed_role.dart';
+export 'src/tokens/generated/collection_tokens.g.dart';
+export 'src/tokens/generated/home_tokens.g.dart';
+export 'src/tokens/generated/game_details_tokens.g.dart';
 
 export 'src/components/navigation/app_navigation_bar.dart';
 export 'src/components/navigation/navigation_destination.dart';
@@ -27,8 +35,10 @@ export 'src/components/badges/app_badge.dart';
 export 'src/tokens/badge_spec.dart';
 
 export 'src/components/buttons/app_button.dart';
+export 'src/components/sheets/app_sheet.dart';
 export 'src/components/fields/app_text_field.dart';
 export 'src/components/fields/app_otp_field.dart';
+export 'src/components/fields/app_checkbox.dart';
 export 'src/components/fields/app_radio.dart';
 export 'src/components/fields/field_surface.dart';
 export 'src/components/fields/field_identity.dart';
@@ -38,7 +48,9 @@ export 'src/identity/element_identity.dart';
 export 'src/theme/app_theme_factory.dart';
 export 'src/theme/button_theme_tokens.dart';
 export 'src/tokens/button_token_types.dart';
+export 'src/interaction/press_action.dart';
 export 'src/tokens/button_motion.dart';
+export 'src/tokens/generated/html_journey_tokens.g.dart';
 export 'src/tokens/generated/button_tokens.g.dart';
 export 'src/tokens/specs/button_spec.dart';
 

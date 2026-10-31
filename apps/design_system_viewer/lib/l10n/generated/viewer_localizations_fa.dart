@@ -643,6 +643,15 @@ class ViewerLocalizationsFa extends ViewerLocalizations {
   String get fieldSuccess => 'تأیید موفقیت از طرف برنامه';
 
   @override
+  String get fieldOtpTone => 'بازخورد کد';
+
+  @override
+  String get fieldOtpToneSource => 'منبع';
+
+  @override
+  String get fieldOtpToneStatus => 'وضعیت';
+
+  @override
   String get fieldNeutral => 'خنثی';
 
   @override
@@ -916,6 +925,26 @@ class ViewerLocalizationsFa extends ViewerLocalizations {
   String get navBadgeEmpty => 'متن نشان را وارد کنید یا نشان را غیرفعال کنید.';
 
   @override
+  String get collectionsTitle => 'مجموعه‌ها (موقت)';
+
+  @override
+  String get collectionsSampleTitle => 'پیشنهادی برای شما';
+
+  @override
+  String get collectionsSampleLead => 'درباره';
+
+  @override
+  String get collectionsSampleSubject => 'Clash of Clans';
+
+  @override
+  String get collectionsSampleAction => 'مشاهده بیشتر';
+
+  @override
+  String collectionsPageLabel(int page, int count) {
+    return 'صفحه $page از $count';
+  }
+
+  @override
   String get pageScaffoldTitle => 'PageScaffold (موقت)';
 
   @override
@@ -950,31 +979,4 @@ class ViewerLocalizationsFa extends ViewerLocalizations {
 
   @override
   String get testSkin => 'آزمایشی';
-
-  @override
-  String get authContinue => 'ادامه';
-
-  @override
-  String get authDivider => 'یا ادامه با';
-
-  @override
-  String get authRemember => 'مرا برای دفعه بعد به خاطر بسپار.';
-
-  @override
-  String get authTerms => 'شرایط و قوانین';
-
-  @override
-  String get authPrivacy => 'سیاست حریم خصوصی';
-
-  @override
-  String get authPlayStation => 'PlayStation';
-
-  @override
-  String get authXbox => 'Xbox';
-
-  @override
-  String get authGoogle => 'Google';
-
-  @override
-  String get authPrimitives => 'اجزای ورود';
 }

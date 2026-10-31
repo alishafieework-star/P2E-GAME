@@ -44,7 +44,7 @@ final class AuthFlowProvider
   }
 }
 
-String _$authFlowHash() => r'58ff6c501fc81475353adebbd93be7708e9c1227';
+String _$authFlowHash() => r'4a5816e211780e1e03ce702b7e7ffb1c40a1ba06';
 
 /// Auto-dispose: only auth controller/routes listen; no global keepAlive or extra.
 

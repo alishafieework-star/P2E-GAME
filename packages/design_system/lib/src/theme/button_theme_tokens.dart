@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 
 import '../tokens/generated/button_tokens.g.dart';
@@ -58,4 +59,22 @@ class ButtonThemeTokens extends ThemeExtension<ButtonThemeTokens> {
       }),
     );
   }
+
+  // The ThemeExtension contract: structurally equal tokens compare equal, so
+  // rebuilt-but-identical themes do not invalidate the widget tree.
+  @override
+  bool operator ==(Object other) =>
+      other is ButtonThemeTokens &&
+      mapEquals(colors, other.colors) &&
+      mapEquals(textStyles, other.textStyles);
+
+  @override
+  int get hashCode => Object.hash(
+    Object.hashAllUnordered(
+      colors.entries.map((entry) => Object.hash(entry.key, entry.value)),
+    ),
+    Object.hashAllUnordered(
+      textStyles.entries.map((entry) => Object.hash(entry.key, entry.value)),
+    ),
+  );
 }

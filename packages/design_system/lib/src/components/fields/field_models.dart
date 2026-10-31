@@ -17,6 +17,10 @@ enum FieldVisualState {
 
 enum FieldValidation { neutral, success, error }
 
+/// D-069: source keeps the Figma OTP appearance. status is the engineering
+/// green success and red error treatment.
+enum AppOtpFeedbackTone { source, status }
+
 enum FieldRequirement { required, optional }
 
 @immutable

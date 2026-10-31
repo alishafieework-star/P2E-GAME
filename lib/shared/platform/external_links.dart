@@ -6,6 +6,9 @@ enum ExternalLink { terms, privacy }
 
 abstract interface class ExternalLinkPort {
   Future<Result<void>> open(ExternalLink link);
+
+  /// Opens one absolute https URL outside the app (D-121).
+  Future<Result<void>> openUri(Uri uri);
 }
 
 final externalLinkPortProvider = Provider<ExternalLinkPort>(

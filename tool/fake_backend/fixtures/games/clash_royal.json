@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "id": "clash_royal",
+  "kind": "downloadable",
+  "name": "Clash Royal",
+  "icon": {
+    "url": "{{media}}/home/quest_icon_1.png",
+    "width": 512,
+    "height": 512,
+    "alt": "quest_icon_1.png"
+  },
+  "access": "freeToPlay",
+  "studio": {
+    "id": "supercell",
+    "name": "Supercell",
+    "registeredMark": true,
+    "tagline": "Mobile Game Development Company",
+    "logo": {
+      "url": "{{media}}/home/quest_icon_1.png",
+      "width": 512,
+      "height": 512,
+      "alt": "quest_icon_1.png"
+    },
+    "cover": {
+      "url": "{{media}}/home/quest_icon_1.png",
+      "width": 512,
+      "height": 512,
+      "alt": "quest_icon_1.png"
+    }
+  },
+  "rating": {
+    "average": 4.5,
+    "count": 1200,
+    "distribution": {
+      "5": 700,
+      "4": 300,
+      "3": 100,
+      "2": 60,
+      "1": 40
+    }
+  },
+  "downloads": 20000,
+  "installSizeBytes": 52428800,
+  "install": {
+    "method": "external",
+    "url": "https://example.com/games/clash_royal"
+  },
+  "media": [
+    {
+      "type": "image",
+      "image": {
+        "url": "{{media}}/home/quest_icon_1.png",
+        "width": 512,
+        "height": 512,
+        "alt": "quest_icon_1.png"
+      },
+      "alt": "Clash Royal"
+    }
+  ],
+  "about": {
+    "description": "Clash Royal is ready to play.",
+    "updatedOn": "2026-11-14",
+    "platforms": [
+      "android"
+    ]
+  },
+  "events": [],
+  "reviews": {
+    "aiSummary": null,
+    "total": 1,
+    "items": [
+      {
+        "id": "player",
+        "author": {
+          "id": "player",
+          "name": "Player",
+          "avatar": null
+        },
+        "rating": 4.0,
+        "createdOn": "2026-10-01",
+        "text": "A solid sample review."
+      }
+    ]
+  },
+  "similar": [
+    {
+      "id": "clash_of_clans",
+      "name": "Clash of Clans",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/featured_icon.png",
+        "width": 512,
+        "height": 512,
+        "alt": "featured_icon.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "sifu",
+      "name": "Sifu",
+      "studio": {
+        "name": "Kepler Interactive",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/sifu.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "sifu.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "nine_kings",
+      "name": "9 Kings",
+      "studio": {
+        "name": "Playdigious",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/nine_kings.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "nine_kings.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    }
+  ],
+  "moreByStudio": [
+    {
+      "id": "clash_of_clans",
+      "name": "Clash of Clans",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/featured_icon.png",
+        "width": 512,
+        "height": 512,
+        "alt": "featured_icon.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "brawl_stars",
+      "name": "Brawl Stars",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/hero_object.png",
+        "width": 512,
+        "height": 512,
+        "alt": "hero_object.png"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "hay_day",
+      "name": "Hay Day",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/quest_icon_2.png",
+        "width": 512,
+        "height": 512,
+        "alt": "quest_icon_2.png"
+      },
+      "rating": 2.7,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    },
+    {
+      "id": "boom_beach",
+      "name": "Boom Beach",
+      "studio": {
+        "name": "Supercell",
+        "registeredMark": true
+      },
+      "cover": {
+        "url": "{{media}}/home/monopoly_banner.jpg",
+        "width": 512,
+        "height": 512,
+        "alt": "monopoly_banner.jpg"
+      },
+      "rating": 4.4,
+      "rewardPoints": 50,
+      "access": "freeToPlay"
+    }
+  ]
+}
