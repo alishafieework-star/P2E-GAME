@@ -200,95 +200,99 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
                 padding: const EdgeInsetsDirectional.all(
                   AuthEntryTokens.formInset,
                 ),
-                child: Column(
-                  children: [
-                    // D-044: content scrolls instead of clipping at 2.0x;
-                    // the CTA cluster stays pinned below it.
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AppOtpField(
-                              elementId: 'auth.otp.code',
-                              label: strings.authOtpLabel,
-                              controller: code,
-                              focusNode: focus,
-                              enabled: !state.busy && !state.verified,
-                              readOnly: state.verified,
-                              feedbackTone: AppOtpFeedbackTone.status,
-                              sourceDivider: true,
-                              keyboardType: TextInputType.text,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp('[A-Za-z0-9]'),
-                                ),
-                              ],
-                              feedback: state.verified
-                                  ? const FieldFeedback.success()
-                                  : state.fieldError == null
-                                  ? const FieldFeedback.neutral()
-                                  : FieldFeedback.error(
-                                      message(strings, state.fieldError!),
-                                    ),
-                              onChanged: controller.codeChanged,
-                            ),
-                            SizedBox(height: AuthEntryTokens.dividerGap),
-                            OtpPromptRow(
-                              elementId: 'auth.otp.resend',
-                              prompt: strings.authOtpResendPrompt,
-                              promptStyleName: 'English/Baseline/Label-Medium',
-                              action: state.remaining > 0
-                                  ? countdown(state.remaining)
-                                  : strings.authOtpResend,
-                              actionStyleName: state.remaining > 0
-                                  ? 'English/Baseline/Number-Large'
-                                  : 'English/Baseline/Button-Medium',
-                              onAction: state.canResend
-                                  ? () => unawaited(controller.resend())
-                                  : null,
-                            ),
-                          ],
-                        ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppOtpField(
+                        elementId: 'auth.otp.code',
+                        label: strings.authOtpLabel,
+                        controller: code,
+                        focusNode: focus,
+                        enabled: !state.busy && !state.verified,
+                        readOnly: state.verified,
+                        feedbackTone: AppOtpFeedbackTone.status,
+                        sourceDivider: true,
+                        keyboardType: TextInputType.text,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp('[A-Za-z0-9]'),
+                          ),
+                        ],
+                        feedback: state.verified
+                            ? const FieldFeedback.success()
+                            : state.fieldError == null
+                            ? const FieldFeedback.neutral()
+                            : FieldFeedback.error(
+                                message(strings, state.fieldError!),
+                              ),
+                        onChanged: controller.codeChanged,
                       ),
-                    ),
-                    const Spacer(),
-                    AppButton(
-                      elementId: 'auth.otp.verify',
-                      key: const ValueKey('auth.otp.verify'),
-                      family: AppButtonFamily.fill,
-                      tone: AppButtonTone.accent,
-                      label: reset
-                          ? strings.authResetAction
-                          : strings.authOtpVerify,
-                      loading: state.busy,
-                      loadingSemanticsLabel: reset
-                          ? strings.authResetLoading
-                          : strings.authOtpLoading,
-                      onPressed: state.canVerify
-                          ? () => unawaited(controller.verify(code.text))
-                          : null,
-                    ),
-                    SizedBox(height: AuthEntryTokens.dividerGap),
-                    OtpPromptRow(
-                      elementId: 'auth.otp.change',
-                      prompt: reset
-                          ? strings.authResetWrongEmail
-                          : strings.authOtpWrongPhone,
-                      promptStyleName: 'English/Baseline/Label-Small',
-                      action: strings.authOtpChange,
-                      actionStyleName: 'English/Baseline/Label-Small',
-                      onAction: state.busy || state.verified ? null : leave,
-                    ),
-                    if (state.toast != null)
-                      AppToast(
-                        key: ValueKey(state.toastSerial),
-                        elementId: 'auth.otp.toast',
-                        message: message(strings, state.toast!),
-                        onDismiss: controller.dismissToast,
+                      SizedBox(height: AuthEntryTokens.dividerGap),
+                      OtpPromptRow(
+                        elementId: 'auth.otp.resend',
+                        prompt: strings.authOtpResendPrompt,
+                        promptStyleName: 'English/Baseline/Label-Medium',
+                        action: state.remaining > 0
+                            ? countdown(state.remaining)
+                            : strings.authOtpResend,
+                        actionStyleName: state.remaining > 0
+                            ? 'English/Baseline/Number-Large'
+                            : 'English/Baseline/Button-Medium',
+                        onAction: state.canResend
+                            ? () => unawaited(controller.resend())
+                            : null,
                       ),
-                  ],
+                    ],
+                  ),
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AuthEntryTokens.formInset,
+                0,
+                AuthEntryTokens.formInset,
+                AuthEntryTokens.formInset,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppButton(
+                    elementId: 'auth.otp.verify',
+                    key: const ValueKey('auth.otp.verify'),
+                    family: AppButtonFamily.fill,
+                    tone: AppButtonTone.accent,
+                    label: reset
+                        ? strings.authResetAction
+                        : strings.authOtpVerify,
+                    loading: state.busy,
+                    loadingSemanticsLabel: reset
+                        ? strings.authResetLoading
+                        : strings.authOtpLoading,
+                    onPressed: state.canVerify
+                        ? () => unawaited(controller.verify(code.text))
+                        : null,
+                  ),
+                  SizedBox(height: AuthEntryTokens.dividerGap),
+                  OtpPromptRow(
+                    elementId: 'auth.otp.change',
+                    prompt: reset
+                        ? strings.authResetWrongEmail
+                        : strings.authOtpWrongPhone,
+                    promptStyleName: 'English/Baseline/Label-Small',
+                    action: strings.authOtpChange,
+                    actionStyleName: 'English/Baseline/Label-Small',
+                    onAction: state.busy || state.verified ? null : leave,
+                  ),
+                  if (state.toast != null)
+                    AppToast(
+                      key: ValueKey(state.toastSerial),
+                      elementId: 'auth.otp.toast',
+                      message: message(strings, state.toast!),
+                      onDismiss: controller.dismissToast,
+                    ),
+                ],
               ),
             ),
           ],

@@ -284,62 +284,77 @@ class _AuthCreatePasswordScreenState
               ),
             ),
             Expanded(
-              child: ListView(
+              child: SingleChildScrollView(
                 padding: const EdgeInsetsDirectional.all(
                   AuthEntryTokens.formInset,
                 ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppPasswordField(
+                      elementId: 'auth.create.password',
+                      label: strings.authCreatePasswordLabel,
+                      showPasswordLabel: strings.authPasswordShow,
+                      hidePasswordLabel: strings.authPasswordHide,
+                      options: FieldInputOptions(
+                        controller: password,
+                        focusNode: passwordFocus,
+                        hint: strings.authCreatePasswordHint,
+                        enabled: !state.busy,
+                        keyboardType: TextInputType.visiblePassword,
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        identifierPrivacy: true,
+                        onChanged: controller.passwordChanged,
+                      ),
+                    ),
+                    SizedBox(height: AuthEntryTokens.formGap),
+                    AppPasswordField(
+                      elementId: 'auth.create.confirm',
+                      label: strings.authCreateConfirmLabel,
+                      showPasswordLabel: strings.authPasswordShow,
+                      hidePasswordLabel: strings.authPasswordHide,
+                      options: FieldInputOptions(
+                        controller: confirm,
+                        focusNode: confirmFocus,
+                        hint: strings.authCreateConfirmHint,
+                        enabled: !state.busy,
+                        keyboardType: TextInputType.visiblePassword,
+                        textInputAction: TextInputAction.done,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        identifierPrivacy: true,
+                        onChanged: controller.confirmChanged,
+                        onSubmitted: state.canSubmit
+                            ? (_) => unawaited(controller.submit())
+                            : null,
+                      ),
+                    ),
+                    SizedBox(height: AuthEntryTokens.formGap),
+                    PasswordStrength(
+                      password: state.password,
+                      strengthLabel: strings.authPasswordStrength,
+                      level: level,
+                      longLabel: strings.authPasswordRuleLength,
+                      numberLabel: strings.authPasswordRuleNumber,
+                      caseLabel: strings.authPasswordRuleCase,
+                      symbolLabel: strings.authPasswordRuleSymbol,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AuthEntryTokens.formInset,
+                AuthEntryTokens.formGap,
+                AuthEntryTokens.formInset,
+                AuthEntryTokens.formInset,
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  AppPasswordField(
-                    elementId: 'auth.create.password',
-                    label: strings.authCreatePasswordLabel,
-                    showPasswordLabel: strings.authPasswordShow,
-                    hidePasswordLabel: strings.authPasswordHide,
-                    options: FieldInputOptions(
-                      controller: password,
-                      focusNode: passwordFocus,
-                      hint: strings.authCreatePasswordHint,
-                      enabled: !state.busy,
-                      keyboardType: TextInputType.visiblePassword,
-                      textInputAction: TextInputAction.next,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      identifierPrivacy: true,
-                      onChanged: controller.passwordChanged,
-                    ),
-                  ),
-                  SizedBox(height: AuthEntryTokens.formGap),
-                  AppPasswordField(
-                    elementId: 'auth.create.confirm',
-                    label: strings.authCreateConfirmLabel,
-                    showPasswordLabel: strings.authPasswordShow,
-                    hidePasswordLabel: strings.authPasswordHide,
-                    options: FieldInputOptions(
-                      controller: confirm,
-                      focusNode: confirmFocus,
-                      hint: strings.authCreateConfirmHint,
-                      enabled: !state.busy,
-                      keyboardType: TextInputType.visiblePassword,
-                      textInputAction: TextInputAction.done,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      identifierPrivacy: true,
-                      onChanged: controller.confirmChanged,
-                      onSubmitted: state.canSubmit
-                          ? (_) => unawaited(controller.submit())
-                          : null,
-                    ),
-                  ),
-                  SizedBox(height: AuthEntryTokens.formGap),
-                  PasswordStrength(
-                    password: state.password,
-                    strengthLabel: strings.authPasswordStrength,
-                    level: level,
-                    longLabel: strings.authPasswordRuleLength,
-                    numberLabel: strings.authPasswordRuleNumber,
-                    caseLabel: strings.authPasswordRuleCase,
-                    symbolLabel: strings.authPasswordRuleSymbol,
-                  ),
-                  SizedBox(height: AuthEntryTokens.formGap),
                   AppButton(
                     elementId: 'auth.create.submit',
                     key: const ValueKey('auth.create.submit'),
@@ -353,11 +368,17 @@ class _AuthCreatePasswordScreenState
                         : null,
                   ),
                   if (state.toast != null)
-                    AppToast(
-                      key: ValueKey(state.toastSerial),
-                      elementId: 'auth.create.toast',
-                      message: message(strings, state.toast!),
-                      onDismiss: controller.dismissToast,
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: FractionalTranslation(
+                        translation: const Offset(0, 1),
+                        child: AppToast(
+                          key: ValueKey(state.toastSerial),
+                          elementId: 'auth.create.toast',
+                          message: message(strings, state.toast!),
+                          onDismiss: controller.dismissToast,
+                        ),
+                      ),
                     ),
                 ],
               ),

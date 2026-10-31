@@ -113,99 +113,95 @@ class _AuthPasswordScreenState extends ConsumerState<AuthPasswordScreen> {
                 padding: const EdgeInsetsDirectional.all(
                   AuthEntryTokens.formInset,
                 ),
-                child: Column(
-                  children: [
-                    // D-044: content scrolls instead of clipping at 2.0x;
-                    // the CTA stays pinned below it.
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            PasswordAccountCard(
-                              email: email,
-                              loggingInLabel: strings.authPasswordLoggingIn,
-                              changeLabel: strings.authPasswordChange,
-                              onChange: state.busy ? null : leave,
-                            ),
-                            SizedBox(height: AuthEntryTokens.formGap),
-                            AppPasswordField(
-                              elementId: 'auth.password.field',
-                              label: strings.authPasswordLabel,
-                              showPasswordLabel: strings.authPasswordShow,
-                              hidePasswordLabel: strings.authPasswordHide,
-                              options: FieldInputOptions(
-                                controller: password,
-                                focusNode: focus,
-                                hint: strings.authPasswordHint,
-                                enabled: !state.busy,
-                                keyboardType: TextInputType.visiblePassword,
-                                autofillHints: const [AutofillHints.password],
-                                textInputAction: TextInputAction.done,
-                                autocorrect: false,
-                                enableSuggestions: false,
-                                identifierPrivacy: true,
-                                feedback: state.fieldError == null
-                                    ? const FieldFeedback.neutral()
-                                    : FieldFeedback.error(
-                                        message(strings, state.fieldError!),
-                                      ),
-                                onChanged: controller.changed,
-                                onSubmitted: state.canSubmit
-                                    ? (_) => unawaited(
-                                        controller.submit(password.text),
-                                      )
-                                    : null,
-                              ),
-                            ),
-                            SizedBox(height: AuthEntryTokens.fieldGap),
-                            PasswordActionRow(
-                              rememberLabel: strings.authPasswordRemember,
-                              forgotLabel: strings.authPasswordForgot,
-                              remember: state.remember,
-                              enabled: !state.busy,
-                              onRemember: controller.remember,
-                              onForgot: () => unawaited(controller.forgot()),
-                            ),
-                          ],
-                        ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PasswordAccountCard(
+                        email: email,
+                        loggingInLabel: strings.authPasswordLoggingIn,
+                        changeLabel: strings.authPasswordChange,
+                        onChange: state.busy ? null : leave,
                       ),
-                    ),
-                    const Spacer(),
-                    // The toast floats under the CTA so it never moves it.
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        AppButton(
-                          elementId: 'auth.password.login',
-                          key: const ValueKey('auth.password.login'),
-                          family: AppButtonFamily.fill,
-                          tone: AppButtonTone.accent,
-                          label: strings.authPasswordLogin,
-                          loading: state.busy,
-                          loadingSemanticsLabel: strings.authLoading,
-                          onPressed: state.canSubmit
-                              ? () =>
+                      SizedBox(height: AuthEntryTokens.formGap),
+                      AppPasswordField(
+                        elementId: 'auth.password.field',
+                        label: strings.authPasswordLabel,
+                        showPasswordLabel: strings.authPasswordShow,
+                        hidePasswordLabel: strings.authPasswordHide,
+                        options: FieldInputOptions(
+                          controller: password,
+                          focusNode: focus,
+                          hint: strings.authPasswordHint,
+                          enabled: !state.busy,
+                          keyboardType: TextInputType.visiblePassword,
+                          autofillHints: const [AutofillHints.password],
+                          textInputAction: TextInputAction.done,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          identifierPrivacy: true,
+                          feedback: state.fieldError == null
+                              ? const FieldFeedback.neutral()
+                              : FieldFeedback.error(
+                                  message(strings, state.fieldError!),
+                                ),
+                          onChanged: controller.changed,
+                          onSubmitted: state.canSubmit
+                              ? (_) =>
                                     unawaited(controller.submit(password.text))
                               : null,
                         ),
-                        if (state.toast != null)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: FractionalTranslation(
-                              translation: const Offset(0, 1),
-                              child: AppToast(
-                                key: ValueKey(state.toastSerial),
-                                elementId: 'auth.password.toast',
-                                message: message(strings, state.toast!),
-                                onDismiss: controller.dismissToast,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      SizedBox(height: AuthEntryTokens.fieldGap),
+                      PasswordActionRow(
+                        rememberLabel: strings.authPasswordRemember,
+                        forgotLabel: strings.authPasswordForgot,
+                        remember: state.remember,
+                        enabled: !state.busy,
+                        onRemember: controller.remember,
+                        onForgot: () => unawaited(controller.forgot()),
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AuthEntryTokens.formInset,
+                0,
+                AuthEntryTokens.formInset,
+                AuthEntryTokens.formInset,
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  AppButton(
+                    elementId: 'auth.password.login',
+                    key: const ValueKey('auth.password.login'),
+                    family: AppButtonFamily.fill,
+                    tone: AppButtonTone.accent,
+                    label: strings.authPasswordLogin,
+                    loading: state.busy,
+                    loadingSemanticsLabel: strings.authLoading,
+                    onPressed: state.canSubmit
+                        ? () => unawaited(controller.submit(password.text))
+                        : null,
+                  ),
+                  if (state.toast != null)
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: FractionalTranslation(
+                        translation: const Offset(0, 1),
+                        child: AppToast(
+                          key: ValueKey(state.toastSerial),
+                          elementId: 'auth.password.toast',
+                          message: message(strings, state.toast!),
+                          onDismiss: controller.dismissToast,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],

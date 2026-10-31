@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mygame_p2e/core/storage/json_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Device flags that survive sign-out (D-142, Addendum A3.3).
 final class DevicePreferences {
@@ -40,29 +38,6 @@ final class DevicePreferences {
     rememberedRaw: rememberedRaw ?? this.rememberedRaw,
     rememberedLabel: rememberedLabel ?? this.rememberedLabel,
   );
-
-  Map<String, Object?> toJson() => {
-    'onboardingSeen': onboardingSeen,
-    'homeTourPending': homeTourPending,
-    'notificationsAsked': notificationsAsked,
-    'smsAccessAsked': smsAccessAsked,
-    'rememberedRaw': rememberedRaw,
-    'rememberedLabel': rememberedLabel,
-  };
-
-  factory DevicePreferences.fromJson(Map<String, Object?> json) =>
-      DevicePreferences(
-        onboardingSeen: json['onboardingSeen'] == true,
-        homeTourPending: json['homeTourPending'] == true,
-        notificationsAsked: json['notificationsAsked'] == true,
-        smsAccessAsked: json['smsAccessAsked'] == true,
-        rememberedRaw: json['rememberedRaw'] is String
-            ? json['rememberedRaw'] as String
-            : '',
-        rememberedLabel: json['rememberedLabel'] is String
-            ? json['rememberedLabel'] as String
-            : '',
-      );
 }
 
 abstract interface class DevicePreferencesRepository {
@@ -70,22 +45,31 @@ abstract interface class DevicePreferencesRepository {
   Future<void> save(DevicePreferences value);
 }
 
-final class JsonDevicePreferencesRepository
+/// Persistent device flags via shared_preferences (D-142, Addendum A3.3).
+/// Replaces the previous JsonDevicePreferencesRepository / FileJsonStore.
+final class SharedPrefsDevicePreferences
     implements DevicePreferencesRepository {
-  JsonDevicePreferencesRepository(this.store);
-  final JsonStore store;
-  static const key = 'device/preferences';
+  static const _onboardingSeen = 'pref.onboardingSeen';
+  static const _homeTourPending = 'pref.homeTourPending';
+  static const _notificationsAsked = 'pref.notificationsAsked';
+  static const _smsAccessAsked = 'pref.smsAccessAsked';
+  static const _rememberedRaw = 'pref.rememberedRaw';
+  static const _rememberedLabel = 'pref.rememberedLabel';
 
   @override
   Future<DevicePreferences> read() async {
     try {
-      final raw = await store
-          .read(key)
-          .timeout(const Duration(seconds: 2), onTimeout: () => null);
-      if (raw == null || raw.isEmpty) return const DevicePreferences();
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map) return const DevicePreferences();
-      return DevicePreferences.fromJson(Map<String, Object?>.from(decoded));
+      final p = await SharedPreferences.getInstance().timeout(
+        const Duration(seconds: 2),
+      );
+      return DevicePreferences(
+        onboardingSeen: p.getBool(_onboardingSeen) ?? false,
+        homeTourPending: p.getBool(_homeTourPending) ?? false,
+        notificationsAsked: p.getBool(_notificationsAsked) ?? false,
+        smsAccessAsked: p.getBool(_smsAccessAsked) ?? false,
+        rememberedRaw: p.getString(_rememberedRaw) ?? '',
+        rememberedLabel: p.getString(_rememberedLabel) ?? '',
+      );
     } catch (_) {
       // A failed read must not trap startup. The player can still sign in.
       return const DevicePreferences(onboardingSeen: true);
@@ -93,13 +77,22 @@ final class JsonDevicePreferencesRepository
   }
 
   @override
-  Future<void> save(DevicePreferences value) =>
-      store.write(key, jsonEncode(value.toJson()));
+  Future<void> save(DevicePreferences v) async {
+    final p = await SharedPreferences.getInstance();
+    await Future.wait([
+      p.setBool(_onboardingSeen, v.onboardingSeen),
+      p.setBool(_homeTourPending, v.homeTourPending),
+      p.setBool(_notificationsAsked, v.notificationsAsked),
+      p.setBool(_smsAccessAsked, v.smsAccessAsked),
+      p.setString(_rememberedRaw, v.rememberedRaw),
+      p.setString(_rememberedLabel, v.rememberedLabel),
+    ]);
+  }
 }
 
 /// In-memory flags for hosts that do not install the file store.
 /// Onboarding is already seen so widget tests reach Auth Entry.
-/// Production bootstrap replaces this with the device file store (D-142).
+/// Production bootstrap replaces this with SharedPrefsDevicePreferences (D-142).
 final class EphemeralDevicePreferences implements DevicePreferencesRepository {
   DevicePreferences value = const DevicePreferences(onboardingSeen: true);
 

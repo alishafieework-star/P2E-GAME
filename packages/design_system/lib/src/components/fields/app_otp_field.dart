@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:math' as math;
+
+import '../../tokens/generated/html_journey_tokens.g.dart';
 
 import '../../theme/skin_theme.dart';
 
@@ -22,73 +25,185 @@ Color? otpStatusAccent(FieldSpec spec, AppOtpFeedbackTone tone) {
   return spec.skin!.valuesFor(spec.brightness).color(role);
 }
 
-class AppOtpCell extends StatelessWidget {
+// OVERRIDE(O-003): OTP okWave motion from HTML prototype (420ms, 45ms stagger, -6px lift, 1.04 scale).
+const _otpWaveDuration = Duration(milliseconds: 420);
+const _otpWaveStagger = Duration(milliseconds: 45);
+const _otpWavePeakTime = 0.4;
+const _otpWaveLift = -6.0;
+const _otpWaveScale = 0.04;
+
+class AppOtpCell extends StatefulWidget {
   const AppOtpCell({
     super.key,
     required this.spec,
     this.value = '',
     this.visualKey,
     this.feedbackTone = AppOtpFeedbackTone.source,
+    this.index = 0,
   });
+
   final FieldSpec spec;
   final String value;
   final Key? visualKey;
   final AppOtpFeedbackTone feedbackTone;
+  final int index;
+
+  @override
+  State<AppOtpCell> createState() => _AppOtpCellState();
+}
+
+class _AppOtpCellState extends State<AppOtpCell>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _wave;
+  Timer? _staggerTimer;
+  bool _showSuccessVisual = false;
+  FieldSpec? _previousSpec;
+
+  @override
+  void initState() {
+    super.initState();
+    _wave = AnimationController(vsync: this, duration: _otpWaveDuration);
+    if (widget.spec.data['state'] == 'Success') {
+      _showSuccessVisual = true;
+    } else {
+      _previousSpec = widget.spec;
+    }
+  }
+
+  @override
+  void didUpdateWidget(AppOtpCell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final wasSuccess = oldWidget.spec.data['state'] == 'Success';
+    final isSuccess = widget.spec.data['state'] == 'Success';
+    if (!wasSuccess) {
+      _previousSpec = oldWidget.spec;
+    }
+    if (!wasSuccess && isSuccess) {
+      _triggerSuccessWave();
+    } else if (!isSuccess) {
+      _staggerTimer?.cancel();
+      _wave.reset();
+      _showSuccessVisual = false;
+      _previousSpec = widget.spec;
+    }
+  }
+
+  void _triggerSuccessWave() {
+    _staggerTimer?.cancel();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _showSuccessVisual = true;
+      return;
+    }
+    final delay = _otpWaveStagger * widget.index;
+    if (delay == Duration.zero) {
+      _showSuccessVisual = true;
+      _wave.forward(from: 0);
+    } else {
+      _showSuccessVisual = false;
+      _staggerTimer = Timer(delay, () {
+        if (!mounted) return;
+        setState(() {
+          _showSuccessVisual = true;
+        });
+        _wave.forward(from: 0);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _staggerTimer?.cancel();
+    _wave.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final spec = this.spec.withSkin(SkinTheme.of(context));
-    final state = spec.data['state'],
+    final effectiveSpec =
+        (_showSuccessVisual ? widget.spec : (_previousSpec ?? widget.spec))
+            .withSkin(SkinTheme.of(context));
+    final state = effectiveSpec.data['state'],
         active = state == 'Focused' || state == 'Edit';
-    final accent = otpStatusAccent(spec, feedbackTone);
-    final child = state == 'Success'
-        ? AssetAppIcon(
-            spec.icon(spec.icons.single).id,
-            style: AppIconStyle.values.byName(
-              spec.icons.single['style'] as String,
+    final accent = otpStatusAccent(effectiveSpec, widget.feedbackTone);
+
+    final bool isSuccess = _showSuccessVisual && state == 'Success';
+
+    final Widget innerContent = isSuccess
+        ? KeyedSubtree(
+            key: const ValueKey('otp.cell.icon'),
+            child: AssetAppIcon(
+              effectiveSpec.icon(effectiveSpec.icons.single).id,
+              style: AppIconStyle.values.byName(
+                effectiveSpec.icons.single['style'] as String,
+              ),
+              size: (effectiveSpec.icons.single['width'] as num).toDouble(),
+              color:
+                  accent ?? effectiveSpec.iconPaint(effectiveSpec.icons.single),
             ),
-            size: (spec.icons.single['width'] as num).toDouble(),
-            color: accent ?? spec.iconPaint(spec.icons.single),
           )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (value.isNotEmpty)
-                Text(
-                  value,
-                  style: spec
-                      .textStyle(
-                        'otpText',
-                        persian:
-                            Directionality.of(context) == TextDirection.rtl,
-                      )
-                      .copyWith(color: accent),
-                ),
-              if (active)
-                ColoredBox(
-                  color: spec.paint(spec.part('caret'), 'strokes')!,
-                  child: SizedBox(
-                    width: spec.number('caret', 'strokeWeight'),
-                    height: spec.number('caret', 'width'),
+        : KeyedSubtree(
+            key: const ValueKey('otp.cell.text'),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.value.isNotEmpty)
+                  Text(
+                    widget.value,
+                    style: effectiveSpec
+                        .textStyle(
+                          'otpText',
+                          persian:
+                              Directionality.of(context) == TextDirection.rtl,
+                        )
+                        .copyWith(color: accent),
                   ),
-                ),
-            ],
+                if (active)
+                  ColoredBox(
+                    color: effectiveSpec.paint(
+                      effectiveSpec.part('caret'),
+                      'strokes',
+                    )!,
+                    child: SizedBox(
+                      width: effectiveSpec.number('caret', 'strokeWeight'),
+                      height: effectiveSpec.number('caret', 'width'),
+                    ),
+                  ),
+              ],
+            ),
           );
-    return TweenAnimationBuilder<Decoration?>(
-      tween: DecorationTween(
-        end: BoxDecoration(
-          color: spec.color('body'),
-          border: Border.all(
-            color: accent ?? spec.color('body', stroke: true)!,
-            width: spec.number('body', 'strokeWeight'),
+
+    final animatedChild = AnimatedSwitcher(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 200),
+      transitionBuilder: (child, animation) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: animation,
+            curve: HtmlJourneyTokens.spring,
           ),
-          borderRadius: BorderRadiusDirectional.all(
-            Radius.circular(spec.number('body', 'cornerRadius')),
-          ),
-        ),
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
+      child: innerContent,
+    );
+
+    final boxDecoration = BoxDecoration(
+      color: effectiveSpec.color('body'),
+      border: Border.all(
+        color: accent ?? effectiveSpec.color('body', stroke: true)!,
+        width: effectiveSpec.number('body', 'strokeWeight'),
       ),
+      borderRadius: BorderRadiusDirectional.all(
+        Radius.circular(effectiveSpec.number('body', 'cornerRadius')),
+      ),
+    );
+
+    final decoratedCell = TweenAnimationBuilder<Decoration?>(
+      tween: DecorationTween(end: boxDecoration),
       duration: FieldMotion.effective(
         context,
-        feedbackTone == AppOtpFeedbackTone.status
+        widget.feedbackTone == AppOtpFeedbackTone.status
             ? FieldMotion.statusColor
             : FieldMotion.color,
       ),
@@ -96,11 +211,37 @@ class AppOtpCell extends StatelessWidget {
       builder: (context, value, child) =>
           DecoratedBox(decoration: value!, child: child),
       child: SizedBox(
-        key: visualKey,
-        width: spec.number('body', 'width'),
-        height: spec.number('body', 'height'),
-        child: Center(child: child),
+        key: widget.visualKey,
+        width: effectiveSpec.number('body', 'width'),
+        height: effectiveSpec.number('body', 'height'),
+        child: Center(child: animatedChild),
       ),
+    );
+
+    return AnimatedBuilder(
+      animation: _wave,
+      builder: (context, child) {
+        final t = _wave.value;
+        var progress = 0.0;
+        if (_wave.isAnimating || t > 0) {
+          if (t <= _otpWavePeakTime) {
+            final seg = (t / _otpWavePeakTime).clamp(0.0, 1.0);
+            progress = HtmlJourneyTokens.spring.transform(seg);
+          } else {
+            final seg = ((t - _otpWavePeakTime) / (1.0 - _otpWavePeakTime))
+                .clamp(0.0, 1.0);
+            progress = 1.0 - HtmlJourneyTokens.spring.transform(seg);
+          }
+        }
+        final dy = _otpWaveLift * progress;
+        final scale = 1.0 + _otpWaveScale * progress;
+
+        return Transform.translate(
+          offset: Offset(0, dy),
+          child: Transform.scale(scale: scale, child: child),
+        );
+      },
+      child: decoratedCell,
     );
   }
 }

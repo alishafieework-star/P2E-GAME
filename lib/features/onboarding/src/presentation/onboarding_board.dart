@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mygame_p2e/shared/widgets/player_avatar.dart';
@@ -322,19 +324,26 @@ class PodiumPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final roles = SkinTheme.of(context).valuesFor(Theme.of(context).brightness);
-    final lift = Offset(
-      0,
-      -HtmlJourneyTokens.obPuHover *
-          HtmlJourneyTokens.easeInOut.transform(1 - (2 * hover - 1).abs()),
-    );
+    final phase = switch (person.letter) {
+      'Z' => 1.1 / 3.4,
+      'M' => 2.3 / 3.4,
+      'N' => 1.7 / 3.4,
+      _ => 0.0,
+    };
+    final playerHover = (hover + phase) % 1.0;
+    // Harmonic wave: pure cosine wave is infinitely smooth (C^inf) with zero
+    // velocity at both top and bottom extremes, eliminating turnaround stutter.
+    final wave = (1 - math.cos(playerHover * 2 * math.pi)) / 2;
+    // OVERRIDE(O-002): Increased hover amplitude from 6px to 12px for smooth visibility.
+    final lift = Offset(0, -HtmlJourneyTokens.obPuHover * 2.0 * wave);
     return SizedBox(
       width: HtmlJourneyTokens.obPuWidth,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.translate(
-            offset: lift,
-            child: SizedBox.square(
+      child: Transform.translate(
+        offset: lift,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox.square(
               dimension: HtmlJourneyTokens.avatarExtentMedium,
               child: Stack(
                 clipBehavior: Clip.none,
@@ -384,23 +393,17 @@ class PodiumPlayer extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: HtmlJourneyTokens.obPuGap),
-          Transform.translate(
-            offset: lift,
-            child: NameSkeleton(
+            const SizedBox(height: HtmlJourneyTokens.obPuGap),
+            NameSkeleton(
               width: person.skeleton,
               color: HtmlJourneyTokens.obSkeletonDark,
               top: HtmlJourneyTokens.obSkelTop,
               bottom: HtmlJourneyTokens.obSkelBottom,
             ),
-          ),
-          const SizedBox(height: HtmlJourneyTokens.obPuGap),
-          Transform.translate(
-            offset: lift,
-            child: PointsTag(points: points, unit: unit),
-          ),
-        ],
+            const SizedBox(height: HtmlJourneyTokens.obPuGap),
+            PointsTag(points: points, unit: unit),
+          ],
+        ),
       ),
     );
   }

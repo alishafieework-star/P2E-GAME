@@ -21,7 +21,9 @@ dependencies:
   p2e_design_system:
     path: packages/design_system
   riverpod_annotation: ^4.0.7
+  shared_preferences: ^2.3.4
   url_launcher: ^6.3.3
+  sensors_plus: ^7.1.1
 
 dev_dependencies:
   flutter_test:

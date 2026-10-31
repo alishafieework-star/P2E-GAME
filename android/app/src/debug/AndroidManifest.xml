@@ -2,6 +2,12 @@
     <!-- D-068: local OTP fake uses cleartext HTTP. D-150: the main manifest
          now carries a loopback-only cleartext config for standalone builds. -->
     <application android:usesCleartextTraffic="true">
+        <!-- Impeller's Vulkan path segfaults the host emulator process on the
+             API 34 x86_64 image at first frame (2026-10-31, deterministic).
+             Debug/emulator builds opt out; profile/release keep Impeller. -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
         <receiver
             android:name=".DeliveredSmsReceiver"
             android:exported="true"

@@ -118,7 +118,13 @@ class AllSetScreen extends ConsumerWidget {
     return JourneyPage(
       elementId: 'auth.all-set.page',
       overlay: const Positioned.fill(
-        child: IgnorePointer(child: JourneyConfetti()),
+        child: IgnorePointer(
+          child: JourneyConfetti(
+            key: ValueKey('auth.all-set.confetti'),
+            style: JourneyConfettiStyle.celebration,
+            delay: Duration(milliseconds: 350),
+          ),
+        ),
       ),
       header: JourneyHeader(
         large: true,

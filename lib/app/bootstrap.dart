@@ -12,7 +12,7 @@ import 'app.dart';
 import 'auth_bindings.dart';
 import 'config/app_config.dart';
 import 'home_bindings.dart';
-import 'platform/device_preferences_store.dart';
+
 import 'platform/dev_fake_stack.dart';
 import 'platform/notification_permission_adapter.dart';
 
@@ -66,8 +66,8 @@ void bootstrap({
       config: config,
       rootWrapper: rootWrapper,
       providerOverrides: [
-        devicePreferencesRepositoryProvider.overrideWith(
-          (_) => JsonDevicePreferencesRepository(openDevicePreferencesStore()),
+        devicePreferencesRepositoryProvider.overrideWithValue(
+          SharedPrefsDevicePreferences(),
         ),
         notificationPermissionPortProvider.overrideWith(
           (_) => const PermissionHandlerNotificationAdapter(),

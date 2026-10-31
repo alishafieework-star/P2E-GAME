@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,7 @@ import 'package:p2e_design_system/design_system.dart';
 
 /// Which HTML burst to play.
 enum JourneyConfettiStyle {
-  /// `confetti()` (All Set): one burst from the upper middle.
+  /// `confetti()` (All Set): rich burst from the upper middle.
   burst,
 
   /// `lbConfetti()` (Onboarding climb): two side cannons and a top burst.
@@ -16,9 +17,14 @@ enum JourneyConfettiStyle {
 /// One-shot confetti shared by the climb slide and All Set (D-138, D-140).
 /// It paints nothing once the burst has ended.
 class JourneyConfetti extends StatefulWidget {
-  const JourneyConfetti({super.key, this.style = JourneyConfettiStyle.burst});
+  const JourneyConfetti({
+    super.key,
+    this.style = JourneyConfettiStyle.burst,
+    this.delay = Duration.zero,
+  });
 
   final JourneyConfettiStyle style;
+  final Duration delay;
 
   @override
   State<JourneyConfetti> createState() => _JourneyConfettiState();
@@ -32,6 +38,7 @@ class _JourneyConfettiState extends State<JourneyConfetti>
   var done = false;
   var frames = 0;
   var started = false;
+  Timer? _delayTimer;
 
   @override
   void initState() {
@@ -50,7 +57,15 @@ class _JourneyConfettiState extends State<JourneyConfetti>
       done = true;
     } else if (!started) {
       started = true;
-      ticker.start();
+      if (widget.delay == Duration.zero) {
+        ticker.start();
+      } else {
+        _delayTimer = Timer(widget.delay, () {
+          if (mounted && !done) {
+            ticker.start();
+          }
+        });
+      }
     }
   }
 
@@ -67,9 +82,7 @@ class _JourneyConfettiState extends State<JourneyConfetti>
       }
       frames++;
     }
-    final alive = widget.style == JourneyConfettiStyle.burst
-        ? true
-        : bits.any((bit) => bit.y < HtmlJourneyTokens.obCfHeight + 30);
+    final alive = bits.any((bit) => bit.y < HtmlJourneyTokens.obCfHeight + 30);
     if (elapsed >= limit || !alive) {
       ticker.stop();
       setState(() => done = true);
@@ -80,6 +93,7 @@ class _JourneyConfettiState extends State<JourneyConfetti>
 
   @override
   void dispose() {
+    _delayTimer?.cancel();
     ticker.dispose();
     repaint.dispose();
     super.dispose();
@@ -102,27 +116,39 @@ class _JourneyConfettiState extends State<JourneyConfetti>
 }
 
 List<_Bit> _burstBits(math.Random random) {
-  final colors = HtmlJourneyTokens.confetti;
+  const colors = [
+    HtmlJourneyTokens.obCf0,
+    HtmlJourneyTokens.obCf1,
+    HtmlJourneyTokens.obCf2,
+    HtmlJourneyTokens.obCf3,
+    HtmlJourneyTokens.obCf4,
+    HtmlJourneyTokens.obCf5,
+    HtmlJourneyTokens.obCf6,
+    HtmlJourneyTokens.obCf7,
+    HtmlJourneyTokens.obCf8,
+    HtmlJourneyTokens.obCf9,
+  ];
   return [
-    for (var i = 0; i < HtmlJourneyTokens.confettiCount; i++)
+    for (var i = 0; i < 180; i++)
       _Bit(
         x: HtmlJourneyTokens.obCfWidth / 2,
         y: HtmlJourneyTokens.obCfHeight * HtmlJourneyTokens.edgeFadeStop,
-        vx: (random.nextDouble() - 0.5) * HtmlJourneyTokens.cardGap,
-        vy:
-            -random.nextDouble() * HtmlJourneyTokens.cardGap -
-            HtmlJourneyTokens.cardGap / 2,
+        vx: (random.nextDouble() - 0.5) * 12.0,
+        vy: -random.nextDouble() * 11.0 - 4.0,
         width:
-            HtmlJourneyTokens.cardGap / 2 +
-            random.nextDouble() * HtmlJourneyTokens.cardGap / 2,
+            HtmlJourneyTokens.obCfW0 +
+            random.nextDouble() * HtmlJourneyTokens.obCfWRange,
         height:
-            (HtmlJourneyTokens.cardGap / 2 +
-                random.nextDouble() * HtmlJourneyTokens.cardGap / 2) /
-            2,
-        spin: (random.nextDouble() - 0.5) * HtmlJourneyTokens.confettiGravity,
-        flip: 0,
-        round: false,
-        color: colors[i % colors.length],
+            HtmlJourneyTokens.obCfH0 +
+            random.nextDouble() * HtmlJourneyTokens.obCfHRange,
+        rotation: random.nextDouble() * math.pi * 2,
+        spin: (random.nextDouble() - 0.5) * HtmlJourneyTokens.obCfSpin,
+        flip: random.nextDouble() * math.pi * 2,
+        flipSpeed:
+            HtmlJourneyTokens.obCfFlip0 +
+            random.nextDouble() * HtmlJourneyTokens.obCfFlipRange,
+        round: random.nextDouble() < HtmlJourneyTokens.obCfRound,
+        color: colors[random.nextInt(colors.length)],
       ),
   ];
 }
@@ -232,8 +258,8 @@ class _Bit {
 
   void advance(JourneyConfettiStyle style) {
     if (style == JourneyConfettiStyle.burst) {
-      vy += HtmlJourneyTokens.confettiGravity;
-      vx *= 0.99;
+      vx *= 0.985;
+      vy = vy * 0.985 + 0.28;
     } else {
       vx *= HtmlJourneyTokens.obCfDrag;
       vy = vy * HtmlJourneyTokens.obCfDrag + HtmlJourneyTokens.obCfGravity;
@@ -257,19 +283,11 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final burst = style == JourneyConfettiStyle.burst;
-    final sx = burst ? 1.0 : size.width / HtmlJourneyTokens.obCfWidth;
-    final sy = burst ? 1.0 : size.height / HtmlJourneyTokens.obCfHeight;
-    final shift = burst
-        ? Offset(
-            size.width / 2 - HtmlJourneyTokens.obCfWidth / 2,
-            size.height * HtmlJourneyTokens.edgeFadeStop -
-                HtmlJourneyTokens.obCfHeight * HtmlJourneyTokens.edgeFadeStop,
-          )
-        : Offset.zero;
+    final sx = size.width / HtmlJourneyTokens.obCfWidth;
+    final sy = size.height / HtmlJourneyTokens.obCfHeight;
     for (final bit in bits) {
       canvas.save();
-      canvas.translate(bit.x * sx + shift.dx, bit.y * sy + shift.dy);
+      canvas.translate(bit.x * sx, bit.y * sy);
       canvas.rotate(bit.rotation);
       canvas.scale(sx, sx * math.cos(bit.flip));
       final paint = Paint()..color = bit.color;
