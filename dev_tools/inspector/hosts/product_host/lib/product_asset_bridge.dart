@@ -1,15 +1,20 @@
 import 'package:flutter/services.dart';
 
 /// Lets the hosted product resolve its own asset keys. The inspector library
-/// stays unaware of product paths. Only the listed keys are redirected to the
-/// product package; every other key stays on the host bundle.
+/// stays unaware of product paths. Redirects product image and brand icon keys
+/// to the mygame_p2e package bundle.
 final class ProductAssetBridge extends CachingAssetBundle {
   ProductAssetBridge(this.parent);
   final AssetBundle parent;
 
   static const packagePrefix = 'packages/mygame_p2e/';
 
-  /// Keys the product requests without a package name.
+  static const allowlistPrefixes = [
+    'assets/images/',
+    'assets/icons/brands/',
+    'assets/icons/platforms/',
+  ];
+
   static const allowlist = {
     'assets/images/auth/entry_illustration.png',
     'assets/icons/brands/playstation.svg',
@@ -17,8 +22,13 @@ final class ProductAssetBridge extends CachingAssetBundle {
     'assets/icons/brands/google.svg',
   };
 
-  String resolve(String key) =>
-      allowlist.contains(key) ? '$packagePrefix$key' : key;
+  String resolve(String key) {
+    if (allowlist.contains(key) ||
+        allowlistPrefixes.any((prefix) => key.startsWith(prefix))) {
+      return '$packagePrefix$key';
+    }
+    return key;
+  }
 
   @override
   Future<ByteData> load(String key) => parent.load(resolve(key));

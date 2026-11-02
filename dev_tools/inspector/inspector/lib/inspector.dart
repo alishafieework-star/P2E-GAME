@@ -17,3 +17,5 @@ export 'src/core/accessibility.dart';
 export 'src/core/performance.dart';
 export 'src/core/catalog.dart';
 export 'src/core/report.dart';
+export 'src/core/gorilla_stress.dart';
+export 'src/host/gorilla_panel.dart';

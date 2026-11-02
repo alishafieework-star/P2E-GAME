@@ -232,6 +232,10 @@
   "@platform": {
     "description": "Optional simulated-device inspector control."
   },
+  "deviceTab": "Device",
+  "@deviceTab": {
+    "description": "Inspector tab for simulated device controls."
+  },
   "inspectTab": "Inspect",
   "@inspectTab": {
     "description": "Optional simulated-device inspector control."
@@ -380,5 +384,145 @@
   "identityComponent": "Component ID",
   "identityNode": "Figma node",
   "identitySet": "Component set",
-  "identityVariant": "Variant"
+  "identityVariant": "Variant",
+  "dark": "dark",
+  "@dark": {
+    "description": "Dark theme brightness."
+  },
+  "light": "light",
+  "@light": {
+    "description": "Light theme brightness."
+  },
+  "pageSizeReadout": "{width} × {height} logical · {physicalWidth} × {physicalHeight} px · {dpi} dpi · {zoom}%",
+  "@pageSizeReadout": {
+    "description": "Host-window pixels of the simulated page."
+  },
+  "gorillaTab": "Gorilla",
+  "@gorillaTab": {
+    "description": "Inspector tab for chaos stress testing."
+  },
+  "gorillaHeader": "Gorilla Interaction & Stress Testing",
+  "@gorillaHeader": {
+    "description": "Gorilla stress panel header."
+  },
+  "gorillaDescription": "Stress-test scroll physics, rapid multi-taps, and gyro sensor parallax.",
+  "@gorillaDescription": {
+    "description": "Gorilla stress panel description."
+  },
+  "gorillaMode": "Mode",
+  "@gorillaMode": {
+    "description": "Stress test mode."
+  },
+  "sensorShake": "Sensor & Gyro Shake",
+  "@sensorShake": {
+    "description": "Stress mode: rapid sensor tilt."
+  },
+  "fastScroll": "Fast Fling Scroll",
+  "@fastScroll": {
+    "description": "Stress mode: fast flinging."
+  },
+  "slowScroll": "Slow Creep Scroll",
+  "@slowScroll": {
+    "description": "Stress mode: slow scrolling."
+  },
+  "monkeyTap": "Monkey Tap / Rapid Click",
+  "@monkeyTap": {
+    "description": "Stress mode: rapid clicking."
+  },
+  "fullChaos": "Combined Chaos",
+  "@fullChaos": {
+    "description": "Stress mode: combined."
+  },
+  "intensity": "Intensity",
+  "@intensity": {
+    "description": "Stress intensity."
+  },
+  "gentle": "Gentle",
+  "@gentle": {
+    "description": "Low intensity."
+  },
+  "normal": "Normal",
+  "@normal": {
+    "description": "Medium intensity."
+  },
+  "extreme": "Extreme",
+  "@extreme": {
+    "description": "High intensity."
+  },
+  "duration": "Duration",
+  "@duration": {
+    "description": "Test duration."
+  },
+  "duration5s": "5s",
+  "@duration5s": {
+    "description": "5 seconds duration."
+  },
+  "duration10s": "10s",
+  "@duration10s": {
+    "description": "10 seconds duration."
+  },
+  "durationContinuous": "Continuous",
+  "@durationContinuous": {
+    "description": "Continuous run."
+  },
+  "startGorilla": "Start Stress Test",
+  "@startGorilla": {
+    "description": "Start stress button."
+  },
+  "stopGorilla": "Stop",
+  "@stopGorilla": {
+    "description": "Stop stress button."
+  },
+  "statusRunning": "Running",
+  "@statusRunning": {
+    "description": "Running status."
+  },
+  "statusIdle": "Ready",
+  "@statusIdle": {
+    "description": "Idle status."
+  },
+  "dispatchedEvents": "Events dispatched",
+  "@dispatchedEvents": {
+    "description": "Dispatched events counter."
+  },
+  "slowFramesCount": "Slow frames during run",
+  "@slowFramesCount": {
+    "description": "Slow frames counter."
+  },
+  "problemsCount": "Problems detected",
+  "@problemsCount": {
+    "description": "Problems count."
+  },
+  "noProblemsDetected": "No exceptions or overflows detected.",
+  "@noProblemsDetected": {
+    "description": "Clean run indicator."
+  },
+  "tapTarget": "Click Target Zone",
+  "@tapTarget": {
+    "description": "Target zone for rapid clicks."
+  },
+  "tapTargetInteractive": "All Interactive Widgets",
+  "@tapTargetInteractive": {
+    "description": "Click auto-scanned widgets."
+  },
+  "tapTargetSelected": "Selected Widget",
+  "@tapTargetSelected": {
+    "description": "Click currently selected widget in inspector."
+  },
+  "tapTargetTop": "Top (Header)",
+  "@tapTargetTop": {
+    "description": "Click top region."
+  },
+  "tapTargetCenter": "Center (Content)",
+  "@tapTargetCenter": {
+    "description": "Click center region."
+  },
+  "tapTargetBottom": "Bottom (CTA / Bar)",
+  "@tapTargetBottom": {
+    "description": "Click bottom region."
+  },
+  "tapTargetCustom": "Custom Point",
+  "@tapTargetCustom": {
+    "description": "Click custom point."
+  }
 }

@@ -15,6 +15,8 @@ import 'package:mygame_p2e/shared/widgets/scroll_debug_log.dart';
 import 'package:p2e_design_system/design_system.dart';
 
 import '../../domain/game_details.dart';
+import '../../stage/html5_game_registry.dart';
+import '../../stage/html5_game_stage.dart';
 import '../game_details_providers.dart';
 import '../game_labels.dart';
 import '../widgets/game_compact_card.dart';
@@ -376,7 +378,9 @@ class _GameDetailsBody extends ConsumerWidget {
                 downloadsCaption: strings.gameDownloads,
                 sizeValue: size.amount,
                 sizeUnit: size.unit,
-                downloadLabel: strings.gameDownload,
+                downloadLabel: Html5GameRegistry.isHtml5(details.id)
+                    ? strings.homePlayNow
+                    : strings.gameDownload,
                 bookmarkLabel: saved
                     ? strings.gameBookmarked
                     : strings.gameBookmark,
@@ -387,9 +391,21 @@ class _GameDetailsBody extends ConsumerWidget {
                   '${size.amount} ${size.unit}',
                 ),
                 bookmarked: saved,
-                onDownload: () => ref
-                    .read(externalLinkPortProvider)
-                    .openUri(details.install.url),
+                onDownload: () {
+                  final html5Url = Html5GameRegistry.urlFor(details.id);
+                  if (html5Url != null) {
+                    Html5GameStage.open(
+                      context,
+                      gameId: details.id,
+                      url: html5Url,
+                      gameName: details.name,
+                    );
+                    return;
+                  }
+                  ref
+                      .read(externalLinkPortProvider)
+                      .openUri(details.install.url);
+                },
                 onBookmark: () =>
                     ref.read(gameBookmarksProvider.notifier).toggle(id),
               ),

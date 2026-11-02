@@ -14,7 +14,9 @@ import '../core/inspection.dart';
 import '../core/performance.dart';
 import '../core/report.dart';
 import '../core/selection.dart';
+import '../core/gorilla_stress.dart';
 import '../core/sweep.dart';
+import 'gorilla_panel.dart';
 import 'device_toolbar.dart';
 import 'summary.dart';
 import 'tool_copy.dart';
@@ -35,6 +37,9 @@ class InspectorHost extends StatefulWidget {
     this.device,
     this.scenarioCatalog,
     this.hostId = 'inspector',
+    this.initialPanelWidth,
+    this.inspectorLocale,
+    this.sensorDriver,
   });
   final HostAppBuilder appBuilder;
   final bool fill;
@@ -43,11 +48,15 @@ class InspectorHost extends StatefulWidget {
   final SimulatedDevice? device;
   final ScenarioCatalog? scenarioCatalog;
   final String hostId;
+  final double? initialPanelWidth;
+  final String? inspectorLocale;
+  final InspectorSensorDriver? sensorDriver;
   @override
   State<InspectorHost> createState() => InspectorHostState();
 }
 
-class InspectorHostState extends State<InspectorHost> {
+class InspectorHostState extends State<InspectorHost>
+    with SingleTickerProviderStateMixin {
   final appKey = GlobalKey(debugLabel: 'inspected-app');
   late final device = widget.device ?? SimulatedDevice(widget.initialSettings);
   FrameSettings get settings => device.settings;
@@ -64,17 +73,62 @@ class InspectorHostState extends State<InspectorHost> {
     auditor: accessibility,
     performance: performance,
   );
+  late final gorilla = GorillaStressRunner(
+    appKey: appKey,
+    device: device,
+    session: session,
+    recorder: problems,
+    performance: performance,
+    sensorDriver: widget.sensorDriver,
+  );
   bool panelOpen = true;
   double zoom = 1;
-
-  /// Width of the left pane, which shows only the hosted app. Null uses 62%.
   double? appPaneWidth;
+  double lastTotalWidth = 1280;
+
+  double get defaultPanelWidth =>
+      widget.initialPanelWidth ??
+      (widget.scenarioCatalog != null ? 760.0 : 380.0);
+
+  double get panelWidth =>
+      (lastTotalWidth -
+              (appPaneWidth ?? (lastTotalWidth - defaultPanelWidth - 8)) -
+              8)
+          .roundToDouble();
+
+  String get effectiveInspectorLocale =>
+      widget.inspectorLocale ??
+      (widget.hostId == 'product_host' || widget.scenarioCatalog != null
+          ? 'fa'
+          : 'en');
+
+  late String inspectorLocale = effectiveInspectorLocale;
+
+  late final TabController tabController = TabController(
+    length: 7,
+    vsync: this,
+  );
+  bool _wasSelecting = false;
+  InspectionNode? _lastSelected;
   String appResult = '';
+
+  void _onSessionChanged() {
+    if ((session.selecting && !_wasSelecting) ||
+        (session.selected != null && session.selected != _lastSelected)) {
+      if (mounted && tabController.index != 1) {
+        tabController.animateTo(1);
+      }
+    }
+    _wasSelecting = session.selecting;
+    _lastSelected = session.selected;
+  }
+
   @override
   void initState() {
     super.initState();
     if (widget.fill && widget.device == null) device.mode = FrameMode.fitWindow;
     session.watchBuilds();
+    session.addListener(_onSessionChanged);
     device.addListener(changed);
     problems.attach();
     accessibility.attach();
@@ -91,10 +145,13 @@ class InspectorHostState extends State<InspectorHost> {
 
   @override
   void dispose() {
+    session.removeListener(_onSessionChanged);
+    tabController.dispose();
     device.removeListener(changed);
     problems.dispose();
     accessibility.dispose();
     performance.dispose();
+    gorilla.dispose();
     sweep.dispose();
     session.dispose();
     if (widget.device == null) device.dispose();
@@ -115,7 +172,12 @@ class InspectorHostState extends State<InspectorHost> {
 
   void jump(InspectionProblem p) {
     update(p.device);
-    WidgetsBinding.instance.addPostFrameCallback((_) => chooseKey(p.ownerKey));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      chooseKey(p.ownerKey);
+      if (mounted && tabController.index != 1) {
+        tabController.animateTo(1);
+      }
+    });
   }
 
   Future<void> replay(FrameSettings settings, String? scenarioId) async {
@@ -232,6 +294,24 @@ class InspectorHostState extends State<InspectorHost> {
                 ),
               ),
             ),
+          ),
+          ListenableBuilder(
+            listenable: gorilla,
+            builder: (context, _) {
+              final tap = gorilla.lastDispatchedTapLocal;
+              if (!gorilla.running || tap == null) {
+                return const SizedBox.shrink();
+              }
+              return Positioned(
+                left: tap.dx,
+                top: tap.dy,
+                child: IgnorePointer(
+                  child: _TapRippleIndicator(
+                    key: ValueKey(gorilla.dispatchedEvents),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -369,253 +449,287 @@ class InspectorHostState extends State<InspectorHost> {
     final ratio = MediaQuery.devicePixelRatioOf(context);
     final width = settings.size.width, height = settings.size.height;
     final dpi = ratio * 96;
-    return '${width.toStringAsFixed(0)} × ${height.toStringAsFixed(0)} logical'
-        ' · ${(width * ratio).toStringAsFixed(0)} × ${(height * ratio).toStringAsFixed(0)} px'
-        ' · ${dpi.toStringAsFixed(0)} dpi'
-        ' · ${(zoom * 100).toStringAsFixed(0)}%';
+    return toolCopy(
+      'pageSizeReadout',
+      arguments: {
+        'width': width.toStringAsFixed(0),
+        'height': height.toStringAsFixed(0),
+        'physicalWidth': (width * ratio).toStringAsFixed(0),
+        'physicalHeight': (height * ratio).toStringAsFixed(0),
+        'dpi': dpi.toStringAsFixed(0),
+        'zoom': (zoom * 100).toStringAsFixed(0),
+      },
+    );
   }
 
-  Widget panel() => DefaultTabController(
-    length: 5,
-    child: Column(
-      children: [
-        TabBar(
-          isScrollable: true,
-          tabs: [
-            Tab(text: toolCopy('inspectTab')),
-            Tab(text: toolCopy('problemsTab')),
-            Tab(text: toolCopy('sweepTab')),
-            Tab(text: toolCopy('accessibilityTab')),
-            Tab(text: toolCopy('performanceTab')),
-          ],
-        ),
-        Expanded(
-          child: TabBarView(
-            children: [
-              InspectionPanel(session: session),
-              ListenableBuilder(
-                listenable: problems,
-                builder: (context, _) => ListView(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          key: const ValueKey('copy-problems'),
-                          tooltip: toolCopy('copyProblems'),
-                          onPressed: () => Clipboard.setData(
-                            ClipboardData(
-                              text: problemReport(problems.problems),
-                            ),
-                          ),
-                          icon: const Icon(Icons.content_copy),
-                        ),
-                        IconButton(
-                          tooltip: toolCopy('clear'),
-                          onPressed: sweep.running ? null : problems.clear,
-                          icon: const Icon(Icons.delete_outline),
-                        ),
-                      ],
+  Widget _buildScenarioBar() {
+    final catalog = widget.scenarioCatalog;
+    if (catalog == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 12, 6),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.white12, width: 1)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            '${toolCopy('scenarioLabel')}: ',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+          Expanded(
+            child: DropdownButton<String>(
+              key: const ValueKey('scenario'),
+              isExpanded: true,
+              isDense: true,
+              underline: const SizedBox.shrink(),
+              value:
+                  catalog.scenarios.any(
+                    (scenario) => scenario.id == catalog.activeId,
+                  )
+                  ? catalog.activeId
+                  : null,
+              hint: Text(toolCopy('scenarioLabel')),
+              items: [
+                for (final scenario in catalog.scenarios)
+                  DropdownMenuItem(
+                    value: scenario.id,
+                    child: Text(
+                      scenario.label,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12),
                     ),
-                    for (final p in problems.problems)
-                      ListTile(
-                        title: Text(p.summary),
-                        subtitle: Text(
-                          '${p.kind} / ${p.elementId ?? toolCopy('unavailable')} / ${p.device.size}',
-                        ),
-                        onTap: () => jump(p),
-                      ),
-                  ],
-                ),
-              ),
-              SweepControls(
-                device: device,
-                runner: sweep,
-                frame: frame,
-                catalog: widget.scenarioCatalog,
-                bundle: reportBundle,
-                onReplay: replay,
-                onJump: (r) {
-                  update(
-                    FrameSettings.fromJson(r['device'] as Map)
-                        .copyWith(testSkin: settings.testSkin),
-                  );
-                  final owner = r['ownerKey'];
-                  WidgetsBinding.instance.addPostFrameCallback(
-                    (_) => chooseKey(owner == null ? null : jsonEncode(owner)),
-                  );
-                },
-              ),
-              _AccessibilityPanel(host: this),
-              _PerformancePanel(host: this),
-            ],
+                  ),
+              ],
+              onChanged: (id) {
+                if (id != null) {
+                  catalog.activate(id);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDevicePanel(BuildContext context) => SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _InspectorSection(
+          title: toolCopy('pageSection'),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 8),
+            child: Text(
+              pageSizeLabel(context),
+              key: const ValueKey('frame-readout'),
+            ),
+          ),
+        ),
+        _InspectorSection(
+          title: toolCopy('deviceGroup'),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 8),
+            child: DeviceToolbar(device: device),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 12, 12),
+          child: Text(
+            '${toolCopy('appResult')}: $appResult',
+            key: const ValueKey('app-result'),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
       ],
     ),
   );
-  @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: inspectorBuildMarker,
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      brightness: Brightness.dark,
-      useMaterial3: true,
-      fontFamily: BundledTypography.outfitFamily,
-      fontFamilyFallback: BundledTypography.persianFallback,
+
+  Widget _buildProblemsPanel() => ListenableBuilder(
+    listenable: problems,
+    builder: (context, _) => ListView(
+      children: [
+        Row(
+          children: [
+            IconButton(
+              key: const ValueKey('copy-problems'),
+              tooltip: toolCopy('copyProblems'),
+              onPressed: () => Clipboard.setData(
+                ClipboardData(text: problemReport(problems.problems)),
+              ),
+              icon: const Icon(Icons.content_copy),
+            ),
+            IconButton(
+              tooltip: toolCopy('clear'),
+              onPressed: sweep.running ? null : problems.clear,
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
+        ),
+        for (final p in problems.problems)
+          ListTile(
+            title: Text(p.summary),
+            subtitle: Text(
+              '${p.kind} / ${p.elementId ?? toolCopy('unavailable')} / ${p.device.size}',
+            ),
+            onTap: () => jump(p),
+          ),
+      ],
     ),
-    home: CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.escape): () =>
-            session.setSelecting(false),
-      },
-      child: Focus(
-        autofocus: true,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(toolCopy('inspectionTitle')),
-            actions: [
-              ListenableBuilder(
-                listenable: session,
-                builder: (context, _) => IconButton(
-                  key: const ValueKey('select-mode'),
-                  tooltip: session.selecting
-                      ? toolCopy('exitSelect')
-                      : toolCopy('select'),
-                  onPressed: () => session.setSelecting(!session.selecting),
-                  isSelected: session.selecting,
-                  icon: Icon(
-                    session.selecting ? Icons.highlight_alt : Icons.near_me,
+  );
+
+  Widget panel(BuildContext context) => TabBarView(
+    controller: tabController,
+    children: [
+      _buildDevicePanel(context),
+      InspectionPanel(session: session),
+      _buildProblemsPanel(),
+      SweepControls(
+        device: device,
+        runner: sweep,
+        frame: frame,
+        catalog: widget.scenarioCatalog,
+        bundle: reportBundle,
+        onReplay: replay,
+        onJump: (r) {
+          update(
+            FrameSettings.fromJson(r['device'] as Map)
+                .copyWith(testSkin: settings.testSkin),
+          );
+          final owner = r['ownerKey'];
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => chooseKey(owner == null ? null : jsonEncode(owner)),
+          );
+        },
+      ),
+      GorillaStressPanel(runner: gorilla),
+      _AccessibilityPanel(host: this),
+      _PerformancePanel(host: this),
+    ],
+  );
+  @override
+  Widget build(BuildContext context) {
+    activeToolLocale = inspectorLocale;
+    return MaterialApp(
+      title: inspectorBuildMarker,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        fontFamily: BundledTypography.outfitFamily,
+        fontFamilyFallback: BundledTypography.persianFallback,
+      ),
+      home: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              session.setSelecting(false),
+        },
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(toolCopy('inspectionTitle')),
+              actions: [
+                ListenableBuilder(
+                  listenable: session,
+                  builder: (context, _) => IconButton(
+                    key: const ValueKey('select-mode'),
+                    tooltip: session.selecting
+                        ? toolCopy('exitSelect')
+                        : toolCopy('select'),
+                    onPressed: () => session.setSelecting(!session.selecting),
+                    isSelected: session.selecting,
+                    icon: Icon(
+                      session.selecting ? Icons.highlight_alt : Icons.near_me,
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                key: const ValueKey('toggle-panel'),
-                tooltip: toolCopy('panel'),
-                onPressed: () => setState(() => panelOpen = !panelOpen),
-                icon: const Icon(Icons.view_sidebar),
-              ),
-              ?widget.controls,
-            ],
-          ),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final total = constraints.maxWidth;
-              final pane = (appPaneWidth ?? total * .62)
-                  .clamp(360.0, math.max(360.0, total - 320))
-                  .toDouble();
-              return Row(
-                textDirection: TextDirection.ltr,
-                children: [
-                  // PHYSICAL: the app pane stays on the physical left.
-                  SizedBox(width: panelOpen ? pane : total, child: viewport()),
-                  if (panelOpen)
-                    GestureDetector(
-                      key: const ValueKey('resize-panel'),
-                      onPanUpdate: (e) => setState(
-                        () => appPaneWidth = (pane + e.delta.dx)
-                            .clamp(360.0, math.max(360.0, total - 320))
-                            .toDouble(),
-                      ),
-                      child: const MouseRegion(
-                        cursor: SystemMouseCursors.resizeColumn,
-                        child: SizedBox(
-                          width: 8,
-                          child: ColoredBox(color: Colors.teal),
+                IconButton(
+                  key: const ValueKey('toggle-panel'),
+                  tooltip: toolCopy('panel'),
+                  onPressed: () => setState(() => panelOpen = !panelOpen),
+                  icon: const Icon(Icons.view_sidebar),
+                ),
+                TextButton(
+                  key: const ValueKey('toggle-inspector-locale'),
+                  onPressed: () => setState(() {
+                    inspectorLocale = inspectorLocale == 'fa' ? 'en' : 'fa';
+                    activeToolLocale = inspectorLocale;
+                  }),
+                  child: Text(
+                    inspectorLocale == 'fa' ? 'EN' : 'فا',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ?widget.controls,
+              ],
+            ),
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                final total = constraints.maxWidth;
+                lastTotalWidth = total;
+                final pane = (appPaneWidth ?? (total - defaultPanelWidth - 8.0))
+                    .clamp(360.0, math.max(360.0, total - 320.0))
+                    .toDouble();
+                return Row(
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    // PHYSICAL: the app pane stays on the physical left.
+                    SizedBox(
+                      width: panelOpen ? pane : total,
+                      child: viewport(),
+                    ),
+                    if (panelOpen)
+                      GestureDetector(
+                        key: const ValueKey('resize-panel'),
+                        onPanUpdate: (e) => setState(
+                          () => appPaneWidth = (pane + e.delta.dx)
+                              .clamp(360.0, math.max(360.0, total - 320.0))
+                              .toDouble(),
+                        ),
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.resizeColumn,
+                          child: SizedBox(
+                            width: 8,
+                            child: ColoredBox(color: Colors.teal),
+                          ),
                         ),
                       ),
-                    ),
-                  if (panelOpen)
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (widget.scenarioCatalog != null)
-                            _InspectorSection(
-                              title: toolCopy('scenarioLabel'),
-                              child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
-                                  12,
-                                  0,
-                                  12,
-                                  8,
-                                ),
-                                child: DropdownButton<String>(
-                                  key: const ValueKey('scenario'),
-                                  isExpanded: true,
-                                  value:
-                                      widget.scenarioCatalog!.scenarios.any(
-                                        (scenario) =>
-                                            scenario.id ==
-                                            widget.scenarioCatalog!.activeId,
-                                      )
-                                      ? widget.scenarioCatalog!.activeId
-                                      : null,
-                                  hint: Text(toolCopy('scenarioLabel')),
-                                  items: [
-                                    for (final scenario
-                                        in widget.scenarioCatalog!.scenarios)
-                                      DropdownMenuItem(
-                                        value: scenario.id,
-                                        child: Text(scenario.label),
-                                      ),
-                                  ],
-                                  onChanged: (id) {
-                                    if (id != null) {
-                                      widget.scenarioCatalog!.activate(id);
-                                    }
-                                  },
-                                ),
-                              ),
+                    if (panelOpen)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (widget.scenarioCatalog != null)
+                              _buildScenarioBar(),
+                            TabBar(
+                              controller: tabController,
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.start,
+                              tabs: [
+                                Tab(text: toolCopy('deviceTab')),
+                                Tab(text: toolCopy('inspectTab')),
+                                Tab(text: toolCopy('problemsTab')),
+                                Tab(text: toolCopy('sweepTab')),
+                                Tab(text: toolCopy('gorillaTab')),
+                                Tab(text: toolCopy('accessibilityTab')),
+                                Tab(text: toolCopy('performanceTab')),
+                              ],
                             ),
-                          _InspectorSection(
-                            title: toolCopy('pageSection'),
-                            child: Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                12,
-                                0,
-                                12,
-                                8,
-                              ),
-                              child: Text(
-                                pageSizeLabel(context),
-                                key: const ValueKey('frame-readout'),
-                              ),
-                            ),
-                          ),
-                          _InspectorSection(
-                            title: toolCopy('deviceGroup'),
-                            child: SizedBox(
-                              height: 148,
-                              child: SingleChildScrollView(
-                                child: DeviceToolbar(device: device),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
-                              12,
-                              8,
-                              12,
-                              4,
-                            ),
-                            child: Text(
-                              '${toolCopy('appResult')}: $appResult',
-                              key: const ValueKey('app-result'),
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          Expanded(child: panel()),
-                        ],
+                            const Divider(height: 1),
+                            Expanded(child: panel(context)),
+                          ],
+                        ),
                       ),
-                    ),
-                ],
-              );
-            },
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class InspectionPanel extends StatelessWidget {
@@ -1084,4 +1198,33 @@ class _FrameGuides extends CustomPainter {
 
   @override
   bool shouldRepaint(_FrameGuides oldDelegate) => false;
+}
+
+class _TapRippleIndicator extends StatelessWidget {
+  const _TapRippleIndicator({super.key});
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0.0, end: 1.0),
+    duration: const Duration(milliseconds: 320),
+    builder: (context, value, child) {
+      final size = 16.0 + value * 34.0;
+      final opacity = (1.0 - value).clamp(0.0, 1.0);
+      return Transform.translate(
+        offset: Offset(-size / 2, -size / 2),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.cyanAccent.withValues(alpha: opacity),
+              width: 2.5,
+            ),
+            color: Colors.cyanAccent.withValues(alpha: opacity * 0.35),
+          ),
+        ),
+      );
+    },
+  );
 }

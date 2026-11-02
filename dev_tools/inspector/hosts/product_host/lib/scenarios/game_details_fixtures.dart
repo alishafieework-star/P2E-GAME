@@ -6,8 +6,12 @@ import 'package:mygame_p2e/features/games/games.dart';
 enum GameDetailsFixture { success, loading, error, offline, notFound, minimal }
 
 final class HostGameDetailsRepository implements GameDetailsRepository {
-  const HostGameDetailsRepository(this.fixture);
+  const HostGameDetailsRepository(
+    this.fixture, {
+    this.mediaBase = 'http://127.0.0.1:8788',
+  });
   final GameDetailsFixture fixture;
+  final String mediaBase;
 
   @override
   Future<void> clear() async {}
@@ -20,6 +24,7 @@ final class HostGameDetailsRepository implements GameDetailsRepository {
     final details = hostGameDetails(
       id: id,
       minimal: fixture == GameDetailsFixture.minimal,
+      mediaBase: mediaBase,
     );
     return switch (fixture) {
       GameDetailsFixture.loading =>
@@ -55,26 +60,40 @@ final class HostBookmarks implements GameBookmarkStore {
   Future<void> clear() async => _ids.clear();
 }
 
-GameDetails hostGameDetails({required String id, bool minimal = false}) {
-  GameImage image(String name) => GameImage(
-    url: Uri.parse('https://example.test/$name.png'),
-    width: 64,
-    height: 64,
-    alt: name,
-  );
+GameDetails hostGameDetails({
+  required String id,
+  bool minimal = false,
+  String mediaBase = 'http://127.0.0.1:8788',
+}) {
+  final base = mediaBase.replaceAll(RegExp(r'/+$'), '');
+  GameImage homeImage(String name, {int width = 512, int height = 512}) =>
+      GameImage(
+        url: Uri.parse('$base/home/$name'),
+        width: width,
+        height: height,
+        alt: name,
+      );
+  GameImage gameImage(String name, {int width = 1600, int height = 739}) =>
+      GameImage(
+        url: Uri.parse('$base/games/$name'),
+        width: width,
+        height: height,
+        alt: name,
+      );
+
   return GameDetails(
     id: id,
     kind: GameKind.downloadable,
     name: minimal ? 'Sample' : 'Clash of Clans',
-    icon: image('icon'),
+    icon: homeImage('featured_icon.png'),
     access: minimal ? GameAccess.freeToPlay : GameAccess.inAppPurchases,
     studio: GameStudio(
       id: 'supercell',
       name: 'Supercell',
       registeredMark: !minimal,
       tagline: 'Mobile Game Development Company',
-      logo: image('logo'),
-      cover: image('cover'),
+      logo: homeImage('featured_icon.png'),
+      cover: homeImage('hero_background.jpg'),
     ),
     rating: GameRating(
       average: minimal ? 0 : 4.5,
@@ -83,12 +102,29 @@ GameDetails hostGameDetails({required String id, bool minimal = false}) {
     ),
     downloads: minimal ? 0 : 500,
     installSizeBytes: 1024,
-    install: GameInstall(url: Uri.parse('https://example.test/install')),
+    install: GameInstall(url: Uri.parse('https://example.com/install')),
     media: minimal
         ? const []
-        : [GameMedia.image(image: image('shot'), alt: 'Screenshot')],
+        : [
+            GameMedia.image(
+              image: gameImage('media_1.jpg'),
+              alt: 'Screenshot 1',
+            ),
+            GameMedia.image(
+              image: gameImage('media_2.jpg'),
+              alt: 'Screenshot 2',
+            ),
+            GameMedia.image(
+              image: gameImage('media_3.jpg'),
+              alt: 'Screenshot 3',
+            ),
+            GameMedia.image(
+              image: gameImage('media_4.jpg'),
+              alt: 'Screenshot 4',
+            ),
+          ],
     about: GameAbout(
-      description: minimal ? 'Short.' : 'A long enough description to read.',
+      description: minimal ? 'Short.' : 'ALL FOR THE CROWN!\n\nBuild a formidable team, attack enemy towers, and use strategy skills to defend your own in multiplayer PvP card battles. Unlock 100+ unique cards, build an unrivalled battle deck, and defend your King’s Tower using strategy, wit, and Skeletons.',
       updatedOn: DateTime.utc(2026, 11, 14),
       platforms: minimal ? const [] : const [GamePlatform.android],
     ),
@@ -97,15 +133,17 @@ GameDetails hostGameDetails({required String id, bool minimal = false}) {
         : [
             GameEvent(
               id: 'event',
-              title: 'Anniversary',
-              description: 'Ten years.',
-              banner: image('banner'),
-              rewardPoints: 100,
-              url: Uri.parse('https://example.test/event'),
+              title: 'Hero Electro Wizard & Evolved Electro Giant',
+              description: 'Hero Electro Wizard is even more stunning than before! Activate his Hero ability to stun nearby enemies with twin beams of shocking proportions.',
+              banner: gameImage('event_electro.jpg', width: 1200, height: 600),
+              rewardPoints: 1500,
+              url: Uri.parse('https://example.com/event'),
             ),
           ],
     reviews: GameReviews(
-      summary: minimal ? null : 'Players enjoy the strategy.',
+      summary: minimal
+          ? null
+          : 'Players enjoy the strategy and competitive battles.',
       total: minimal ? 0 : 1,
       items: minimal
           ? const []
@@ -127,7 +165,7 @@ GameDetails hostGameDetails({required String id, bool minimal = false}) {
               name: 'Sifu',
               studioName: 'Kepler Interactive',
               studioMark: true,
-              cover: image('sifu'),
+              cover: homeImage('sifu.jpg'),
               rating: 4.4,
               rewardPoints: 50,
               access: GameAccess.freeToPlay,
@@ -141,7 +179,7 @@ GameDetails hostGameDetails({required String id, bool minimal = false}) {
               name: 'Brawl Stars',
               studioName: 'Supercell',
               studioMark: true,
-              cover: image('brawl'),
+              cover: homeImage('featured_icon.png'),
               rating: 4.1,
               rewardPoints: 75,
               access: GameAccess.freeToPlay,

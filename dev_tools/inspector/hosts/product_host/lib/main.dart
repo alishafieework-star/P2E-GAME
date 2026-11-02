@@ -15,7 +15,24 @@ import 'package:p2e_design_system/inspection.dart';
 import 'package:p2e_dev_inspector/inspector.dart';
 
 import 'product_asset_bridge.dart';
+
+import 'package:mygame_p2e/core/sensors/device_tilt_service.dart';
+
 import 'scenarios/product_scenarios.dart';
+
+class ProductSensorDriver implements InspectorSensorDriver {
+  const ProductSensorDriver();
+
+  @override
+  void setTilt(Offset offset) =>
+      DeviceTiltService.instance.setSimulatedTilt(offset);
+
+  @override
+  void reset() {
+    DeviceTiltService.instance.clearSimulation();
+    DeviceTiltService.instance.reset();
+  }
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,7 +90,8 @@ class _ProductInspectionHostState extends State<ProductInspectionHost> {
     setState(() {
       scenarioId = id;
       fixtures = scenario.fixtures;
-      if (_seeded == id) _seeded = '';
+      _seeded = '';
+      _seedAttempts = 0;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!fixtures) await _seed(id);
@@ -86,7 +104,7 @@ class _ProductInspectionHostState extends State<ProductInspectionHost> {
     if (_seeded == id || fixtures) return;
     final context = _host.currentState?.appKey.currentContext;
     if (context == null || !context.mounted) {
-      if (_seedAttempts++ < 5) {
+      if (_seedAttempts++ < 15) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _seed(id));
       }
       return;
@@ -104,6 +122,8 @@ class _ProductInspectionHostState extends State<ProductInspectionHost> {
     key: _host,
     device: widget.device,
     hostId: 'product_host',
+    sensorDriver: const ProductSensorDriver(),
+    initialPanelWidth: 760,
     scenarioCatalog: ScenarioCatalog(
       activeId: scenarioId,
       activate: openScenario,

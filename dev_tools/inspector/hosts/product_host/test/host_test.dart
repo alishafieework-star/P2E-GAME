@@ -76,7 +76,7 @@ void main() {
     expect(json.toLowerCase(), isNot(contains('inputvalue')));
     expect(node.identity.declared['privacy'], 'identifier');
     await tester.pumpWidget(const SizedBox());
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
     expect(tester.takeException(), isNull);
   });
   testWidgets(
@@ -221,7 +221,7 @@ void main() {
         expect(Theme.of(c).brightness, Brightness.dark);
         expect(
           tester.widget<Text>(find.byKey(const ValueKey('app-result'))).data,
-          contains('effective in app: 2.0'),
+          anyOf(contains('effective in app: 2.0'), contains('موثر در اپ: 2.0')),
         );
       }
       expect(

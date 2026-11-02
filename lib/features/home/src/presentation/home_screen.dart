@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     // #region agent log
-    final _buildWatch = Stopwatch()..start();
+    final buildWatch = Stopwatch()..start();
     // #endregion
     final top = MediaQuery.paddingOf(context).top;
     final spec = AppBarSpec.lookup(
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
     // #region agent log
-    final buildMs = _buildWatch.elapsedMilliseconds;
+    final buildMs = buildWatch.elapsedMilliseconds;
     if (buildMs >= 30) {
       scrollDebugLog('G', 'home_screen.dart:build', 'home build', {
         'ms': buildMs,

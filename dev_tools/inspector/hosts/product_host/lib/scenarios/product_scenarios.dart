@@ -9,11 +9,50 @@ import 'package:mygame_p2e/features/games/games.dart';
 import 'package:mygame_p2e/features/missions/missions.dart';
 import 'package:mygame_p2e/shared/balance/balance.dart';
 import 'package:mygame_p2e/shared/navigation/app_locations.dart';
+import 'package:mygame_p2e/shared/preferences/device_preferences.dart';
 import 'package:mygame_p2e/shared/profile/profile.dart';
 import 'package:mygame_p2e/shared/session/session.dart';
 
 import 'game_details_fixtures.dart';
 import 'home_fixtures.dart';
+
+class _PresetSplashGateController extends SplashGateController {
+  _PresetSplashGateController(this._initial);
+  final SplashGate _initial;
+
+  @override
+  SplashGate build() => _initial;
+}
+
+class _PresetSessionController extends SessionController {
+  _PresetSessionController(this._initial);
+  final SessionStatus _initial;
+
+  @override
+  SessionStatus build() => _initial;
+}
+
+class _PresetAuthFlow extends AuthFlow {
+  _PresetAuthFlow(this._initial);
+  final AuthFlowResult? _initial;
+
+  @override
+  AuthFlowResult? build() => _initial;
+}
+
+/// In-memory preferences repository so inspector scenarios never block on disk I/O.
+final class HostDevicePreferences implements DevicePreferencesRepository {
+  HostDevicePreferences(this.prefs);
+  DevicePreferences prefs;
+
+  @override
+  Future<DevicePreferences> read() async => prefs;
+
+  @override
+  Future<void> save(DevicePreferences value) async {
+    prefs = value;
+  }
+}
 
 /// Stable product routes and in-process fixtures. This module is imported only
 /// by the removable product host.
@@ -37,10 +76,37 @@ class ProductScenario {
   final HomeFixture? home;
   final GameDetailsFixture? details;
 
+  StartupState get targetStartupState {
+    if (freezeStartup != null) return freezeStartup!;
+    if (signedIn) return StartupState.ready;
+    if (path == '/entry/onboarding') return StartupState.onboarding;
+    return StartupState.entry;
+  }
+
   List<Override> overrides(AppConfig config) {
     final rows = <Override>[
-      if (freezeStartup != null)
-        startupControllerProvider.overrideWithValue(freezeStartup!),
+      startupControllerProvider.overrideWithValue(targetStartupState),
+      if (freezeStartup != StartupState.initializing)
+        splashGateProvider.overrideWith(
+          () => _PresetSplashGateController(SplashGate.collapsed),
+        ),
+      sessionControllerProvider.overrideWith(
+        () => _PresetSessionController(
+          signedIn ? SessionStatus.signedIn : SessionStatus.signedOut,
+        ),
+      ),
+      if (flow != null)
+        authFlowProvider.overrideWith(() => _PresetAuthFlow(flow!())),
+      devicePreferencesRepositoryProvider.overrideWithValue(
+        HostDevicePreferences(
+          DevicePreferences(
+            onboardingSeen: path != '/entry/onboarding',
+            homeTourPending: false,
+            notificationsAsked: true,
+            smsAccessAsked: true,
+          ),
+        ),
+      ),
     ];
     final fixture = home;
     if (fixture == null) return rows;
@@ -60,7 +126,10 @@ class ProductScenario {
       balanceRepositoryProvider.overrideWithValue(balanceFor(fixture)),
       profileRepositoryProvider.overrideWithValue(profileFor(fixture)),
       gameDetailsRepositoryProvider.overrideWithValue(
-        HostGameDetailsRepository(details ?? GameDetailsFixture.success),
+        HostGameDetailsRepository(
+          details ?? GameDetailsFixture.success,
+          mediaBase: media.toString(),
+        ),
       ),
       gameBookmarkStoreProvider.overrideWithValue(HostBookmarks()),
     ]);
@@ -76,29 +145,47 @@ final class _FixedClock implements Clock {
 }
 
 final productScenarios = <ProductScenario>[
-  ProductScenario(
+  // 1. Startup & Onboarding
+  const ProductScenario(
     id: 'route.startup',
-    label: 'Startup',
+    label: '[Startup] Initializing Blank',
     path: '/startup',
     freezeStartup: StartupState.initializing,
   ),
-  ProductScenario(id: 'auth.entry', label: 'Auth entry', path: '/entry'),
+  const ProductScenario(
+    id: 'startup.session',
+    label: '[Startup] Session Check',
+    path: '/startup',
+    freezeStartup: StartupState.sessionCheck,
+  ),
+  const ProductScenario(
+    id: 'onboarding',
+    label: '[Onboarding] Welcome & Leaderboard',
+    path: '/entry/onboarding',
+  ),
+
+  // 2. Complete Auth Journey
+  const ProductScenario(
+    id: 'auth.entry',
+    label: '[Auth] 01 - Entry (Identifier)',
+    path: '/entry',
+  ),
   ProductScenario(
     id: 'auth.otp',
-    label: 'Auth OTP',
+    label: '[Auth] 02 - Phone OTP Verification',
     path: '/entry/otp',
     flow: _otpFlow,
   ),
   ProductScenario(
     id: 'auth.password',
-    label: 'Auth password',
+    label: '[Auth] 03 - Password Login',
     path: '/entry/password',
     flow: () =>
         EmailFlowResult(_fixtureEmail(), EmailAccountStatus.registered, false),
   ),
   ProductScenario(
     id: 'auth.create-password',
-    label: 'Create password',
+    label: '[Auth] 04 - Create Password',
     path: '/entry/create-password',
     flow: () => EmailFlowResult(
       _fixtureEmail(),
@@ -108,68 +195,192 @@ final productScenarios = <ProductScenario>[
   ),
   ProductScenario(
     id: 'auth.forgot-password',
-    label: 'Forgot password',
+    label: '[Auth] 05 - Forgot Password',
     path: '/entry/forgot-password',
     flow: () => EmailResetFlowResult(_fixtureEmail(), _challenge(), false),
   ),
-  _home('shell.home', 'Home', AppLocations.home, HomeFixture.success),
-  _home('home.loading', 'Home loading', AppLocations.home, HomeFixture.loading),
-  _home('home.empty', 'Home empty', AppLocations.home, HomeFixture.empty),
-  _home('home.error', 'Home error', AppLocations.home, HomeFixture.error),
-  _home('home.offline', 'Home offline', AppLocations.home, HomeFixture.offline),
+  ProductScenario(
+    id: 'auth.username',
+    label: '[Auth] 06 - Choose Username',
+    path: '/entry/username',
+    flow: () => AccountJourney(AuthStep.username, email: _fixtureEmail()),
+  ),
+  ProductScenario(
+    id: 'auth.avatar',
+    label: '[Auth] 07 - Select Avatar & Theme',
+    path: '/entry/avatar',
+    flow: () => AccountJourney(
+      AuthStep.avatar,
+      email: _fixtureEmail(),
+      username: 'gamer_pro',
+    ),
+  ),
+  ProductScenario(
+    id: 'auth.notifications',
+    label: '[Auth] 08 - Push Notifications',
+    path: '/entry/notifications',
+    flow: () => AccountJourney(
+      AuthStep.notifications,
+      email: _fixtureEmail(),
+      username: 'gamer_pro',
+      avatarCharacter: 1,
+      avatarReady: true,
+    ),
+  ),
+  ProductScenario(
+    id: 'auth.all-set',
+    label: '[Auth] 09 - All Set (Celebration Confetti)',
+    path: '/entry/all-set',
+    flow: () => AccountJourney(
+      AuthStep.allSet,
+      email: _fixtureEmail(),
+      username: 'gamer_pro',
+      avatarCharacter: 1,
+      avatarReady: true,
+      notificationsOn: true,
+    ),
+  ),
+  ProductScenario(
+    id: 'auth.welcome-back',
+    label: '[Auth] 10 - Welcome Back (Returning Player)',
+    path: '/entry/welcome-back',
+    flow: () => AccountJourney(
+      AuthStep.welcomeBack,
+      email: _fixtureEmail(),
+      username: 'gamer_pro',
+      avatarCharacter: 1,
+      avatarReady: true,
+    ),
+  ),
+
+  // 3. Main App Shell (Tabs)
+  _home(
+    'shell.home',
+    '[Home] Default (2D Parallax Hero)',
+    AppLocations.home,
+    HomeFixture.success,
+  ),
+  _home(
+    'home.loading',
+    '[Home] Loading Skeletons',
+    AppLocations.home,
+    HomeFixture.loading,
+  ),
+  _home(
+    'home.empty',
+    '[Home] Empty Shelves',
+    AppLocations.home,
+    HomeFixture.empty,
+  ),
+  _home(
+    'home.error',
+    '[Home] Error & Retry Section',
+    AppLocations.home,
+    HomeFixture.error,
+  ),
+  _home(
+    'home.offline',
+    '[Home] Offline Cached Content',
+    AppLocations.home,
+    HomeFixture.offline,
+  ),
   _home(
     'home.long-content',
-    'Home long content',
+    '[Home] Long Content Scroll',
     AppLocations.home,
     HomeFixture.long,
   ),
   _home(
     'home.broken-media',
-    'Home broken media',
+    '[Home] Broken Media Fallback',
     AppLocations.home,
     HomeFixture.brokenMedia,
   ),
   _home(
     'home.quest-expired',
-    'Home expired quest',
+    '[Home] Expired Quest Marker',
     AppLocations.home,
     HomeFixture.expiredQuest,
   ),
   _home(
     'shell.mission',
-    'Missions',
+    '[Missions] Tab',
     AppLocations.missions,
     HomeFixture.success,
   ),
-  _home('shell.games', 'Games', AppLocations.games, HomeFixture.success),
+  _home('shell.games', '[Games] Tab', AppLocations.games, HomeFixture.success),
   _home(
     'shell.leaderboard',
-    'Leaderboard',
+    '[Leaderboard] Tab',
     AppLocations.leaderboard,
     HomeFixture.success,
   ),
-  _home('shell.shop', 'Shop', AppLocations.shop, HomeFixture.success),
+  _home('shell.shop', '[Shop] Tab', AppLocations.shop, HomeFixture.success),
   _home(
     'detail.game',
-    'Game detail',
+    '[Game Details] Sample',
     AppLocations.game('sample'),
     HomeFixture.success,
   ),
   _home(
     'detail.quest',
-    'Quest detail',
+    '[Quest Details] Sample',
     AppLocations.quest('sample'),
     HomeFixture.success,
   ),
-  _game('game.success', 'Game success', GameDetailsFixture.success),
-  _game('game.loading', 'Game loading', GameDetailsFixture.loading),
-  _game('game.error', 'Game error', GameDetailsFixture.error),
-  _game('game.offline', 'Game offline cache', GameDetailsFixture.offline),
-  _game('game.not-found', 'Game missing', GameDetailsFixture.notFound),
-  _game('game.minimal', 'Game minimal', GameDetailsFixture.minimal),
+
+  // 4. Game Details Variants & Reviews
+  _game(
+    'game.success',
+    '[Game Details] Success (Clash of Clans)',
+    GameDetailsFixture.success,
+  ),
+  _game(
+    'game.loading',
+    '[Game Details] Loading State',
+    GameDetailsFixture.loading,
+  ),
+  _game('game.error', '[Game Details] Error State', GameDetailsFixture.error),
+  _game(
+    'game.offline',
+    '[Game Details] Offline Cache',
+    GameDetailsFixture.offline,
+  ),
+  _game(
+    'game.not-found',
+    '[Game Details] Not Found',
+    GameDetailsFixture.notFound,
+  ),
+  _game(
+    'game.minimal',
+    '[Game Details] Minimal Info',
+    GameDetailsFixture.minimal,
+  ),
+  ProductScenario(
+    id: 'game.reviews',
+    label: '[Game Details] Reviews & Ratings',
+    path: '${AppLocations.gameOn(AppLocations.home, 'clash_of_clans')}/reviews',
+    signedIn: true,
+    home: HomeFixture.success,
+    details: GameDetailsFixture.success,
+  ),
+
+  // 5. In-App Legal Reader
+  const ProductScenario(
+    id: 'legal.terms',
+    label: '[Legal] Terms of Service',
+    path: '/legal/terms',
+  ),
+  const ProductScenario(
+    id: 'legal.privacy',
+    label: '[Legal] Privacy Policy',
+    path: '/legal/privacy',
+  ),
+
+  // 6. Design System Fixtures
   const ProductScenario(
     id: 'fixtures.ds',
-    label: 'DS fixtures',
+    label: '[DS] Component Fixtures',
     fixtures: true,
   ),
 ];
@@ -205,19 +416,24 @@ Future<void> seedProductScenario(
   ProviderContainer container,
   ProductScenario scenario,
 ) async {
-  if (scenario.fixtures || scenario.freezeStartup != null) return;
+  if (scenario.fixtures) return;
+
   container
       .read(sessionControllerProvider.notifier)
       .update(
         scenario.signedIn ? SessionStatus.signedIn : SessionStatus.signedOut,
       );
-  if (!scenario.signedIn) container.read(authFlowProvider.notifier).clear();
+  if (scenario.flow != null) {
+    container.read(authFlowProvider.notifier).accept(scenario.flow!());
+  } else if (!scenario.signedIn) {
+    container.read(authFlowProvider.notifier).clear();
+  }
+
   await Future<void>.delayed(Duration.zero);
-  await Future<void>.delayed(Duration.zero);
-  final flow = scenario.flow?.call();
-  if (flow != null) container.read(authFlowProvider.notifier).accept(flow);
   final path = scenario.path;
-  if (path != null) container.read(appRouterProvider).go(path);
+  if (path != null) {
+    container.read(appRouterProvider).go(path);
+  }
   await Future<void>.delayed(Duration.zero);
 }
 
@@ -238,4 +454,4 @@ OtpChallenge _challenge() => OtpChallenge(
 );
 
 AuthFlowResult _otpFlow() =>
-    PhoneFlowResult(_challenge(), 'masked-destination', false);
+    PhoneFlowResult(_challenge(), '09121234567', false);

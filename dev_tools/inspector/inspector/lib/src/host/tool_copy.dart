@@ -1,12 +1,16 @@
 import 'generated/tool_copy.g.dart';
 
-/// Chrome is English-only; fixture callers explicitly select en/fa.
+String activeToolLocale = 'en';
+
+/// Resolves inspector copy for the active or requested locale.
 String toolCopy(
   String key, {
-  String locale = 'en',
+  String? locale,
   Map<String, Object> arguments = const {},
 }) {
-  final template = toolCopyData[locale]?[key] ?? toolCopyData['en']![key];
+  final effectiveLocale = locale ?? activeToolLocale;
+  final template =
+      toolCopyData[effectiveLocale]?[key] ?? toolCopyData['en']![key];
   if (template == null) throw ArgumentError.value(key, 'key');
   var value = template;
   for (final argument in arguments.entries) {

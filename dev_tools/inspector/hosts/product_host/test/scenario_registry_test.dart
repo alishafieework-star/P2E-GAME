@@ -94,8 +94,16 @@ void main() {
         );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 1));
-        if (scenario.id == 'home.loading' || scenario.id == 'game.loading') {
-          await tester.pump(const Duration(milliseconds: 20));
+        final hasAnimation =
+            scenario.id.contains('loading') ||
+            scenario.id.startsWith('route.') ||
+            scenario.id.startsWith('startup.') ||
+            scenario.id == 'onboarding' ||
+            scenario.id == 'auth.notifications' ||
+            scenario.id == 'auth.all-set' ||
+            scenario.id == 'auth.username';
+        if (hasAnimation) {
+          await tester.pump(const Duration(milliseconds: 50));
         } else {
           await tester.pumpAndSettle();
         }

@@ -49,25 +49,32 @@ class FeaturedGameHero extends ConsumerWidget {
     }
     final game = hero.game;
     final box = hero.foregroundBox;
+    void openDetails() => context.push(
+      AppLocations.gameFrom(GoRouterState.of(context).uri.path, game.id),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HomeHeroBanner(
-          elementId: 'home.hero.banner',
-          background: artwork(hero.background),
-          foreground: hero.foreground == null
-              ? null
-              : artwork(hero.foreground!),
-          foregroundBox: box == null
-              ? null
-              : HeroArtworkBox(
-                  left: box.left,
-                  top: box.top,
-                  width: box.width,
-                  height: box.height,
-                ),
-          overlap: overlap,
-          scroll: scroll,
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: openDetails,
+          child: HomeHeroBanner(
+            elementId: 'home.hero.banner',
+            background: artwork(hero.background),
+            foreground: hero.foreground == null
+                ? null
+                : artwork(hero.foreground!),
+            foregroundBox: box == null
+                ? null
+                : HeroArtworkBox(
+                    left: box.left,
+                    top: box.top,
+                    width: box.width,
+                    height: box.height,
+                  ),
+            overlap: overlap,
+            scroll: scroll,
+          ),
         ),
         Padding(
           padding: const EdgeInsetsDirectional.symmetric(
@@ -75,20 +82,19 @@ class FeaturedGameHero extends ConsumerWidget {
           ),
           child: TourTarget(
             id: 'featured',
-            child: GameInfoRow(
-              elementId: 'home.hero.game',
-              layout: GameInfoLayout.featured,
-              icon: artwork(game.icon ?? game.cover),
-              name: game.name,
-              creator: game.creator,
-              showMark: game.registeredMark,
-              actionLabel: strings.homePlayNow,
-              caption: game.access.label(strings),
-              onAction: () => context.push(
-                AppLocations.gameFrom(
-                  GoRouterState.of(context).uri.path,
-                  game.id,
-                ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: openDetails,
+              child: GameInfoRow(
+                elementId: 'home.hero.game',
+                layout: GameInfoLayout.featured,
+                icon: artwork(game.icon ?? game.cover),
+                name: game.name,
+                creator: game.creator,
+                showMark: game.registeredMark,
+                actionLabel: strings.homePlayNow,
+                caption: game.access.label(strings),
+                onAction: openDetails,
               ),
             ),
           ),

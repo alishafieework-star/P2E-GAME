@@ -1,4 +1,4 @@
-/// Games public API: read models, providers, Home sections and game cards.
+﻿/// Games public API: read models, providers, Home sections and game cards.
 library;
 
 export 'src/domain/game_details.dart';
@@ -16,3 +16,6 @@ export 'src/presentation/providers.dart';
 export 'src/presentation/widgets/game_compact_card.dart';
 export 'src/presentation/widgets/game_expand_card.dart';
 export 'src/presentation/widgets/home_hero_banner.dart';
+
+export 'src/stage/html5_game_registry.dart';
+export 'src/stage/html5_game_stage.dart';

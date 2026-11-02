@@ -32,6 +32,8 @@ class DeviceToolbar extends StatelessWidget {
                                   ? 'freeMode'
                                   : 'fitWindowMode',
                             )
+                          : key == 'systemBrightness'
+                          ? toolCopy(v.toString().split('.').last)
                           : v.toString().split('.').last,
                     ),
                   ),
