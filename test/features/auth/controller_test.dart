@@ -18,6 +18,10 @@ class Repositories
   Result<EmailAccountStatus> email = const Success(
     EmailAccountStatus.registered,
   );
+  Result<PhoneAccountStatus> phone = const Success(
+    PhoneAccountStatus.registered,
+  );
+  Result<OtpChallenge>? otpResult;
   @override
   Future<Result<WelcomeOffer>> load({AuthCancellation? cancellation}) async =>
       offer;
@@ -29,6 +33,8 @@ class Repositories
   }) {
     calls++;
     this.cancellation = cancellation;
+    final r = otpResult;
+    if (r != null) return Future.value(r);
     return pending.future;
   }
 
@@ -90,7 +96,11 @@ class Repositories
   Future<Result<PhoneAccountStatus>> checkPhone(
     Phone phone, {
     AuthCancellation? cancellation,
-  }) async => const Success(PhoneAccountStatus.registered);
+  }) async {
+    this.cancellation = cancellation;
+    return this.phone;
+  }
+
   @override
   Future<Result<void>> signInPhone(
     Phone phone,
@@ -230,6 +240,44 @@ void main() {
             : AuthStep.verify,
       );
       expect(state().raw, 'new@EXAMPLE.COM');
+    });
+  }
+  for (final status in PhoneAccountStatus.values) {
+    test('phone result retained in flow: $status', () async {
+      repos.phone = Success(status);
+      repos.otpResult = Success(
+        OtpChallenge(
+          challengeId: 'phone-challenge',
+          codeLength: 6,
+          resendAfter: const Duration(seconds: 94),
+          expiresAt: DateTime.utc(2026, 10, 24),
+          maskedDestination: '•••••••6789',
+        ),
+      );
+      repos.calls = 0;
+      controller().identifierChanged('09123456789');
+      controller().rememberToggled();
+      await controller().submit();
+      if (status == PhoneAccountStatus.registeredWithPassword) {
+        final flow =
+            container.read(authFlowProvider) as PhonePasswordFlowResult;
+        expect(flow.phone.e164, '+989123456789');
+        expect(flow.rememberDevice, true);
+        expect(state().destination, AuthStep.password);
+        expect(repos.calls, 0);
+      } else {
+        final flow = container.read(authFlowProvider) as PhoneFlowResult;
+        expect(flow.displayDestination, '09123456789');
+        expect(flow.rememberDevice, true);
+        expect(
+          state().destination,
+          status == PhoneAccountStatus.notRegistered
+              ? AuthStep.verify
+              : AuthStep.otp,
+        );
+        expect(repos.calls, 1);
+      }
+      expect(state().raw, '09123456789');
     });
   }
   test('welcome offer initially absent, loaded asynchronously', () async {

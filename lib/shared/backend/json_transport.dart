@@ -1,4 +1,4 @@
-enum JsonMethod { get }
+enum JsonMethod { get, post }
 
 final class JsonHttpResponse {
   const JsonHttpResponse({
@@ -21,11 +21,16 @@ final class JsonHttpResponse {
 }
 
 /// Product HTTP boundary. The IO implementation lives in `lib/app/platform`.
+///
+/// Cookies stay inside that one client. Callers do not add a second `Cookie`
+/// header. [attachAbort] receives the function that aborts the in-flight request.
 abstract interface class JsonHttpTransport {
   Future<JsonHttpResponse> send({
     required Uri uri,
     required JsonMethod method,
     Map<String, String> headers = const {},
+    Object? body,
     Duration? timeout,
+    void Function(void Function() abort)? attachAbort,
   });
 }

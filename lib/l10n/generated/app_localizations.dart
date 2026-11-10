@@ -576,7 +576,7 @@ abstract class AppLocalizations {
   /// No description provided for @authPasswordRuleLength.
   ///
   /// In en, this message translates to:
-  /// **'8+ characters'**
+  /// **'11–128 characters'**
   String get authPasswordRuleLength;
 
   /// No description provided for @authPasswordRuleNumber.

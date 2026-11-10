@@ -204,9 +204,24 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      if ((state.challenge?.codePrefix ?? '').isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            bottom: AuthEntryTokens.dividerGap,
+                          ),
+                          child: Text(
+                            state.challenge!.codePrefix,
+                            style: AuthTextTokens
+                                .byName['English/Baseline/Label-Small']!
+                                .copyWith(
+                                  color: roles.color('On Surface/Emphasis'),
+                                ),
+                          ),
+                        ),
                       AppOtpField(
                         elementId: 'auth.otp.code',
                         label: strings.authOtpLabel,
+                        length: state.challenge?.codeLength ?? 6,
                         controller: code,
                         focusNode: focus,
                         enabled: !state.busy && !state.verified,

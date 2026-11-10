@@ -12,6 +12,7 @@ import 'app.dart';
 import 'auth_bindings.dart';
 import 'config/app_config.dart';
 import 'home_bindings.dart';
+import 'startup/remote_session_probe.dart';
 
 import 'platform/dev_fake_stack.dart';
 import 'platform/notification_permission_adapter.dart';
@@ -44,7 +45,10 @@ ProviderScope composeApp({
     if (includeHomeBindings) ...homeBindings(config),
     ...providerOverrides,
   ],
-  child: rootWrapper?.call(const P2EApp()) ?? const P2EApp(),
+  child: RemoteSessionRestore(
+    config: config,
+    child: rootWrapper?.call(const P2EApp()) ?? const P2EApp(),
+  ),
 );
 
 void bootstrap({

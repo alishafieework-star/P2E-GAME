@@ -10,8 +10,15 @@ final class OtpChallenge {
     required this.resendAfter,
     required this.expiresAt,
     required this.maskedDestination,
+    this.codePrefix = '',
   });
   final String challengeId, maskedDestination;
+
+  /// Server prefix such as `GAME-`. The field collects [codeLength] digits
+  /// only; the remote source sends `codePrefix + digits` (D-152).
+  final String codePrefix;
+
+  /// Digit count (`codeDigits`), not the length of the prefixed code.
   final int codeLength;
   final Duration resendAfter;
   final DateTime expiresAt;

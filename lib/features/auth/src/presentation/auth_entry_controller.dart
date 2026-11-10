@@ -146,15 +146,7 @@ class AuthEntryController extends _$AuthEntryController {
     );
     final Result<AuthFlowResult> result;
     if (identifier is Phone) {
-      ref.read(otpCodeListenerProvider.notifier).arm();
       final phones = ref.read(phoneSignInRepositoryProvider);
-      // Start the code before the first await so an in-flight cancel still
-      // lands on this call, matching the existing phone contract tests.
-      final otpFuture = phones.requestOtp(
-        identifier,
-        rememberDevice: remember,
-        cancellation: token,
-      );
       final status = await phones.checkPhone(identifier, cancellation: token);
       if (!ref.mounted || token.isCancelled || revision != _revision) return;
       if (status is Failure<PhoneAccountStatus>) {
@@ -172,14 +164,20 @@ class AuthEntryController extends _$AuthEntryController {
         );
         return;
       }
-      result = (await otpFuture).map(
-        (challenge) => PhoneFlowResult(
-          challenge,
-          raw,
-          remember,
-          registration: account == PhoneAccountStatus.notRegistered,
-        ),
-      );
+      ref.read(otpCodeListenerProvider.notifier).arm();
+      result =
+          (await phones.requestOtp(
+            identifier,
+            rememberDevice: remember,
+            cancellation: token,
+          )).map(
+            (challenge) => PhoneFlowResult(
+              challenge,
+              raw,
+              remember,
+              registration: account == PhoneAccountStatus.notRegistered,
+            ),
+          );
     } else if (identifier is Email) {
       final emails = ref.read(emailSignInRepositoryProvider);
       final checked = await emails.checkEmail(identifier, cancellation: token);

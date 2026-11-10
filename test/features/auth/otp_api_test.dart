@@ -8,6 +8,62 @@ import 'package:mygame_p2e/features/auth/auth.dart';
 import 'package:mygame_p2e/features/auth/auth_data.dart';
 
 void main() {
+  test('prototype and registered phone accounts require password login', () {
+    expect(
+      DevOtpApi.phoneStatus('+989128279503'),
+      PhoneAccountStatus.registeredWithPassword,
+    );
+    expect(
+      DevOtpApi.phoneStatus('+989120001111'),
+      PhoneAccountStatus.registeredWithPassword,
+    );
+    expect(
+      DevOtpApi.phoneStatus('+989120002222'),
+      PhoneAccountStatus.notRegistered,
+    );
+
+    final wrongPass = DevOtpApi.handle(
+      const OtpApiRequest(
+        method: 'POST',
+        path: '/auth/phone/password',
+        body: '{"phone":"+989128279503","password":"wrong"}',
+      ),
+    );
+    expect(wrongPass.status, 422);
+
+    final rightPass = DevOtpApi.handle(
+      const OtpApiRequest(
+        method: 'POST',
+        path: '/auth/phone/password',
+        body: '{"phone":"+989128279503","password":"Play1234!"}',
+      ),
+    );
+    expect(rightPass.status, 200);
+
+    final created = DevOtpApi.handle(
+      const OtpApiRequest(
+        method: 'POST',
+        path: '/auth/phone/password/create',
+        body: '{"phone":"+989123334455","password":"MySecret99!"}',
+      ),
+    );
+    expect(created.status, 200);
+    expect(
+      DevOtpApi.phoneStatus('+989123334455'),
+      PhoneAccountStatus.registeredWithPassword,
+    );
+
+    final signinNew = DevOtpApi.handle(
+      const OtpApiRequest(
+        method: 'POST',
+        path: '/auth/phone/password',
+        body: '{"phone":"+989123334455","password":"MySecret99!"}',
+      ),
+    );
+    expect(signinNew.status, 200);
+    DevOtpApi.passwords.clear();
+  });
+
   test('username endpoint is case-insensitive and suggests free names', () {
     final taken = DevOtpApi.handle(
       const OtpApiRequest(

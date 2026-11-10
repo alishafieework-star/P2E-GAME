@@ -15,6 +15,8 @@ final class AppConfig {
     this.privacyUrl = '',
     this.fakeApiBase = 'http://127.0.0.1:8787',
     this.fakeMediaBase = 'http://127.0.0.1:8788',
+    this.remoteApiBase = '',
+    this.remoteApiOrigin = '',
   }) : backendMode =
            backendMode ??
            (environment == AppEnvironment.dev
@@ -29,6 +31,13 @@ final class AppConfig {
 
   /// D-102: development origin for sample Home artwork; never bundled.
   final String fakeMediaBase;
+
+  /// D-152: UsersService origin without a trailing slash.
+  /// Empty keeps remote sources unconfigured. It does not select the fake mode.
+  final String remoteApiBase;
+
+  /// D-153: `Origin` header the Users policy allow-lists. No path.
+  final String remoteApiOrigin;
 
   factory AppConfig.fromValues(Map<String, String> values) {
     final environment = AppEnvironment.values.firstWhere(
@@ -47,6 +56,33 @@ final class AppConfig {
     }
     final fakeApiBase = values['FAKE_API_BASE'] ?? 'http://127.0.0.1:8787';
     final fakeMediaBase = values['FAKE_MEDIA_BASE'] ?? 'http://127.0.0.1:8788';
+    final remoteApiBase = values['REMOTE_API_BASE'] ?? '';
+    if (remoteApiBase.isNotEmpty) {
+      if (remoteApiBase.endsWith('/')) {
+        throw const FormatException('REMOTE_API_BASE must not end with /');
+      }
+      final remoteUri = Uri.tryParse(remoteApiBase);
+      if (remoteUri == null ||
+          (remoteUri.scheme != 'http' && remoteUri.scheme != 'https') ||
+          remoteUri.host.isEmpty) {
+        throw const FormatException('Invalid REMOTE_API_BASE');
+      }
+    }
+    final remoteApiOrigin = values['REMOTE_API_ORIGIN'] ?? '';
+    if (remoteApiOrigin.isNotEmpty) {
+      if (remoteApiOrigin.endsWith('/')) {
+        throw const FormatException('REMOTE_API_ORIGIN must not end with /');
+      }
+      final originUri = Uri.tryParse(remoteApiOrigin);
+      if (originUri == null ||
+          (originUri.scheme != 'http' && originUri.scheme != 'https') ||
+          originUri.host.isEmpty ||
+          originUri.path.isNotEmpty ||
+          originUri.hasQuery ||
+          originUri.hasFragment) {
+        throw const FormatException('Invalid REMOTE_API_ORIGIN');
+      }
+    }
     for (final (key, value) in [
       ('FAKE_API_BASE', fakeApiBase),
       ('FAKE_MEDIA_BASE', fakeMediaBase),
@@ -74,28 +110,47 @@ final class AppConfig {
       privacyUrl: values['PRIVACY_URL'] ?? '',
       fakeApiBase: fakeApiBase,
       fakeMediaBase: fakeMediaBase,
+      remoteApiBase: remoteApiBase,
+      remoteApiOrigin: remoteApiOrigin,
     );
   }
-  factory AppConfig.fromEnvironment() => AppConfig.fromValues({
-    'APP_ENV': const String.fromEnvironment('APP_ENV', defaultValue: 'dev'),
-    'BACKEND_MODE': const String.fromEnvironment(
-      'BACKEND_MODE',
-      defaultValue:
-          String.fromEnvironment('APP_ENV', defaultValue: 'dev') == 'dev'
-          ? 'fake'
-          : 'remote',
-    ),
-    'TERMS_URL': const String.fromEnvironment('TERMS_URL'),
-    'PRIVACY_URL': const String.fromEnvironment('PRIVACY_URL'),
-    'FAKE_API_BASE': const String.fromEnvironment(
-      'FAKE_API_BASE',
-      defaultValue: 'http://127.0.0.1:8787',
-    ),
-    'FAKE_MEDIA_BASE': const String.fromEnvironment(
-      'FAKE_MEDIA_BASE',
-      defaultValue: 'http://127.0.0.1:8788',
-    ),
-  });
+  factory AppConfig.fromEnvironment() {
+    final config = AppConfig.fromValues({
+      'APP_ENV': const String.fromEnvironment('APP_ENV', defaultValue: 'dev'),
+      'BACKEND_MODE': const String.fromEnvironment(
+        'BACKEND_MODE',
+        defaultValue:
+            String.fromEnvironment('APP_ENV', defaultValue: 'dev') == 'dev'
+            ? 'fake'
+            : 'remote',
+      ),
+      'TERMS_URL': const String.fromEnvironment('TERMS_URL'),
+      'PRIVACY_URL': const String.fromEnvironment('PRIVACY_URL'),
+      'FAKE_API_BASE': const String.fromEnvironment(
+        'FAKE_API_BASE',
+        defaultValue: 'http://127.0.0.1:8787',
+      ),
+      'FAKE_MEDIA_BASE': const String.fromEnvironment(
+        'FAKE_MEDIA_BASE',
+        defaultValue: 'http://127.0.0.1:8788',
+      ),
+      'REMOTE_API_BASE': const String.fromEnvironment('REMOTE_API_BASE'),
+      'REMOTE_API_ORIGIN': const String.fromEnvironment('REMOTE_API_ORIGIN'),
+    });
+    if (config.backendMode == BackendMode.remote &&
+        config.remoteApiBase.isEmpty) {
+      throw const FormatException(
+        'REMOTE_API_BASE is required when BACKEND_MODE is remote',
+      );
+    }
+    if (config.backendMode == BackendMode.remote &&
+        config.remoteApiOrigin.isEmpty) {
+      throw const FormatException(
+        'REMOTE_API_ORIGIN is required when BACKEND_MODE is remote',
+      );
+    }
+    return config;
+  }
 }
 
 @Riverpod(keepAlive: true, dependencies: [])

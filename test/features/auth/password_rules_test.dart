@@ -11,16 +11,18 @@ void main() {
   });
 
   test('each met rule raises the level', () {
-    expect(PasswordRules.level('abcdefgh'), 1);
-    expect(PasswordRules.level('abcdefgh1'), 2);
-    expect(PasswordRules.level('Abcdefgh1'), 3);
-    expect(PasswordRules.level('Abcdefgh1!'), 4);
+    expect(PasswordRules.level('abcdefghijk'), 1);
+    expect(PasswordRules.level('abcdefghijk1'), 2);
+    expect(PasswordRules.level('Abcdefghijk1'), 3);
+    expect(PasswordRules.level('Abcdefghijk1!'), 4);
   });
 
   test('score and acceptable stay strict', () {
     expect(PasswordRules.score('abc'), 0);
-    expect(PasswordRules.score('Abcdefgh1'), 3);
-    expect(PasswordRules.acceptable('Abcdefgh1', 'Abcdefgh1'), isFalse);
-    expect(PasswordRules.acceptable('Abcdefgh1!', 'Abcdefgh1!'), isTrue);
+    expect(PasswordRules.score('Abcdefghijk1'), 3);
+    expect(PasswordRules.acceptable('Abcdefghijk1', 'Abcdefghijk1'), isFalse);
+    expect(PasswordRules.acceptable('Abcdefghijk1!', 'Abcdefghijk1!'), isTrue);
+    expect(PasswordRules.longEnough('abcdefghij'), isFalse);
+    expect(PasswordRules.longEnough('a' * 129), isFalse);
   });
 }

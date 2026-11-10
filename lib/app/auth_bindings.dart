@@ -9,6 +9,7 @@ import '../shared/platform/one_time_code.dart';
 import 'platform/external_link_adapter.dart';
 import 'platform/one_time_code_adapter.dart';
 import 'platform/transports.dart';
+import 'platform/users_api_provider.dart';
 
 /// Compile-time dead branch in remote builds: fake factories/marker are removed.
 const _useFake =
@@ -55,6 +56,13 @@ List<Override> authBindings(AppConfig config) => [
         ),
       );
     }
+    if (_remote(config)) {
+      return PhoneSignInRepositoryImpl(
+        RemotePhoneSignInSource.connected(
+          ref.watch(usersApiClientProvider(_bind(config))),
+        ),
+      );
+    }
     return const PhoneSignInRepositoryImpl(RemotePhoneSignInSource());
   }),
   emailSignInRepositoryProvider.overrideWith((ref) {
@@ -72,11 +80,25 @@ List<Override> authBindings(AppConfig config) => [
         ),
       );
     }
+    if (_remote(config)) {
+      return EmailSignInRepositoryImpl(
+        RemoteEmailSignInSource.connected(
+          ref.watch(usersApiClientProvider(_bind(config))),
+        ),
+      );
+    }
     return const EmailSignInRepositoryImpl(RemoteEmailSignInSource());
   }),
   accountSetupRepositoryProvider.overrideWith((ref) {
     if (_useFake && config.backendMode == BackendMode.fake) {
       return const AccountSetupRepositoryImpl(LocalAccountSetupSource());
+    }
+    if (_remote(config)) {
+      return AccountSetupRepositoryImpl(
+        RemoteAccountSetupSource.connected(
+          ref.watch(usersApiClientProvider(_bind(config))),
+        ),
+      );
     }
     return const AccountSetupRepositoryImpl(RemoteAccountSetupSource());
   }),
@@ -93,3 +115,9 @@ List<Override> authBindings(AppConfig config) => [
     return const SocialSignInRepositoryImpl(RemoteSocialSignInSource());
   }),
 ];
+
+bool _remote(AppConfig config) =>
+    config.backendMode == BackendMode.remote && config.remoteApiBase.isNotEmpty;
+
+UsersApiBind _bind(AppConfig config) =>
+    UsersApiBind(config.remoteApiBase, config.remoteApiOrigin);

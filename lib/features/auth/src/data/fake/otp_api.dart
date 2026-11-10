@@ -75,16 +75,22 @@ abstract final class DevOtpApi {
   static final _attempts = <String, int>{};
   static final _lockedUntil = <String, DateTime>{};
 
-  /// Phones ending in 1111 have a password. Phones ending in 2222 are new.
+  /// HTML prototype pre-seeded existing account (+989128279503 / Play1234!).
+  static const prototypePhone = '+989128279503';
+  static const prototypePassword = 'Play1234!';
+  static const phonePassword = 'Play123!';
+
+  /// Phones in [passwords] or matching prototype/1111 have a password.
+  /// Phones ending in 2222 are new accounts (D-139 / HTML prototype).
   static PhoneAccountStatus phoneStatus(String e164) {
-    if (e164.endsWith('1111')) {
+    if (passwords.containsKey(e164) ||
+        e164 == prototypePhone ||
+        e164.endsWith('1111')) {
       return PhoneAccountStatus.registeredWithPassword;
     }
     if (e164.endsWith('2222')) return PhoneAccountStatus.notRegistered;
     return PhoneAccountStatus.registered;
   }
-
-  static const phonePassword = 'Play123!';
 
   static void debugReset() {
     passwords.clear();
@@ -174,8 +180,13 @@ abstract final class DevOtpApi {
         if (phone is! String || phone.isEmpty || phoneSecret is! String) {
           return const OtpApiResponse(400, '{"error":"destination"}');
         }
-        final expected = passwords[phone] ?? phonePassword;
-        return _secret(phone, phoneSecret == expected, now);
+        final expected =
+            passwords[phone] ??
+            (phone == prototypePhone ? prototypePassword : phonePassword);
+        final matches =
+            phoneSecret == expected ||
+            (phone == prototypePhone && phoneSecret == phonePassword);
+        return _secret(phone, matches, now);
       case '/auth/phone/password/create':
         final createdPhone = payload['phone'];
         final createdPhonePassword = payload['password'];

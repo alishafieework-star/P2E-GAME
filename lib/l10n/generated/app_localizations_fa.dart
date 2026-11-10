@@ -256,7 +256,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get authPasswordStrong => 'قوی';
 
   @override
-  String get authPasswordRuleLength => 'حداقل ۸ نویسه';
+  String get authPasswordRuleLength => '۱۱ تا ۱۲۸ نویسه';
 
   @override
   String get authPasswordRuleNumber => 'حداقل یک عدد';

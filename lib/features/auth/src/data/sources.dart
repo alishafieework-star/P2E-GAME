@@ -30,13 +30,15 @@ final class OtpChallengeDto {
     required this.resendSeconds,
     required this.expires,
     required this.destination,
+    this.prefix = '',
   });
-  final String id, destination;
+  final String id, destination, prefix;
   final int length, resendSeconds;
   final DateTime expires;
   OtpChallenge toDomain() => OtpChallenge(
     challengeId: id,
     codeLength: length,
+    codePrefix: prefix,
     resendAfter: Duration(seconds: resendSeconds),
     expiresAt: expires,
     maskedDestination: destination,

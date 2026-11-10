@@ -79,7 +79,7 @@
   "authPasswordFair": "Fair",
   "authPasswordGood": "Good",
   "authPasswordStrong": "Strong",
-  "authPasswordRuleLength": "8+ characters",
+  "authPasswordRuleLength": "11–128 characters",
   "authPasswordRuleNumber": "At least a number",
   "authPasswordRuleCase": "Upper & lowercase",
   "authPasswordRuleSymbol": "A symbol (#, !, @, ...)",

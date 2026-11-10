@@ -79,7 +79,7 @@
   "authPasswordFair": "متوسط",
   "authPasswordGood": "خوب",
   "authPasswordStrong": "قوی",
-  "authPasswordRuleLength": "حداقل ۸ نویسه",
+  "authPasswordRuleLength": "۱۱ تا ۱۲۸ نویسه",
   "authPasswordRuleNumber": "حداقل یک عدد",
   "authPasswordRuleCase": "حرف بزرگ و کوچک",
   "authPasswordRuleSymbol": "یک نماد (#, !, @, ...)",

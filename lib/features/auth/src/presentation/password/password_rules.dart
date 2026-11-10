@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 /// Rules shown on Set a New Password. Figma 18707:15598.
 abstract final class PasswordRules {
-  static bool longEnough(String value) => value.length >= 8;
+  /// D-152: server rule is 11–128. The other three rules stay (D-075).
+  static bool longEnough(String value) =>
+      value.length >= 11 && value.length <= 128;
   static bool hasNumber(String value) => RegExp('[0-9]').hasMatch(value);
   static bool hasMixedCase(String value) =>
       RegExp('[a-z]').hasMatch(value) && RegExp('[A-Z]').hasMatch(value);

@@ -19,7 +19,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('components-collections')));
       await tester.pumpAndSettle();
-      expect(find.byType(AppSectionHeader), findsOneWidget);
+      expect(find.byType(AppSectionHeader), findsNWidgets(2));
       expect(find.byType(AppShelf), findsNWidgets(2));
       expect(find.byType(AppPageIndicator), findsOneWidget);
       expect(tester.takeException(), isNull);

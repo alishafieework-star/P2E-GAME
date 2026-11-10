@@ -6,19 +6,30 @@ import '../../core/diagnostics/app_logger.dart';
 import '../../core/errors/app_failure.dart';
 import '../../shared/backend/json_transport.dart';
 
-/// Development and product JSON GET. Failures stay frontend types (D-122).
+/// Development and product JSON GET/POST. Failures stay frontend types (D-122).
+///
+/// D-152: one client stores `Set-Cookie` (`AuthToken`, `PlayerPreAuth`) for
+/// this process only. [clearSession] drops that memory. No secure storage.
 final class IoJsonTransport implements JsonHttpTransport {
   IoJsonTransport([HttpClient? client]) : _client = client ?? HttpClient();
-  final HttpClient _client;
+  HttpClient _client;
 
   void close() => _client.close(force: true);
+
+  /// D-152: forget in-memory cookies after logout. Not durable storage.
+  void clearSession() {
+    _client.close(force: true);
+    _client = HttpClient();
+  }
 
   @override
   Future<JsonHttpResponse> send({
     required Uri uri,
     required JsonMethod method,
     Map<String, String> headers = const {},
+    Object? body,
     Duration? timeout,
+    void Function(void Function() abort)? attachAbort,
   }) async {
     final limit = timeout ?? const Duration(seconds: 8);
     // One deadline spans connect, response and body: three fresh timeouts
@@ -34,17 +45,24 @@ final class IoJsonTransport implements JsonHttpTransport {
     }
 
     try {
-      final request = await within(_client.getUrl(uri));
+      final request = await within(
+        method == JsonMethod.post ? _client.postUrl(uri) : _client.getUrl(uri),
+      );
       headers.forEach(request.headers.set);
+      if (body != null && method == JsonMethod.post) {
+        request.headers.contentType = ContentType.json;
+        request.write(body is String ? body : jsonEncode(body));
+      }
+      void abort() => request.abort();
+      attachAbort?.call(abort);
       final response = await within(request.close());
-      final body = await within(utf8.decoder.bind(response).join());
+      final text = await within(utf8.decoder.bind(response).join());
       return JsonHttpResponse(
         status: response.statusCode,
-        body: body,
+        body: text,
         headers: {
-          for (final name in ['etag', 'content-language'])
-            if (response.headers.value(name) != null)
-              name: response.headers.value(name)!,
+          for (final name in ['etag', 'content-language', 'retry-after'])
+            name: ?_singleHeader(response.headers, name),
         },
       );
     } on TimeoutException {
@@ -69,4 +87,13 @@ final class IoJsonTransport implements JsonHttpTransport {
       throw const NetworkFailure();
     }
   }
+}
+
+/// First value only. `headers.value` throws when a name is repeated, and
+/// `Set-Cookie` is left to the client jar instead of being folded into one
+/// string (D-152).
+String? _singleHeader(HttpHeaders headers, String name) {
+  final values = headers[name];
+  if (values == null || values.isEmpty) return null;
+  return values.first;
 }

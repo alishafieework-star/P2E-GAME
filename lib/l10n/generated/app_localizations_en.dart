@@ -257,7 +257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authPasswordStrong => 'Strong';
 
   @override
-  String get authPasswordRuleLength => '8+ characters';
+  String get authPasswordRuleLength => '11–128 characters';
 
   @override
   String get authPasswordRuleNumber => 'At least a number';

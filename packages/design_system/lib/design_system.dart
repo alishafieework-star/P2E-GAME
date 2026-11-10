@@ -14,6 +14,7 @@ export 'src/adaptive/page_scaffold.dart';
 export 'src/components/collections/app_page_indicator.dart';
 export 'src/components/collections/app_section_header.dart';
 export 'src/components/collections/app_shelf.dart';
+export 'src/components/collections/app_key_value_row.dart';
 export 'src/theme/themed_role.dart';
 export 'src/tokens/generated/collection_tokens.g.dart';
 export 'src/tokens/generated/home_tokens.g.dart';
@@ -23,7 +24,10 @@ export 'src/components/navigation/app_navigation_bar.dart';
 export 'src/components/navigation/navigation_destination.dart';
 export 'src/components/navigation/navigation_item.dart' show AppNavigationItem;
 export 'src/components/navigation/navigation_layout.dart';
+export 'src/components/navigation/app_sticky_action_bar.dart';
 export 'src/tokens/navigation_spec.dart';
+
+export 'src/components/tabs/app_segmented_tabs.dart';
 
 export 'src/components/app_bars/app_bar_configuration.dart';
 export 'src/components/app_bars/app_bar_content.dart';
@@ -32,7 +36,12 @@ export 'src/components/app_bars/app_bar_scaffold_adapter.dart';
 export 'src/tokens/app_bar_spec.dart';
 
 export 'src/components/badges/app_badge.dart';
+export 'src/components/badges/app_status_chip.dart';
 export 'src/tokens/badge_spec.dart';
+
+export 'src/components/chips/app_filter_chip.dart';
+
+export 'src/components/progress/app_progress_bar.dart';
 
 export 'src/components/buttons/app_button.dart';
 export 'src/components/sheets/app_sheet.dart';

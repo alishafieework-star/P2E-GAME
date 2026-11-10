@@ -108,7 +108,9 @@ final class _ScriptedTransport implements JsonHttpTransport {
     required Uri uri,
     required JsonMethod method,
     Map<String, String> headers = const {},
+    Object? body,
     Duration? timeout,
+    void Function(void Function() abort)? attachAbort,
   }) async {
     lastEtag = headers['if-none-match'];
     final failure = _failure;

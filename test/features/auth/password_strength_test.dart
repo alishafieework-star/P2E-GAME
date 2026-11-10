@@ -12,7 +12,7 @@ Widget _host(String password, String level) => MaterialApp(
       password: password,
       strengthLabel: 'Password strength',
       level: level,
-      longLabel: '8+ characters',
+      longLabel: '11–128 characters',
       numberLabel: 'At least a number',
       caseLabel: 'Upper & lowercase',
       symbolLabel: 'A symbol (#, !, @, ...)',
@@ -60,7 +60,7 @@ void main() {
       HtmlJourneyTokens.jlRose,
     );
 
-    await tester.pumpWidget(_host('abcdefgh1', 'Fair'));
+    await tester.pumpWidget(_host('abcdefghijk1', 'Fair'));
     colors = _colors(tester);
     expect(colors[0], const Color(0xFFFF9F0A)); // OVERRIDE(O-001)
     expect(colors[1], const Color(0xFFFF9F0A));
@@ -70,7 +70,7 @@ void main() {
       const Color(0xFFFF9F0A),
     );
 
-    await tester.pumpWidget(_host('Abcdefgh1', 'Good'));
+    await tester.pumpWidget(_host('Abcdefghijk1', 'Good'));
     colors = _colors(tester);
     expect(colors[2], HtmlJourneyTokens.splashGradientMid);
     expect(colors[3], isNot(HtmlJourneyTokens.splashGradientMid));
@@ -79,7 +79,7 @@ void main() {
       HtmlJourneyTokens.splashGradientMid,
     );
 
-    await tester.pumpWidget(_host('Abcdefgh1!', 'Strong'));
+    await tester.pumpWidget(_host('Abcdefghijk1!', 'Strong'));
     colors = _colors(tester);
     expect(colors.toSet(), {HtmlJourneyTokens.success});
     expect(

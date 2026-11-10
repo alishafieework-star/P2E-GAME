@@ -492,21 +492,21 @@ class _AppBarPresentation extends StatelessWidget {
         ],
       ),
     );
-    return KeyedSubtree(
-      key: AppBarAnchors.wallet,
-      child: SizedBox(
-        key: ValueKey('$elementId.wallet'),
-        width: layout.walletWidth,
-        height: spec.actionExtent,
-        child: Row(
-          children: [
-            points,
-            SizedBox(width: spec.metric('wallet', 'itemSpacing')),
-            coins,
-          ],
-        ),
+    final walletBox = SizedBox(
+      key: ValueKey('$elementId.wallet'),
+      width: layout.walletWidth,
+      height: spec.actionExtent,
+      child: Row(
+        children: [
+          points,
+          SizedBox(width: spec.metric('wallet', 'itemSpacing')),
+          coins,
+        ],
       ),
     );
+    return elementId == 'home.app-bar'
+        ? KeyedSubtree(key: AppBarAnchors.wallet, child: walletBox)
+        : walletBox;
   }
 
   @override

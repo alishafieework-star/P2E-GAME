@@ -14,7 +14,7 @@ void main() {
 class DevelopmentViewer extends StatefulWidget {
   const DevelopmentViewer({
     super.key,
-    this.initialLocale = const Locale('fa'),
+    this.initialLocale = const Locale('en'),
     this.devicePlatform,
     this.deviceLocales,
     this.skinOverride,
@@ -43,36 +43,42 @@ class _DevelopmentViewerState extends State<DevelopmentViewer> {
     onLocale: (value) => setState(() => locale = value),
   );
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    debugShowCheckedModeBanner: false,
-    locale: locale,
-    supportedLocales: ViewerLocalizations.supportedLocales,
-    // D-052: explicit Viewer language choice still wins over neutral OS inputs.
-    localeListResolutionCallback: (osLocales, supported) =>
-        basicLocaleListResolution([
-          locale,
-          ...?widget.deviceLocales,
-          ...?osLocales,
-        ], supported),
-    localizationsDelegates: ViewerLocalizations.localizationsDelegates,
-    theme: ViewerTheme.build(persian: locale.languageCode == 'fa').copyWith(
-      extensions: [SkinTheme(widget.skinOverride ?? skin)],
-      platform: widget.devicePlatform,
-    ),
-    home: ViewerFonts.loaded
-        ? shell()
-        : FutureBuilder<void>(
-            future: fonts,
-            builder: (context, snapshot) {
-              final l = ViewerLocalizations.of(context);
-              if (snapshot.hasError) {
-                return Scaffold(body: Center(child: Text(l.fontError)));
-              }
-              if (snapshot.connectionState != ConnectionState.done) {
-                return Scaffold(body: Center(child: Text(l.loading)));
-              }
-              return shell();
-            },
-          ),
-  );
+  Widget build(BuildContext context) {
+    final baseTheme = ViewerTheme.build(persian: locale.languageCode == 'fa');
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      locale: locale,
+      supportedLocales: ViewerLocalizations.supportedLocales,
+      // D-052: explicit Viewer language choice still wins over neutral OS inputs.
+      localeListResolutionCallback: (osLocales, supported) =>
+          basicLocaleListResolution([
+            locale,
+            ...?widget.deviceLocales,
+            ...?osLocales,
+          ], supported),
+      localizationsDelegates: ViewerLocalizations.localizationsDelegates,
+      theme: baseTheme.copyWith(
+        extensions: [
+          ...baseTheme.extensions.values,
+          SkinTheme(widget.skinOverride ?? skin),
+        ],
+        platform: widget.devicePlatform,
+      ),
+      home: ViewerFonts.loaded
+          ? shell()
+          : FutureBuilder<void>(
+              future: fonts,
+              builder: (context, snapshot) {
+                final l = ViewerLocalizations.of(context);
+                if (snapshot.hasError) {
+                  return Scaffold(body: Center(child: Text(l.fontError)));
+                }
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Scaffold(body: Center(child: Text(l.loading)));
+                }
+                return shell();
+              },
+            ),
+    );
+  }
 }
