@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart' show Override;
 
+import '../core/storage/json_store.dart';
 import '../core/time/clock.dart';
 import '../features/games/games.dart';
 import '../features/games/games_data.dart';
@@ -24,10 +25,15 @@ const _useFake =
     ) ==
     'fake';
 
+/// D-159: a dev build keeps the temporary Home catalog next to remote auth.
+const _devCatalog =
+    String.fromEnvironment('APP_ENV', defaultValue: 'dev') == 'dev';
+
 /// Home read models. Fake data is in-process; sample artwork comes from the
 /// development media origin and is never bundled (D-102).
 List<Override> homeBindings(AppConfig config) {
   final store = openGameDetailsStore();
+  if (_devCatalog) return _sampleHome(config, store);
   final fake = _useFake && config.backendMode == BackendMode.fake;
   return [
     gamesRepositoryProvider.overrideWith(
@@ -63,6 +69,32 @@ List<Override> homeBindings(AppConfig config) {
               store: store,
             )
           : const RemoteGameDetailsRepository(),
+    ),
+    gameBookmarkStoreProvider.overrideWith((_) => JsonGameBookmarkStore(store)),
+  ];
+}
+
+List<Override> _sampleHome(AppConfig config, JsonStore store) {
+  final media = Uri.parse(config.fakeMediaBase);
+  return [
+    gamesRepositoryProvider.overrideWith((_) => FakeGamesRepository(media)),
+    questsRepositoryProvider.overrideWith(
+      (ref) => FakeQuestsRepository(media, now: ref.read(clockProvider).now),
+    ),
+    balanceRepositoryProvider.overrideWith(
+      (_) => const FakeBalanceRepository(),
+    ),
+    profileRepositoryProvider.overrideWith(
+      (_) => const FakeProfileRepository(),
+    ),
+    gameDetailsRepositoryProvider.overrideWith(
+      (ref) => CachedGameDetailsRepository(
+        source: HttpGameDetailsSource(
+          transport: ref.read(jsonHttpTransportProvider),
+          base: Uri.parse(config.fakeApiBase),
+        ),
+        store: store,
+      ),
     ),
     gameBookmarkStoreProvider.overrideWith((_) => JsonGameBookmarkStore(store)),
   ];

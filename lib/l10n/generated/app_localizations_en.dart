@@ -167,6 +167,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authOtpInvalid => 'That code is not correct. Please try again.';
 
   @override
+  String get authOtpPrefix => 'That letter does not match this code.';
+
+  @override
   String get authOtpHelp => 'Help';
 
   @override

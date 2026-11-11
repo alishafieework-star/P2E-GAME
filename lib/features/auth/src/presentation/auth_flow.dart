@@ -144,10 +144,14 @@ final class AccountJourney extends AuthFlowResult {
     this.avatarTheme = 0,
     this.avatarReady = false,
     this.notificationsOn = false,
+    this.challenge,
     bool rememberDevice = false,
   }) : super(rememberDevice);
 
   final AuthStep journey;
+
+  /// Present when a cold start resumes OTP. Other steps leave it null (D-154).
+  final OtpChallenge? challenge;
   final Email? email;
   final String username;
   final String phoneRaw;

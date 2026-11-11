@@ -1,4 +1,8 @@
+import 'package:mygame_p2e/core/errors/app_failure.dart';
+
 import '../../domain/models.dart';
+import '../../domain/repositories.dart';
+import '../repositories.dart';
 import '../sources.dart';
 import 'users_api_client.dart';
 
@@ -178,6 +182,31 @@ final class RemoteAccountSetupSource implements AccountSetupSource {
     Map<String, Object?> body,
     AuthCancellation? cancellation,
   ) => _client.completeRegistration(body, cancellation);
+}
+
+/// D-155: Home opens only when `GET Me` confirms a player.
+final class RemotePlayerSessionCheck implements PlayerSessionCheck {
+  const RemotePlayerSessionCheck(this.client);
+  final UsersApiClient client;
+
+  @override
+  Future<bool> allowsHome() => client.restorePlayer();
+
+  @override
+  Future<Result<String>?> publicName({AuthCancellation? cancellation}) =>
+      readPlayerUserName(client, cancellation);
+}
+
+/// No gateway session is configured, so Home stays closed.
+final class ClosedPlayerSessionCheck implements PlayerSessionCheck {
+  const ClosedPlayerSessionCheck();
+
+  @override
+  Future<bool> allowsHome() async => false;
+
+  @override
+  Future<Result<String>?> publicName({AuthCancellation? cancellation}) async =>
+      const Failure(BusinessFailure('backend_not_configured'));
 }
 
 final class RemoteSocialSignInSource implements SocialSignInSource {

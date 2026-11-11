@@ -32,9 +32,11 @@ D-068: the phone OTP screen lives in `lib/features/auth`. Its single-owner rows 
 
 D-070: a verified OTP holds on the screen for the generated success duration. A server-rejected code shakes; offline and server failures do not. The rejected code stays. The session does not become signed in here (D-139).
 
-D-071: the OTP SMS listener starts before request and resend. Remote autofill stays off until a production SMS pattern exists.
+D-071: the OTP SMS listener starts before request and resend. Player SMS autofill uses the `P-` plus five-digit pattern (D-156).
 
-D-074: one parsed SMS code fills the OTP field and submits it. Typing a code still needs the button. The success hold then continues.
+D-074: one development SMS code fills the OTP field and submits it. A player SMS code only fills the field (D-156). Typing still needs the button. The success hold then continues.
+
+D-157: the player SMS letter cell starts empty. The keyboard is the full text keyboard until a letter is typed.
 
 D-072: a registered account with a password opens Enter Password. The development password is P12345. Forgot password reuses the OTP screen with reset copy. Product locale and theme stay D-065. Where the player goes next is D-139.
 

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mygame_p2e/l10n/generated/app_localizations.dart';
 import 'package:mygame_p2e/shared/balance/balance.dart';
 import 'package:mygame_p2e/shared/formatting/numbers.dart';
@@ -14,6 +15,9 @@ import 'package:mygame_p2e/shared/widgets/journey_confetti.dart';
 import 'package:mygame_p2e/shared/widgets/player_avatar.dart';
 import 'package:p2e_design_system/design_system.dart';
 
+import '../domain/identifier.dart';
+import '../domain/models.dart';
+import 'account_setup.dart';
 import 'auth_entry_controller.dart';
 import 'auth_flow.dart';
 import 'journey_support.dart';
@@ -22,6 +26,43 @@ import 'widgets/journey_layout.dart';
 export 'avatar_screen.dart' show AvatarScreen;
 export 'journey_support.dart' show showAuthHelp;
 export 'username_screen.dart' show UsernameScreen;
+
+Future<bool> _allowHome(WidgetRef ref) =>
+    ref.read(playerSessionCheckProvider).allowsHome();
+
+void _recoverToPassword(BuildContext context, WidgetRef ref) {
+  final journey = currentJourney(context);
+  final email = journey?.email;
+  final parsed = IdentifierClassifier.classify(journey?.phoneRaw ?? '');
+  if (email != null) {
+    ref
+        .read(authFlowProvider.notifier)
+        .accept(
+          EmailFlowResult(
+            email,
+            EmailAccountStatus.registered,
+            journey?.rememberDevice ?? false,
+          ),
+        );
+    context.go(authStepPath(AuthStep.password));
+    return;
+  }
+  if (parsed is Phone && journey != null) {
+    ref
+        .read(authFlowProvider.notifier)
+        .accept(
+          PhonePasswordFlowResult(
+            parsed,
+            journey.phoneRaw,
+            journey.rememberDevice,
+          ),
+        );
+    context.go(authStepPath(AuthStep.password));
+    return;
+  }
+  ref.read(authFlowProvider.notifier).clear();
+  context.go('/entry');
+}
 
 SkinRoleValues _roles(BuildContext context) =>
     SkinTheme.of(context).valuesFor(Theme.of(context).brightness);
@@ -191,6 +232,11 @@ class AllSetScreen extends ConsumerWidget {
           tone: AppButtonTone.accent,
           label: strings.authStartPlaying,
           onPressed: () async {
+            if (!await _allowHome(ref)) {
+              if (context.mounted) _recoverToPassword(context, ref);
+              return;
+            }
+            if (!context.mounted) return;
             final current =
                 ref.read(devicePreferencesProvider).value ??
                 const DevicePreferences();
@@ -250,9 +296,7 @@ class WelcomeBackScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final roles = _roles(context);
     final journey = currentJourney(context);
-    final username = journey?.username.isNotEmpty == true
-        ? journey!.username
-        : 'player';
+    final username = journey?.username ?? '';
     return JourneyPage(
       elementId: 'auth.welcome.page',
       header: JourneyHeader(
@@ -261,15 +305,22 @@ class WelcomeBackScreen extends ConsumerWidget {
         title: strings.authWelcomeTitle,
         body: TextSpan(
           children: [
-            TextSpan(text: '${strings.authWelcomeBody} '),
-            TextSpan(
-              text: '@$username',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: roles.onSurfaceEmphasis,
+            if (username.isEmpty)
+              TextSpan(
+                text:
+                    '${strings.authWelcomeBody} ${strings.authWelcomeBodyTail}',
+              )
+            else ...[
+              TextSpan(text: '${strings.authWelcomeBody} '),
+              TextSpan(
+                text: _isolated('@$username'),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: roles.onSurfaceEmphasis,
+                ),
               ),
-            ),
-            TextSpan(text: '. ${strings.authWelcomeBodyTail}'),
+              TextSpan(text: '. ${strings.authWelcomeBodyTail}'),
+            ],
           ],
         ),
       ),
@@ -280,14 +331,43 @@ class WelcomeBackScreen extends ConsumerWidget {
           family: AppButtonFamily.fill,
           tone: AppButtonTone.accent,
           label: strings.authLetsPlay,
-          onPressed: () => ref
-              .read(sessionControllerProvider.notifier)
-              .update(SessionStatus.signedIn),
+          onPressed: () async {
+            if (!await _allowHome(ref)) {
+              if (context.mounted) _recoverToPassword(context, ref);
+              return;
+            }
+            if (!context.mounted) return;
+            final latest = currentJourney(context);
+            if (latest != null && latest.username.isNotEmpty) {
+              ref
+                  .read(profileSelectionProvider.notifier)
+                  .apply(
+                    Profile(
+                      displayName: latest.username,
+                      username: latest.username,
+                      avatar: latest.avatarReady
+                          ? PlayerAvatarSelection.character(
+                              latest.avatarCharacter,
+                              theme: latest.avatarTheme,
+                            )
+                          : PlayerAvatarSelection.initial(
+                              theme: latest.avatarTheme,
+                            ),
+                    ),
+                  );
+            }
+            ref
+                .read(sessionControllerProvider.notifier)
+                .update(SessionStatus.signedIn);
+          },
         ),
       ],
     );
   }
 }
+
+/// Keeps a nickname from reordering the surrounding sentence in RTL.
+String _isolated(String value) => '\u2068$value\u2069';
 
 class _JourneyAvatar extends StatelessWidget {
   const _JourneyAvatar({this.land = false});

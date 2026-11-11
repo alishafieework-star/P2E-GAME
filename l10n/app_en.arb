@@ -50,6 +50,7 @@
   "authOtpChange": "Change it",
   "authOtpVerify": "Verify Phone Number",
   "authOtpInvalid": "That code is not correct. Please try again.",
+  "authOtpPrefix": "That letter does not match this code.",
   "authOtpHelp": "Help",
   "authOtpLoading": "Verifying",
   "authPasswordTitle": "Enter Your Password",
@@ -220,6 +221,9 @@
   },
   "@authOtpInvalid": {
     "description": "Field error when the development OTP server rejects the code."
+  },
+  "@authOtpPrefix": {
+    "description": "Field error when the typed OTP letter does not match codePrefix."
   },
   "@authOtpHelp": {
     "description": "Accessible name for the OTP help action. It has no destination yet."

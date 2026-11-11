@@ -50,6 +50,6 @@ flutter {
 }
 
 dependencies {
-    // D-071: SMS Retriever. Pinned so the development hash contract stays stable.
+    // D-156: SMS User Consent. Pinned so the Play services client stays stable.
     implementation("com.google.android.gms:play-services-auth-api-phone:18.2.0")
 }

@@ -31,7 +31,7 @@ List<Override> authBindings(AppConfig config) => [
   otpSmsFormatProvider.overrideWith(
     (_) => _useFake && config.backendMode == BackendMode.fake
         ? const DevOtpSmsFormat()
-        : null,
+        : const PlayerSmsCodeFormat(),
   ),
   welcomeOfferRepositoryProvider.overrideWith((ref) {
     if (_useFake && config.backendMode == BackendMode.fake) {
@@ -88,6 +88,17 @@ List<Override> authBindings(AppConfig config) => [
       );
     }
     return const EmailSignInRepositoryImpl(RemoteEmailSignInSource());
+  }),
+  playerSessionCheckProvider.overrideWith((ref) {
+    if (_useFake && config.backendMode == BackendMode.fake) {
+      return const LocalPlayerSessionCheck();
+    }
+    if (_remote(config)) {
+      return RemotePlayerSessionCheck(
+        ref.watch(usersApiClientProvider(_bind(config))),
+      );
+    }
+    return const ClosedPlayerSessionCheck();
   }),
   accountSetupRepositoryProvider.overrideWith((ref) {
     if (_useFake && config.backendMode == BackendMode.fake) {

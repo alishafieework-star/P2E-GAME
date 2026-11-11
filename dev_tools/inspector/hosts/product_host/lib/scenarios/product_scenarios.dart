@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart' show Override;
 import 'package:mygame_p2e/app/config/app_config.dart';
+import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:mygame_p2e/app/router/app_router.dart';
 import 'package:mygame_p2e/app/startup/startup_controller.dart';
 import 'package:mygame_p2e/core/time/clock.dart';
@@ -9,6 +14,7 @@ import 'package:mygame_p2e/features/games/games.dart';
 import 'package:mygame_p2e/features/missions/missions.dart';
 import 'package:mygame_p2e/shared/balance/balance.dart';
 import 'package:mygame_p2e/shared/navigation/app_locations.dart';
+import 'package:mygame_p2e/shared/platform/one_time_code.dart';
 import 'package:mygame_p2e/shared/preferences/device_preferences.dart';
 import 'package:mygame_p2e/shared/profile/profile.dart';
 import 'package:mygame_p2e/shared/session/session.dart';
@@ -67,6 +73,10 @@ class ProductScenario {
     this.flow,
     this.home,
     this.details,
+    this.tourPending = false,
+    this.askSms = false,
+    this.rememberedRaw = '',
+    this.rememberedLabel = '',
   });
   final String id, label;
   final String? path;
@@ -75,6 +85,25 @@ class ProductScenario {
   final AuthFlowResult Function()? flow;
   final HomeFixture? home;
   final GameDetailsFixture? details;
+  final bool tourPending, askSms;
+  final String rememberedRaw, rememberedLabel;
+
+  /// First scenario menu. States of one area share this id.
+  String get sectionId {
+    if (id == 'onboarding') return 'onboarding';
+    if (id == 'fixtures.ds') return 'designSystem';
+    if (id.startsWith('route.') || id.startsWith('startup.')) return 'startup';
+    if (id.startsWith('auth.')) return 'auth';
+    if (id == 'shell.home' || id.startsWith('home.')) return 'home';
+    if (id == 'shell.mission' || id == 'detail.quest') return 'missions';
+    if (id == 'shell.games' || id == 'detail.game' || id.startsWith('game.')) {
+      return 'games';
+    }
+    if (id == 'shell.leaderboard') return 'leaderboard';
+    if (id == 'shell.shop') return 'shop';
+    if (id.startsWith('legal.')) return 'legal';
+    throw StateError('No scenario section for $id');
+  }
 
   StartupState get targetStartupState {
     if (freezeStartup != null) return freezeStartup!;
@@ -101,12 +130,16 @@ class ProductScenario {
         HostDevicePreferences(
           DevicePreferences(
             onboardingSeen: path != '/entry/onboarding',
-            homeTourPending: false,
+            homeTourPending: tourPending,
             notificationsAsked: true,
-            smsAccessAsked: true,
+            smsAccessAsked: !askSms,
+            rememberedRaw: rememberedRaw,
+            rememberedLabel: rememberedLabel,
           ),
         ),
       ),
+      if (askSms)
+        oneTimeCodeAccessProvider.overrideWithValue(const _ClosedSmsAccess()),
     ];
     final fixture = home;
     if (fixture == null) return rows;
@@ -170,34 +203,85 @@ final productScenarios = <ProductScenario>[
     label: '[Auth] 01 - Entry (Identifier)',
     path: '/entry',
   ),
+  const ProductScenario(
+    id: 'auth.entry.continue-as',
+    label: '[Auth] 01b - Continue as',
+    path: '/entry',
+    rememberedRaw: '09121234567',
+    rememberedLabel: '0912 123 4567',
+  ),
   ProductScenario(
     id: 'auth.otp',
-    label: '[Auth] 02 - Phone OTP Verification',
+    label: '[Auth] 02 - Phone OTP (6 digits)',
     path: '/entry/otp',
     flow: _otpFlow,
   ),
   ProductScenario(
+    id: 'auth.otp.player',
+    label: '[Auth] 02b - Player SMS (letter + 5 digits)',
+    path: '/entry/otp',
+    flow: _playerLoginFlow,
+  ),
+  ProductScenario(
+    id: 'auth.otp.sms-access',
+    label: '[Auth] 02c - SMS access sheet',
+    path: '/entry/otp',
+    askSms: true,
+    flow: _playerLoginFlow,
+  ),
+  ProductScenario(
+    id: 'auth.verify.phone',
+    label: '[Auth] 02d - Registration verify (phone)',
+    path: '/entry/verify',
+    flow: _phoneVerifyFlow,
+  ),
+  ProductScenario(
+    id: 'auth.verify.email',
+    label: '[Auth] 02e - Registration verify (email)',
+    path: '/entry/verify',
+    flow: _emailVerifyFlow,
+  ),
+  ProductScenario(
     id: 'auth.password',
-    label: '[Auth] 03 - Password Login',
+    label: '[Auth] 03 - Email password',
     path: '/entry/password',
     flow: () =>
         EmailFlowResult(_fixtureEmail(), EmailAccountStatus.registered, false),
   ),
   ProductScenario(
+    id: 'auth.password.phone',
+    label: '[Auth] 03b - Phone password',
+    path: '/entry/password',
+    flow: () => PhonePasswordFlowResult(_fixturePhone(), '09121234567', false),
+  ),
+  ProductScenario(
     id: 'auth.create-password',
-    label: '[Auth] 04 - Create Password',
+    label: '[Auth] 04 - Create password (email)',
     path: '/entry/create-password',
-    flow: () => EmailFlowResult(
-      _fixtureEmail(),
-      EmailAccountStatus.notRegistered,
-      false,
-    ),
+    flow: () => EmailNewPasswordResult(_fixtureEmail(), false),
+  ),
+  ProductScenario(
+    id: 'auth.create-password.phone',
+    label: '[Auth] 04b - Create password (phone)',
+    path: '/entry/create-password',
+    flow: () => PhoneNewPasswordResult(_fixturePhone(), false),
   ),
   ProductScenario(
     id: 'auth.forgot-password',
-    label: '[Auth] 05 - Forgot Password',
+    label: '[Auth] 05 - Email reset code',
     path: '/entry/forgot-password',
     flow: () => EmailResetFlowResult(_fixtureEmail(), _challenge(), false),
+  ),
+  ProductScenario(
+    id: 'auth.forgot.phone',
+    label: '[Auth] 05b - Phone reset code',
+    path: '/entry/forgot-password',
+    flow: () => PhoneResetFlowResult(
+      _fixturePhone(),
+      '09121234567',
+      _playerChallenge(),
+      false,
+    ),
   ),
   ProductScenario(
     id: 'auth.username',
@@ -259,6 +343,13 @@ final productScenarios = <ProductScenario>[
     '[Home] Default (2D Parallax Hero)',
     AppLocations.home,
     HomeFixture.success,
+  ),
+  _home(
+    'home.tour',
+    '[Home] First-run tour',
+    AppLocations.home,
+    HomeFixture.success,
+    tourPending: true,
   ),
   _home(
     'home.loading',
@@ -364,6 +455,12 @@ final productScenarios = <ProductScenario>[
     home: HomeFixture.success,
     details: GameDetailsFixture.success,
   ),
+  _home(
+    'game.studio',
+    '[Game Details] Studio placeholder',
+    AppLocations.studioOn(AppLocations.home, 'sample'),
+    HomeFixture.success,
+  ),
 
   // 5. In-App Legal Reader
   const ProductScenario(
@@ -402,13 +499,15 @@ ProductScenario _home(
   String id,
   String label,
   String path,
-  HomeFixture fixture,
-) => ProductScenario(
+  HomeFixture fixture, {
+  bool tourPending = false,
+}) => ProductScenario(
   id: id,
   label: label,
   path: path,
   signedIn: true,
   home: fixture,
+  tourPending: tourPending,
 );
 
 /// Mounts [scenario] on an already-built product container.
@@ -435,6 +534,21 @@ Future<void> seedProductScenario(
     container.read(appRouterProvider).go(path);
   }
   await Future<void>.delayed(Duration.zero);
+  // #region agent log
+  _scenarioLog('A', 'scenario seeded', {
+    'id': scenario.id,
+    'section': scenario.sectionId,
+    'wanted': path,
+    'actual': container.read(appRouterProvider).state.uri.path,
+    'startup': container.read(startupControllerProvider).name,
+    'splash': container.read(splashGateProvider).name,
+    'home': scenario.home?.name,
+    'freeze': scenario.freezeStartup?.name,
+  });
+  if (scenario.home != null || scenario.sectionId == 'home') {
+    unawaited(_logHomeFeed(container, scenario.id));
+  }
+  // #endregion
 }
 
 const fixtureEmailLiteral = 'fixture.player@example.com';
@@ -455,3 +569,99 @@ OtpChallenge _challenge() => OtpChallenge(
 
 AuthFlowResult _otpFlow() =>
     PhoneFlowResult(_challenge(), '09121234567', false);
+
+Phone _fixturePhone() {
+  final identifier = IdentifierClassifier.classify('09121234567');
+  if (identifier is! Phone) throw StateError('Fixture phone was rejected');
+  return identifier;
+}
+
+/// Live player SMS shape: one letter, a dash, then five digits (D-156).
+OtpChallenge _playerChallenge() => OtpChallenge(
+  challengeId: 'fixture-player-challenge',
+  codeLength: 5,
+  codePrefix: 'P-',
+  resendAfter: Duration.zero,
+  expiresAt: DateTime.utc(2026, 10, 26),
+  maskedDestination: '0912***4567',
+);
+
+AuthFlowResult _playerLoginFlow() =>
+    PhoneFlowResult(_playerChallenge(), '09121234567', false);
+
+AuthFlowResult _phoneVerifyFlow() => PhoneFlowResult(
+  _playerChallenge(),
+  '09121234567',
+  false,
+  registration: true,
+);
+
+AuthFlowResult _emailVerifyFlow() =>
+    EmailVerifyFlowResult(_fixtureEmail(), _challenge(), false);
+
+void _scenarioLog(
+  String hypothesisId,
+  String message,
+  Map<String, Object?> data,
+) {
+  // #region agent log
+  try {
+    File(r'd:\projects\My-Game\.cursor\debug-e2ebb3.log').writeAsStringSync(
+      '${jsonEncode({
+        'sessionId': 'e2ebb3',
+        'runId': 'pre-fix',
+        'hypothesisId': hypothesisId,
+        'location': 'product_scenarios.dart',
+        'message': message,
+        'data': data,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      })}\n',
+      mode: FileMode.append,
+    );
+  } catch (_) {}
+  // #endregion
+}
+
+Future<void> _logHomeFeed(ProviderContainer container, String id) async {
+  // #region agent log
+  try {
+    final repo = container.read(gamesRepositoryProvider);
+    final result = await repo.homeFeed().timeout(const Duration(seconds: 2));
+    final payload = switch (result) {
+      Success(:final value) => {
+        'ok': true,
+        'hero': value.hero != null,
+        'shelves': value.shelves.length,
+        'games': value.shelves.fold<int>(
+          0,
+          (count, shelf) => count + shelf.games.length,
+        ),
+      },
+      Failure(:final error) => {
+        'ok': false,
+        'error': error.runtimeType.toString(),
+      },
+    };
+    _scenarioLog('D', 'home feed', {
+      'id': id,
+      'repo': repo.runtimeType.toString(),
+      ...payload,
+    });
+  } catch (error) {
+    _scenarioLog('D', 'home feed failed', {
+      'id': id,
+      'error': error.runtimeType.toString(),
+    });
+  }
+  // #endregion
+}
+
+final class _ClosedSmsAccess implements OneTimeCodeAccess {
+  const _ClosedSmsAccess();
+
+  @override
+  Future<bool> granted() async => false;
+
+  @override
+  Future<bool> request() async => false;
+}

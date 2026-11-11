@@ -3,6 +3,7 @@ import 'package:mygame_p2e/core/errors/app_failure.dart';
 import '../domain/identifier.dart';
 import '../domain/models.dart';
 import '../domain/repositories.dart';
+import 'remote/users_api_client.dart';
 import 'sources.dart';
 
 Future<Result<T>> _map<T, D>(
@@ -20,7 +21,15 @@ Future<Result<T>> _map<T, D>(
       }),
       AuthDataFault.rateLimited => ValidationFailure({
         'identifier': 'rate_limited',
+        if (e.retryAfter != null && e.retryAfter!.inSeconds > 0)
+          'retry_after': '${e.retryAfter!.inSeconds}',
       }),
+      AuthDataFault.mustChangePassword => const BusinessFailure(
+        'must_change_password',
+      ),
+      AuthDataFault.loginAfterRegister => const BusinessFailure(
+        'login_after_register',
+      ),
       AuthDataFault.offline => const OfflineFailure(),
       AuthDataFault.server => const ServerFailure(),
       AuthDataFault.notConfigured => const BusinessFailure(
@@ -232,6 +241,7 @@ final class AccountSetupRepositoryImpl implements AccountSetupRepository {
     required String password,
     String? email,
     String? phone,
+    bool remember = false,
     int avatarCharacter = 0,
     int avatarTheme = 0,
     AuthCancellation? cancellation,
@@ -241,12 +251,19 @@ final class AccountSetupRepositoryImpl implements AccountSetupRepository {
       'password': password,
       'email': ?email,
       'phone': ?phone,
+      'remember': remember,
       'avatarCharacter': avatarCharacter,
       'avatarTheme': avatarTheme,
     }, cancellation),
     (_) {},
   );
 }
+
+/// Maps `GET player/profile/Mine` onto the session port (D-158).
+Future<Result<String>> readPlayerUserName(
+  UsersApiClient client,
+  AuthCancellation? cancellation,
+) => _map(() => client.playerUserName(cancellation), (name) => name);
 
 final class SocialSignInRepositoryImpl implements SocialSignInRepository {
   const SocialSignInRepositoryImpl(this.source);

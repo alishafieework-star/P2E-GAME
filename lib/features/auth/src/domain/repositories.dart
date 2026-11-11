@@ -113,10 +113,23 @@ abstract interface class AccountSetupRepository {
     required String password,
     String? email,
     String? phone,
+    bool remember = false,
     int avatarCharacter,
     int avatarTheme,
     AuthCancellation? cancellation,
   });
+}
+
+/// Whether Home may open. Remote builds ask `GET Me`. The fake journey does
+/// not have a Users session, so it allows Home after the local account step.
+abstract interface class PlayerSessionCheck {
+  Future<bool> allowsHome();
+
+  /// Public handle for Welcome Back (D-158).
+  ///
+  /// Remote reads `userName` from `GET player/profile/Mine`. Null means this
+  /// build has no Mine call, so the journey username stays (fake, gallery).
+  Future<Result<String>?> publicName({AuthCancellation? cancellation});
 }
 
 abstract interface class SocialSignInRepository {

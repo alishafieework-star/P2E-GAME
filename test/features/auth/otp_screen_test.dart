@@ -94,6 +94,94 @@ void main() {
     expect(find.byKey(const ValueKey('home.page')), findsOneWidget);
   });
 
+  testWidgets('a player code uses one letter and five digits', (tester) async {
+    addTearDown(tester.view.reset);
+    await _showOtp(
+      tester,
+      destination: '09123456789',
+      prefix: 'P-',
+      codeLength: 5,
+    );
+    expect(find.text('P-'), findsNothing);
+    expect(find.text('P'), findsNothing);
+    expect(find.text('p'), findsNothing);
+    await tester.enterText(
+      find.byKey(const ValueKey('auth.otp.code.editor')),
+      'p5006',
+    );
+    await tester.pump();
+    expect(find.text('p'), findsNothing);
+    expect(find.text('P'), findsWidgets);
+    expect(
+      tester
+          .widget<AppButton>(find.byKey(const ValueKey('auth.otp.verify')))
+          .onPressed,
+      isNull,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('auth.otp.code.editor')),
+      'P-50069',
+    );
+    await tester.pump();
+    expect(find.text('5'), findsOneWidget);
+    expect(find.text('9'), findsOneWidget);
+    expect(
+      tester
+          .widget<AppButton>(find.byKey(const ValueKey('auth.otp.verify')))
+          .onPressed,
+      isNotNull,
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('auth.otp.code.editor')),
+      '۵۰۰۶۹',
+    );
+    await tester.pump();
+    expect(find.text('۵'), findsNothing);
+    expect(find.text('5'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('auth.otp.code.editor')),
+      'Q50069',
+    );
+    await tester.pump();
+    expect(find.text('That letter does not match this code.'), findsOneWidget);
+    expect(
+      tester
+          .widget<AppButton>(find.byKey(const ValueKey('auth.otp.verify')))
+          .onPressed,
+      isNull,
+    );
+  });
+
+  testWidgets('a player SMS fills the field and leaves Verify to the player', (
+    tester,
+  ) async {
+    addTearDown(tester.view.reset);
+    final sms = _ScriptedSms();
+    await _showOtp(
+      tester,
+      destination: '09123456789',
+      prefix: 'P-',
+      codeLength: 5,
+      sms: sms,
+      format: const PlayerSmsCodeFormat(),
+    );
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(AuthOtpScreen)),
+    );
+    container.read(otpCodeListenerProvider.notifier).arm();
+    sms.add('کد شما\nP-50069\nلغو ۱۱');
+    await tester.pump();
+    expect(find.text('Check Your Inbox'), findsOneWidget);
+    expect(find.text('9'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home.page')), findsNothing);
+    expect(
+      tester
+          .widget<AppButton>(find.byKey(const ValueKey('auth.otp.verify')))
+          .onPressed,
+      isNotNull,
+    );
+  });
+
   testWidgets('the countdown reaches resend and asks for a new code', (
     tester,
   ) async {
@@ -158,7 +246,7 @@ final class _ScriptedSms implements OneTimeCodePort {
   void add(String body) => controllers.last.add(OneTimeCodeMessage(body));
 
   @override
-  Stream<OneTimeCodeEvent> listen() {
+  Stream<OneTimeCodeEvent> listen({String? sender}) {
     final next = StreamController<OneTimeCodeEvent>();
     controllers.add(next);
     return next.stream;
@@ -170,6 +258,9 @@ Future<void> _showOtp(
   required String destination,
   bool contract = false,
   _ScriptedSms? sms,
+  String prefix = '',
+  int codeLength = 6,
+  OtpSmsFormat? format,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = const Size(402, 874);
@@ -177,7 +268,7 @@ Future<void> _showOtp(
     tester,
     repositories: contract ? _OtpRepositories() : ImmediateRepositories(),
     smsPort: sms,
-    smsFormat: sms == null ? null : const DevOtpSmsFormat(),
+    smsFormat: format ?? (sms == null ? null : const DevOtpSmsFormat()),
   );
   final container = ProviderScope.containerOf(
     tester.element(find.byType(AuthEntryScreen)),
@@ -188,7 +279,8 @@ Future<void> _showOtp(
         PhoneFlowResult(
           OtpChallenge(
             challengeId: 'dev-challenge-1',
-            codeLength: 6,
+            codeLength: codeLength,
+            codePrefix: prefix,
             resendAfter: const Duration(seconds: 94),
             expiresAt: DateTime.utc(2026, 10, 24),
             maskedDestination: '+98 ••• ••• 6789',

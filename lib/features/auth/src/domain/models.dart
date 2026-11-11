@@ -14,8 +14,9 @@ final class OtpChallenge {
   });
   final String challengeId, maskedDestination;
 
-  /// Server prefix such as `GAME-`. The field collects [codeLength] digits
-  /// only; the remote source sends `codePrefix + digits` (D-152).
+  /// Server prefix such as `P-` or `GAME-`. The remote source sends
+  /// `codePrefix + digits` (D-152). A `P-` player code shows the letter in the
+  /// field (D-156).
   final String codePrefix;
 
   /// Digit count (`codeDigits`), not the length of the prefixed code.

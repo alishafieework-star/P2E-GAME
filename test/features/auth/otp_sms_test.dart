@@ -30,6 +30,7 @@ void main() {
 
   test('platform event mapping does not keep a timeout as a message', () {
     expect(mapOtpSmsEvent('timeout'), isA<OneTimeCodeTimeout>());
+    expect(mapOtpSmsEvent('consent_denied'), isA<OneTimeCodeConsentDenied>());
     expect(mapOtpSmsEvent('unavailable'), isA<OneTimeCodeUnavailable>());
     expect(mapOtpSmsEvent(''), isA<OneTimeCodeUnavailable>());
     expect(
@@ -67,7 +68,7 @@ final class _ScriptedCode implements OneTimeCodePort {
   void add(String body) => controllers.last.add(OneTimeCodeMessage(body));
 
   @override
-  Stream<OneTimeCodeEvent> listen() {
+  Stream<OneTimeCodeEvent> listen({String? sender}) {
     listens++;
     final next = StreamController<OneTimeCodeEvent>(
       onCancel: () => cancelled++,

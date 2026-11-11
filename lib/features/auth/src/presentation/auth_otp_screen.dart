@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:p2e_design_system/design_system.dart';
 
+import '../../../../app/platform/agent_debug_log.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/formatting/digits.dart';
 import '../../../../shared/platform/one_time_code.dart';
@@ -13,10 +14,12 @@ import '../../../../shared/preferences/device_preferences.dart';
 import 'auth_entry_screen.dart';
 import 'account_journey_screens.dart';
 import 'auth_flow.dart';
+import '../domain/player_sms_code.dart';
 import 'auth_otp_controller.dart';
 import 'email_display.dart';
 import 'otp_code_listener.dart';
 import 'entry/widgets/auth_entry_widgets.dart';
+import 'otp/player_otp_input.dart';
 import 'otp/widgets/otp_prompt_row.dart';
 import 'otp/sms_access_sheet.dart';
 
@@ -29,6 +32,7 @@ class AuthOtpScreen extends ConsumerStatefulWidget {
 class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
   final code = TextEditingController();
   final focus = FocusNode();
+  String? _keyboardLogKey;
 
   @override
   void initState() {
@@ -36,6 +40,7 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       applySms(ref.read(otpCodeListenerProvider));
+      seedPrefix();
       unawaited(offerSmsAccess());
     });
   }
@@ -65,18 +70,26 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
     super.dispose();
   }
 
-  /// D-074: a code taken from one SMS fills the field and submits it.
+  /// D-074: a development SMS code fills the field and submits it.
+  /// D-156: a player SMS code (`P-` plus five digits) only fills the field.
   void applySms(String? next) {
     final current = ref.read(authOtpControllerProvider);
-    final length = current.challenge?.codeLength;
-    if (next == null ||
-        current.verified ||
-        current.busy ||
-        length == null ||
-        next.length != length ||
-        next == code.text) {
+    final challenge = current.challenge;
+    if (next == null || current.verified || current.busy || challenge == null) {
       return;
     }
+    if (PlayerSmsCode.isSegmented(challenge)) {
+      final field = PlayerSmsCode.fieldFor(next, challenge);
+      if (field == null || field == code.text) return;
+      code.value = TextEditingValue(
+        text: field,
+        selection: TextSelection.collapsed(offset: field.length),
+      );
+      ref.read(authOtpControllerProvider.notifier).codeChanged(field);
+      return;
+    }
+    final length = challenge.codeLength;
+    if (next.length != length || next == code.text) return;
     code.value = TextEditingValue(
       text: next,
       selection: TextSelection.collapsed(offset: next.length),
@@ -86,8 +99,34 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
     unawaited(controller.verify(next));
   }
 
+  void seedPrefix() {
+    final challenge = ref.read(authOtpControllerProvider).challenge;
+    final segmented =
+        challenge != null && PlayerSmsCode.isSegmented(challenge);
+    final prefix = challenge?.codePrefix ?? '';
+    final willSeed = segmented && code.text.isEmpty;
+    // #region agent log
+    agentDebugLog(
+      location: 'auth_otp_screen.dart:seedPrefix',
+      message: 'seed prefix decision',
+      hypothesisId: 'H1',
+      data: {
+        'segmented': segmented,
+        'prefixLen': prefix.length,
+        'prefixShape': RegExp(r'^[A-Za-z]-$').hasMatch(prefix)
+            ? 'letter-dash'
+            : prefix.isEmpty
+            ? 'empty'
+            : 'other',
+        'textLenBefore': code.text.length,
+        'willSeed': willSeed,
+      },
+    );
+    // #endregion
+  }
+
   void leave() {
-    ref.read(otpCodeListenerProvider.notifier).stop();
+    ref.read(otpCodeListenerProvider.notifier).invalidate();
     ref.read(authFlowProvider.notifier).clear();
     if (context.canPop()) {
       context.pop();
@@ -111,7 +150,10 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
     final state = ref.watch(authOtpControllerProvider);
     final controller = ref.read(authOtpControllerProvider.notifier);
     ref.listen(authOtpControllerProvider, (previous, next) {
-      if (previous != null && previous.epoch != next.epoch) code.clear();
+      if (previous != null && previous.epoch != next.epoch) {
+        code.clear();
+        seedPrefix();
+      }
       if (next.advance != AuthOtpAdvance.none &&
           previous?.advance != next.advance) {
         context.go(switch (next.advance) {
@@ -125,6 +167,29 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
       }
     });
     ref.listen(otpCodeListenerProvider, (previous, next) => applySms(next));
+    final segmented =
+        state.challenge != null && PlayerSmsCode.isSegmented(state.challenge!);
+    final hasLetter = RegExp(r'^[A-Za-z]').hasMatch(code.text);
+    final keyboardName = segmented && hasLetter ? 'number' : 'text';
+    final keyboardLogKey =
+        '$segmented|${code.text.length}|$keyboardName|${state.challenge?.codePrefix.length ?? -1}';
+    if (_keyboardLogKey != keyboardLogKey) {
+      _keyboardLogKey = keyboardLogKey;
+      // #region agent log
+      agentDebugLog(
+        location: 'auth_otp_screen.dart:build',
+        message: 'otp keyboard choice',
+        hypothesisId: 'H3',
+        data: {
+          'segmented': segmented,
+          'textLen': code.text.length,
+          'keyboard': keyboardName,
+          'prefixLabel':
+              !segmented && (state.challenge?.codePrefix ?? '').isNotEmpty,
+        },
+      );
+      // #endregion
+    }
     final flow = ref.watch(authFlowProvider);
     final reset = flow is EmailResetFlowResult;
     final shownDestination = reset
@@ -204,7 +269,8 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if ((state.challenge?.codePrefix ?? '').isNotEmpty)
+                      if (!segmented &&
+                          (state.challenge?.codePrefix ?? '').isNotEmpty)
                         Padding(
                           padding: const EdgeInsetsDirectional.only(
                             bottom: AuthEntryTokens.dividerGap,
@@ -221,19 +287,29 @@ class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
                       AppOtpField(
                         elementId: 'auth.otp.code',
                         label: strings.authOtpLabel,
-                        length: state.challenge?.codeLength ?? 6,
+                        length: segmented
+                            ? 1 + state.challenge!.codeLength
+                            : state.challenge?.codeLength ?? 6,
                         controller: code,
                         focusNode: focus,
                         enabled: !state.busy && !state.verified,
                         readOnly: state.verified,
                         feedbackTone: AppOtpFeedbackTone.status,
                         sourceDivider: true,
-                        keyboardType: TextInputType.text,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp('[A-Za-z0-9]'),
-                          ),
-                        ],
+                        keyboardType: keyboardName == 'number'
+                            ? TextInputType.number
+                            : TextInputType.text,
+                        inputFormatters: segmented
+                            ? [
+                                PlayerOtpInputFormatter(
+                                  PlayerSmsCode.letterOf(state.challenge!),
+                                ),
+                              ]
+                            : [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[A-Za-z0-9]'),
+                                ),
+                              ],
                         feedback: state.verified
                             ? const FieldFeedback.success()
                             : state.fieldError == null

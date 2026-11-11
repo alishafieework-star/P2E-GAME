@@ -464,52 +464,118 @@ class InspectorHostState extends State<InspectorHost>
 
   Widget _buildScenarioBar() {
     final catalog = widget.scenarioCatalog;
-    if (catalog == null) return const SizedBox.shrink();
+    if (catalog == null || catalog.scenarios.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final sectionIds = <String>[];
+    for (final scenario in catalog.scenarios) {
+      if (!sectionIds.contains(scenario.sectionId)) {
+        sectionIds.add(scenario.sectionId);
+      }
+    }
+    final active = catalog.scenarios
+        .where((scenario) => scenario.id == catalog.activeId)
+        .firstOrNull;
+    final sectionId = active?.sectionId ?? sectionIds.first;
+    final states = [
+      for (final scenario in catalog.scenarios)
+        if (scenario.sectionId == sectionId) scenario,
+    ];
     return Container(
       padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 12, 6),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: Colors.white12, width: 1)),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Text(
-            '${toolCopy('scenarioLabel')}: ',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          _scenarioMenu(
+            label: toolCopy('scenarioSection'),
+            menuKey: const ValueKey('scenario-section'),
+            value: sectionId,
+            entries: [for (final id in sectionIds) (id, _sectionLabel(id))],
+            onChanged: (id) {
+              if (id == null || id == sectionId) return;
+              final first = catalog.scenarios.firstWhere(
+                (scenario) => scenario.sectionId == id,
+              );
+              catalog.activate(first.id);
+            },
           ),
-          Expanded(
-            child: DropdownButton<String>(
-              key: const ValueKey('scenario'),
-              isExpanded: true,
-              isDense: true,
-              underline: const SizedBox.shrink(),
-              value:
-                  catalog.scenarios.any(
-                    (scenario) => scenario.id == catalog.activeId,
-                  )
-                  ? catalog.activeId
-                  : null,
-              hint: Text(toolCopy('scenarioLabel')),
-              items: [
-                for (final scenario in catalog.scenarios)
-                  DropdownMenuItem(
-                    value: scenario.id,
-                    child: Text(
-                      scenario.label,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-              ],
-              onChanged: (id) {
-                if (id != null) {
-                  catalog.activate(id);
-                }
-              },
-            ),
+          _scenarioMenu(
+            label: toolCopy('scenarioState'),
+            menuKey: const ValueKey('scenario'),
+            value: states.any((scenario) => scenario.id == catalog.activeId)
+                ? catalog.activeId
+                : states.first.id,
+            entries: [
+              for (final scenario in states)
+                (scenario.id, _stateLabel(scenario.label)),
+            ],
+            onChanged: (id) {
+              if (id != null) catalog.activate(id);
+            },
           ),
         ],
       ),
     );
+  }
+
+  Widget _scenarioMenu({
+    required String label,
+    required Key menuKey,
+    required String? value,
+    required List<(String, String)> entries,
+    required ValueChanged<String?> onChanged,
+  }) => Row(
+    children: [
+      SizedBox(
+        width: 72,
+        child: Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        ),
+      ),
+      Expanded(
+        child: DropdownButton<String>(
+          key: menuKey,
+          isExpanded: true,
+          isDense: true,
+          underline: const SizedBox.shrink(),
+          value: value,
+          items: [
+            for (final entry in entries)
+              DropdownMenuItem(
+                value: entry.$1,
+                child: Text(
+                  entry.$2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+          ],
+          onChanged: onChanged,
+        ),
+      ),
+    ],
+  );
+
+  String _sectionLabel(String id) => toolCopy(switch (id) {
+    'startup' => 'sectionStartup',
+    'onboarding' => 'sectionOnboarding',
+    'auth' => 'sectionAuth',
+    'home' => 'sectionHome',
+    'missions' => 'sectionMissions',
+    'games' => 'sectionGames',
+    'leaderboard' => 'sectionLeaderboard',
+    'shop' => 'sectionShop',
+    'legal' => 'sectionLegal',
+    'designSystem' => 'sectionDesignSystem',
+    _ => throw ArgumentError.value(id, 'sectionId'),
+  });
+
+  String _stateLabel(String label) {
+    final mark = label.indexOf('] ');
+    return mark == -1 ? label : label.substring(mark + 2);
   }
 
   Widget _buildDevicePanel(BuildContext context) => SingleChildScrollView(

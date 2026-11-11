@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:mygame_p2e/app/platform/agent_debug_log.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -97,14 +98,34 @@ class AuthEntryController extends _$AuthEntryController {
     if (raw == state.raw) return;
     _request?.cancel();
     _revision++;
+    final identifier = IdentifierClassifier.classify(raw);
     state = state.copyWith(
       raw: raw,
-      identifier: IdentifierClassifier.classify(raw),
+      identifier: identifier,
       submission: AuthSubmission.idle,
       fieldError: null,
       toast: null,
       destination: null,
     );
+    final hasPersian = raw.runes.any((r) => r >= 0x06f0 && r <= 0x06f9);
+    final hasArabic = raw.runes.any((r) => r >= 0x0660 && r <= 0x0669);
+    if (identifier is Phone || raw.length >= 10) {
+      // #region agent log
+      agentDebugLog(
+        location: 'auth_entry_controller.dart:identifierChanged',
+        message: 'identifier classified',
+        hypothesisId: 'P1',
+        data: {
+          'kind': identifier.runtimeType.toString(),
+          'hasPersianDigits': hasPersian,
+          'hasArabicDigits': hasArabic,
+          'e164Ascii': identifier is Phone
+              ? identifier.e164.codeUnits.every((c) => c < 128)
+              : null,
+        },
+      );
+      // #endregion
+    }
   }
 
   void rememberToggled() {
@@ -146,6 +167,18 @@ class AuthEntryController extends _$AuthEntryController {
     );
     final Result<AuthFlowResult> result;
     if (identifier is Phone) {
+      // #region agent log
+      agentDebugLog(
+        location: 'auth_entry_controller.dart:submit',
+        message: 'phone submit',
+        hypothesisId: 'P2',
+        data: {
+          'rawHasPersian': raw.runes.any((r) => r >= 0x06f0 && r <= 0x06f9),
+          'e164Ascii': identifier.e164.codeUnits.every((c) => c < 128),
+          'wireLen': identifier.e164.length,
+        },
+      );
+      // #endregion
       final phones = ref.read(phoneSignInRepositoryProvider);
       final status = await phones.checkPhone(identifier, cancellation: token);
       if (!ref.mounted || token.isCancelled || revision != _revision) return;
@@ -154,6 +187,14 @@ class AuthEntryController extends _$AuthEntryController {
         return;
       }
       final account = (status as Success<PhoneAccountStatus>).value;
+      // #region agent log
+      agentDebugLog(
+        location: 'auth_entry_controller.dart:submit',
+        message: 'phone account branch',
+        hypothesisId: 'H3',
+        data: {'account': account.toString(), 'otpPath': account != PhoneAccountStatus.registeredWithPassword},
+      );
+      // #endregion
       if (account == PhoneAccountStatus.registeredWithPassword) {
         ref
             .read(authFlowProvider.notifier)
@@ -239,6 +280,7 @@ class AuthEntryController extends _$AuthEntryController {
   }
 
   void _fail(AppFailure failure) {
+    ref.read(otpCodeListenerProvider.notifier).invalidate();
     final mapped = AuthFailureMapper.map(failure);
     state = state.copyWith(
       submission: AuthSubmission.failure,

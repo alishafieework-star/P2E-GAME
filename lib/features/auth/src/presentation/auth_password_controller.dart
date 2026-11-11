@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -5,6 +7,7 @@ import 'package:mygame_p2e/shared/preferences/device_preferences.dart';
 
 import '../domain/identifier.dart';
 import '../domain/models.dart';
+import 'account_setup.dart';
 import 'auth_entry_controller.dart';
 import 'auth_flow.dart';
 import 'auth_messages.dart';
@@ -27,6 +30,8 @@ final class AuthPasswordState {
     this.toastSerial = 0,
     this.resetSerial = 0,
     this.welcomeSerial = 0,
+    this.changeSerial = 0,
+    this.lockSeconds = 0,
   });
   final Email? email;
   final Phone? phone;
@@ -35,9 +40,13 @@ final class AuthPasswordState {
   final int length;
   final AuthSubmission submission;
   final AuthMessage? fieldError, toast;
-  final int toastSerial, resetSerial, welcomeSerial;
+  final int toastSerial, resetSerial, welcomeSerial, changeSerial, lockSeconds;
   bool get busy => submission == AuthSubmission.loading;
-  bool get canSubmit => (email != null || phone != null) && !busy && length > 0;
+  bool get canSubmit =>
+      (email != null || phone != null) &&
+      !busy &&
+      length > 0 &&
+      lockSeconds <= 0;
 
   AuthPasswordState copyWith({
     Email? email,
@@ -51,6 +60,8 @@ final class AuthPasswordState {
     int? toastSerial,
     int? resetSerial,
     int? welcomeSerial,
+    int? changeSerial,
+    int? lockSeconds,
   }) => AuthPasswordState(
     email: email ?? this.email,
     phone: phone ?? this.phone,
@@ -65,6 +76,8 @@ final class AuthPasswordState {
     toastSerial: toastSerial ?? this.toastSerial,
     resetSerial: resetSerial ?? this.resetSerial,
     welcomeSerial: welcomeSerial ?? this.welcomeSerial,
+    changeSerial: changeSerial ?? this.changeSerial,
+    lockSeconds: lockSeconds ?? this.lockSeconds,
   );
 }
 
@@ -73,11 +86,15 @@ final class AuthPasswordState {
 @riverpod
 class AuthPasswordController extends _$AuthPasswordController {
   AuthCancellation? _request;
+  Timer? _lock;
   int _revision = 0;
 
   @override
   AuthPasswordState build() {
-    ref.onDispose(() => _request?.cancel());
+    ref.onDispose(() {
+      _request?.cancel();
+      _lock?.cancel();
+    });
     final flow = ref.read(authFlowProvider);
     final email = flow is EmailFlowResult ? flow : null;
     final phone = flow is PhonePasswordFlowResult ? flow : null;
@@ -128,6 +145,23 @@ class AuthPasswordController extends _$AuthPasswordController {
                 cancellation: token,
               );
     if (!ref.mounted || token.isCancelled || revision != _revision) return;
+    if (result is Failure<void> &&
+        result.error is BusinessFailure &&
+        (result.error as BusinessFailure).code == 'must_change_password') {
+      ref
+          .read(authFlowProvider.notifier)
+          .accept(
+            phone != null
+                ? PhoneNewPasswordResult(phone, state.remember)
+                : EmailNewPasswordResult(email!, state.remember),
+          );
+      state = state.copyWith(
+        submission: AuthSubmission.idle,
+        length: 0,
+        changeSerial: state.changeSerial + 1,
+      );
+      return;
+    }
     switch (result) {
       case Success<void>():
         if (state.remember && state.label.isNotEmpty) {
@@ -143,14 +177,27 @@ class AuthPasswordController extends _$AuthPasswordController {
                 ),
               );
         }
-        if (!ref.mounted) return;
-        ref
-            .read(authFlowProvider.notifier)
-            .accept(const AccountJourney(AuthStep.welcomeBack));
-        state = state.copyWith(
-          submission: AuthSubmission.idle,
-          welcomeSerial: state.welcomeSerial + 1,
-        );
+        if (!ref.mounted || token.isCancelled || revision != _revision) {
+          return;
+        }
+        final handle = await welcomeHandle(ref, cancellation: token);
+        if (!ref.mounted || token.isCancelled || revision != _revision) {
+          return;
+        }
+        switch (handle) {
+          case Failure(:final error):
+            _fail(error);
+          case Success(:final value):
+            ref
+                .read(authFlowProvider.notifier)
+                .accept(
+                  AccountJourney(AuthStep.welcomeBack, username: value ?? ''),
+                );
+            state = state.copyWith(
+              submission: AuthSubmission.idle,
+              welcomeSerial: state.welcomeSerial + 1,
+            );
+        }
       case Failure<void>(:final error):
         _fail(error);
     }
@@ -210,12 +257,31 @@ class AuthPasswordController extends _$AuthPasswordController {
 
   void _fail(AppFailure failure) {
     final mapped = AuthFailureMapper.map(failure);
+    final retry = failure is ValidationFailure
+        ? int.tryParse(failure.fields['retry_after'] ?? '')
+        : null;
     state = state.copyWith(
       submission: AuthSubmission.failure,
       fieldError: mapped.field,
       toast: mapped.toast,
       toastSerial: state.toastSerial + 1,
+      lockSeconds: retry != null && retry > 0 ? retry : 0,
     );
+    _lock?.cancel();
+    if (retry == null || retry <= 0) return;
+    _lock = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!ref.mounted) {
+        timer.cancel();
+        return;
+      }
+      final next = state.lockSeconds - 1;
+      if (next <= 0) {
+        timer.cancel();
+        state = state.copyWith(lockSeconds: 0);
+      } else {
+        state = state.copyWith(lockSeconds: next);
+      }
+    });
   }
 
   /// Toast dismissal (auto or by the player): only the toast goes; a visible

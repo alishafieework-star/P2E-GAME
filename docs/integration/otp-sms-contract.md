@@ -1,7 +1,11 @@
-# OTP SMS contract — D-071
+# OTP SMS contract — D-156
 
-Provisional development contract. The production message pattern is not defined.
-Remote product builds do not autofill until that pattern exists.
+Player SMS codes are one letter, a dash and five digits (`P-50069`). The field
+shows the letter, the OTP divider and five digit cells. Verify sends the digits;
+the data layer adds `codePrefix` once. Autofill fills the field and does not
+press Verify. Android listens with SMS User Consent for `+9810000001950` before
+the send. iOS uses the oneTimeCode keyboard suggestion. The development
+`MyGame code:` pattern remains only for the fake backend.
 
 ## Message
 
@@ -24,10 +28,11 @@ or logged.
 
 ## Platforms
 
-Android uses SMS Retriever and fills the field without a prompt (PE-003). iOS
-offers the oneTimeCode keyboard suggestion and does not read the inbox. One
-parsed SMS code also submits itself (D-074). Typing still needs the button.
-The listener starts before the send request and before resend.
+Android uses SMS User Consent and asks before reading that one message (PE-005).
+iOS offers the oneTimeCode keyboard suggestion and does not read the inbox.
+A player code does not submit itself. The development pattern still submits
+(D-074). Typing still needs the button. The listener starts before the send
+request and before resend.
 
 `adb emu sms send` can place a development message on an emulator. It does not
 prove Retriever on a device. That proof needs a real SMS, Play Services and the

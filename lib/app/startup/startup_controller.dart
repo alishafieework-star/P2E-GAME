@@ -26,6 +26,10 @@ final splashGateProvider = NotifierProvider<SplashGateController, SplashGate>(
   SplashGateController.new,
 );
 
+/// Optional host cue. The two startup scenario ids replay the logo on the
+/// already-mounted overlay; every other value leaves the current play alone.
+final splashCueProvider = Provider<String?>((_) => null);
+
 /// Architecture §11.3: gates derive only from shared read models.
 @riverpod
 class StartupController extends _$StartupController {

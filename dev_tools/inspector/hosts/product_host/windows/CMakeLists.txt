@@ -55,6 +55,9 @@ add_subdirectory("runner")
 
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
+# flutter_secure_storage_windows includes <atlstr.h>. Build Tools on this
+# machine has no ATL component, so the host supplies CA2W/CW2A only.
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/atl_compat")
 include(flutter/generated_plugins.cmake)
 
 

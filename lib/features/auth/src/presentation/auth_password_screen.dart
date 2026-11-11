@@ -31,6 +31,13 @@ class _AuthPasswordScreenState extends ConsumerState<AuthPasswordScreen> {
     super.dispose();
   }
 
+  Future<void> _submit(AuthPasswordController controller) async {
+    final value = password.text;
+    password.clear();
+    controller.changed('');
+    await controller.submit(value);
+  }
+
   void leave() {
     ref.read(authFlowProvider.notifier).clear();
     if (context.canPop()) {
@@ -51,6 +58,10 @@ class _AuthPasswordScreenState extends ConsumerState<AuthPasswordScreen> {
       }
       if (previous != null && next.welcomeSerial != previous.welcomeSerial) {
         context.go(authStepPath(AuthStep.welcomeBack));
+      }
+      if (previous != null && next.changeSerial != previous.changeSerial) {
+        password.clear();
+        context.go(authStepPath(AuthStep.createPassword));
       }
     });
     final roles = SkinTheme.of(context).valuesFor(Theme.of(context).brightness);
@@ -147,8 +158,7 @@ class _AuthPasswordScreenState extends ConsumerState<AuthPasswordScreen> {
                                 ),
                           onChanged: controller.changed,
                           onSubmitted: state.canSubmit
-                              ? (_) =>
-                                    unawaited(controller.submit(password.text))
+                              ? (_) => unawaited(_submit(controller))
                               : null,
                         ),
                       ),
@@ -185,7 +195,7 @@ class _AuthPasswordScreenState extends ConsumerState<AuthPasswordScreen> {
                     loading: state.busy,
                     loadingSemanticsLabel: strings.authLoading,
                     onPressed: state.canSubmit
-                        ? () => unawaited(controller.submit(password.text))
+                        ? () => unawaited(_submit(controller))
                         : null,
                   ),
                   if (state.toast != null)

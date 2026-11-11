@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart' show Override;
+
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:mygame_p2e/app/app.dart';
 import 'package:mygame_p2e/app/bootstrap.dart';
 import 'package:mygame_p2e/app/config/app_config.dart';
+import 'package:mygame_p2e/app/startup/startup_controller.dart';
 import 'package:mygame_p2e/core/platform/device_inputs.dart';
 import 'package:mygame_p2e/features/auth/auth_data.dart';
 import 'package:mygame_p2e/l10n/generated/app_localizations.dart';
@@ -34,8 +39,44 @@ class ProductSensorDriver implements InspectorSensorDriver {
   }
 }
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final config = AppConfig.fromEnvironment();
+  if (config.backendMode == BackendMode.fake) {
+    await startDevFakeStack(config);
+    // #region agent log
+    try {
+      final sample = await rootBundle.load(
+        'packages/mygame_p2e/docs/snapshots/2026-10-24_home/assets/hero_background.jpg',
+      );
+      File(r'd:\projects\My-Game\.cursor\debug-e2ebb3.log').writeAsStringSync(
+        '${jsonEncode({
+          'sessionId': 'e2ebb3',
+          'runId': 'post-fix',
+          'hypothesisId': 'F',
+          'location': 'product_host/main.dart',
+          'message': 'fake media stack started',
+          'data': {'heroBytes': sample.lengthInBytes},
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+        })}\n',
+        mode: FileMode.append,
+      );
+    } catch (error) {
+      File(r'd:\projects\My-Game\.cursor\debug-e2ebb3.log').writeAsStringSync(
+        '${jsonEncode({
+          'sessionId': 'e2ebb3',
+          'runId': 'post-fix',
+          'hypothesisId': 'F',
+          'location': 'product_host/main.dart',
+          'message': 'hero asset missing',
+          'data': {'error': error.runtimeType.toString()},
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+        })}\n',
+        mode: FileMode.append,
+      );
+    }
+    // #endregion
+  }
   runApp(const ProductInspectionHost());
 }
 
@@ -129,7 +170,11 @@ class _ProductInspectionHostState extends State<ProductInspectionHost> {
       activate: openScenario,
       scenarios: [
         for (final item in productScenarios)
-          InspectionScenarioRef(id: item.id, label: item.label),
+          InspectionScenarioRef(
+            id: item.id,
+            label: item.label,
+            sectionId: item.sectionId,
+          ),
       ],
     ),
     controls: Row(
@@ -158,6 +203,7 @@ class _ProductInspectionHostState extends State<ProductInspectionHost> {
       config: AppConfig.fromEnvironment(),
       includeHomeBindings: productScenarioById(scenarioId).home == null,
       providerOverrides: [
+        splashCueProvider.overrideWithValue(scenarioId),
         ...scenarioOverrides(),
         deviceLocalesProvider.overrideWithBuild(
           (ref, notifier) => settings.locales,

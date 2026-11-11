@@ -18,25 +18,30 @@ final class OneTimeCodeUnavailable extends OneTimeCodeEvent {
   const OneTimeCodeUnavailable();
 }
 
+/// The player declined the one-message consent dialog (D-156).
+final class OneTimeCodeConsentDenied extends OneTimeCodeEvent {
+  const OneTimeCodeConsentDenied();
+}
+
 abstract interface class OneTimeCodePort {
   /// A new listen replaces the previous one. Cancelling the subscription
-  /// stops the platform listener.
-  Stream<OneTimeCodeEvent> listen();
+  /// stops the platform listener. [sender] is the Android consent filter.
+  Stream<OneTimeCodeEvent> listen({String? sender});
 }
 
 /// Safe default so auth tests run without a platform adapter.
 final class SilentOneTimeCode implements OneTimeCodePort {
   const SilentOneTimeCode();
   @override
-  Stream<OneTimeCodeEvent> listen() => const Stream.empty();
+  Stream<OneTimeCodeEvent> listen({String? sender}) => const Stream.empty();
 }
 
 final oneTimeCodePortProvider = Provider<OneTimeCodePort>(
   (_) => const SilentOneTimeCode(),
 );
 
-/// Runtime access to incoming one-time-code SMS. Debug Android builds need the
-/// RECEIVE_SMS permission (PE-003); every other build is always granted.
+/// Runtime access to incoming one-time-code SMS. SMS User Consent needs no
+/// inbox permission (PE-005).
 abstract interface class OneTimeCodeAccess {
   Future<bool> granted();
   Future<bool> request();

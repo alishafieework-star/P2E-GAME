@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:mygame_p2e/app/platform/agent_debug_log.dart';
+import 'package:mygame_p2e/core/diagnostics/app_logger.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:p2e_design_system/design_system.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../domain/identifier.dart';
 import '../domain/models.dart';
+import '../domain/player_sms_code.dart';
+import 'account_setup.dart';
 import 'auth_entry_controller.dart';
 import 'auth_flow.dart';
 import 'auth_messages.dart';
@@ -45,7 +49,9 @@ final class AuthOtpState {
       challenge != null &&
       !busy &&
       !verified &&
-      codeLength == challenge!.codeLength;
+      codeLength == challenge!.codeLength &&
+      fieldError != AuthMessage.prefixMismatch &&
+      !(fieldError == AuthMessage.rateLimited && remaining > 0);
   bool get canResend =>
       challenge != null && !busy && !verified && remaining <= 0;
 
@@ -101,6 +107,7 @@ class AuthOtpController extends _$AuthOtpController {
       PhoneResetFlowResult(:final challenge) => challenge,
       EmailVerifyFlowResult(:final challenge) => challenge,
       EmailResetFlowResult(:final challenge) => challenge,
+      AccountJourney(:final challenge) => challenge,
       _ => null,
     };
     final destination = switch (flow) {
@@ -108,9 +115,22 @@ class AuthOtpController extends _$AuthOtpController {
       PhoneResetFlowResult(:final displayDestination) => displayDestination,
       EmailVerifyFlowResult(:final email) => email.normalized,
       EmailResetFlowResult(:final email) => email.normalized,
+      AccountJourney(:final phoneRaw) => phoneRaw,
       _ => '',
     };
     final remaining = challenge?.resendAfter.inSeconds ?? 0;
+    if (challenge != null &&
+        RegExp(r'^[A-Za-z]-$').hasMatch(challenge.codePrefix) &&
+        !PlayerSmsCode.isSegmented(challenge)) {
+      AppLogger().log(
+        LogLevel.warning,
+        'otp',
+        fields: {
+          'event': 'code_digits_mismatch',
+          'codeDigits': challenge.codeLength,
+        },
+      );
+    }
     _arm(remaining);
     return AuthOtpState(
       challenge: challenge,
@@ -132,14 +152,33 @@ class AuthOtpController extends _$AuthOtpController {
 
   void codeChanged(String value) {
     if (state.verified) return;
+    final challenge = state.challenge;
+    final segmented = challenge != null && PlayerSmsCode.isSegmented(challenge);
     state = state.copyWith(
-      codeLength: value.length,
-      fieldError: null,
+      codeLength: segmented ? PlayerSmsCode.digitsIn(value) : value.length,
+      fieldError:
+          challenge != null && PlayerSmsCode.letterMismatch(value, challenge)
+          ? AuthMessage.prefixMismatch
+          : null,
       toast: null,
     );
   }
 
   Future<void> resend() async {
+    // #region agent log
+    agentDebugLog(
+      location: 'auth_otp_controller.dart:resend',
+      message: 'resend tapped',
+      hypothesisId: 'R1',
+      data: {
+        'canResend': state.canResend,
+        'remaining': state.remaining,
+        'busy': state.busy,
+        'verified': state.verified,
+        'hasChallenge': state.challenge != null,
+      },
+    );
+    // #endregion
     if (!state.canResend) return;
     final flow = ref.read(authFlowProvider);
     _hold?.cancel();
@@ -160,6 +199,20 @@ class AuthOtpController extends _$AuthOtpController {
     if (!ref.mounted || token.isCancelled || revision != _revision) return;
     switch (result) {
       case Success<OtpChallenge>(:final value):
+        // #region agent log
+        agentDebugLog(
+          location: 'auth_otp_controller.dart:resend',
+          message: 'resend succeeded',
+          hypothesisId: 'R2',
+          data: {
+            'newRemaining': value.resendAfter.inSeconds,
+            'digitCount': value.codeLength,
+            'prefixShape': RegExp(r'^[A-Za-z]-$').hasMatch(value.codePrefix)
+                ? 'letter-dash'
+                : 'other',
+          },
+        );
+        // #endregion
         final remaining = value.resendAfter.inSeconds;
         state = state.copyWith(
           challenge: value,
@@ -170,16 +223,25 @@ class AuthOtpController extends _$AuthOtpController {
         );
         _arm(remaining);
       case Failure<OtpChallenge>(:final error):
+        // #region agent log
+        agentDebugLog(
+          location: 'auth_otp_controller.dart:resend',
+          message: 'resend failed',
+          hypothesisId: 'R2',
+          data: {'fault': error.runtimeType.toString()},
+        );
+        // #endregion
+        ref.read(otpCodeListenerProvider.notifier).invalidate();
         _fail(error);
     }
   }
 
   Future<void> verify(String code) async {
     final challenge = state.challenge;
-    if (challenge == null ||
-        state.busy ||
-        state.verified ||
-        code.length != challenge.codeLength) {
+    final wire = challenge == null
+        ? null
+        : PlayerSmsCode.wireDigits(code, challenge);
+    if (challenge == null || wire == null || state.busy || state.verified) {
       return;
     }
     _hold?.cancel();
@@ -194,18 +256,18 @@ class AuthOtpController extends _$AuthOtpController {
       advance: AuthOtpAdvance.none,
     );
     final flow = ref.read(authFlowProvider);
-    final result = await _verify(flow, challenge, code, token);
+    final result = await _verify(flow, challenge, wire, token);
     if (!ref.mounted || token.isCancelled || revision != _revision) return;
     switch (result) {
       case Success<void>():
-        ref.read(otpCodeListenerProvider.notifier).stop();
+        ref.read(otpCodeListenerProvider.notifier).invalidate();
         state = state.copyWith(
           submission: AuthSubmission.idle,
           verified: true,
           fieldError: null,
         );
         _hold?.cancel();
-        _hold = Timer(AuthOtpMotion.successHold, () {
+        _hold = Timer(AuthOtpMotion.successHold, () async {
           if (!ref.mounted || revision != _revision || !state.verified) return;
           final current = ref.read(authFlowProvider);
           if (current is EmailResetFlowResult) {
@@ -253,10 +315,22 @@ class AuthOtpController extends _$AuthOtpController {
             state = state.copyWith(advance: AuthOtpAdvance.username);
             return;
           }
-          ref
-              .read(authFlowProvider.notifier)
-              .accept(const AccountJourney(AuthStep.welcomeBack));
-          state = state.copyWith(advance: AuthOtpAdvance.welcomeBack);
+          final handle = await welcomeHandle(ref);
+          if (!ref.mounted || revision != _revision || !state.verified) {
+            return;
+          }
+          switch (handle) {
+            case Failure(:final error):
+              state = state.copyWith(verified: false);
+              _fail(error);
+            case Success(:final value):
+              ref
+                  .read(authFlowProvider.notifier)
+                  .accept(
+                    AccountJourney(AuthStep.welcomeBack, username: value ?? ''),
+                  );
+              state = state.copyWith(advance: AuthOtpAdvance.welcomeBack);
+          }
         });
       case Failure<void>(:final error):
         _fail(error);
@@ -334,6 +408,11 @@ class AuthOtpController extends _$AuthOtpController {
           .read(phoneSignInRepositoryProvider)
           .verifyPhoneReset(challenge, code, cancellation: token);
     }
+    if (flow is AccountJourney) {
+      return ref
+          .read(phoneSignInRepositoryProvider)
+          .verifyOtp(challenge, code, cancellation: token);
+    }
     return ref
         .read(phoneSignInRepositoryProvider)
         .verifyOtp(challenge, code, cancellation: token);
@@ -341,12 +420,22 @@ class AuthOtpController extends _$AuthOtpController {
 
   void _fail(AppFailure failure) {
     final mapped = AuthFailureMapper.map(failure);
+    final retry = _retrySeconds(failure);
     state = state.copyWith(
       submission: AuthSubmission.failure,
       fieldError: mapped.field,
       toast: mapped.toast,
       toastSerial: state.toastSerial + 1,
+      remaining: retry ?? state.remaining,
     );
+    if (retry != null && retry > 0) _arm(retry);
+  }
+
+  int? _retrySeconds(AppFailure failure) {
+    if (failure is! ValidationFailure) return null;
+    final seconds = int.tryParse(failure.fields['retry_after'] ?? '');
+    if (seconds == null || seconds <= 0) return null;
+    return seconds;
   }
 
   /// Toast dismissal (auto or by the player): only the toast goes; a visible

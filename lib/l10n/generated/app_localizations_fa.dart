@@ -168,6 +168,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get authOtpInvalid => 'این کد درست نیست. دوباره تلاش کنید.';
 
   @override
+  String get authOtpPrefix => 'این حرف با این کد یکی نیست.';
+
+  @override
   String get authOtpHelp => 'راهنما';
 
   @override

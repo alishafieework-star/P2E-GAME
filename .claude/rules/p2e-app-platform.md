@@ -9,8 +9,8 @@ paths:
 - iOS and Android behave the same. Only `lib/app/platform` may inspect the platform, and only for an approved entry in
   `docs/agents/registers/platform-exceptions.md`. Mark code with `// PLATFORM(PE-###): reason`.
 - Approved now: PE-001 scroll physics (iOS bounce, Android stretch), PE-002 system back (Android back/predictive back,
-  iOS edge-swipe back), PE-003 OTP SMS (Android SMS Retriever fills the field; iOS keeps the oneTimeCode
-  keyboard suggestion). Page transitions are one shared transition on both platforms.
+  iOS edge-swipe back), PE-005 OTP SMS (Android SMS User Consent for one message from
+  `+9810000001950`; iOS keeps the oneTimeCode keyboard suggestion). Page transitions are one shared transition on both platforms.
 - Set page transitions (`PageTransitionsTheme`, same builder for every platform) and scroll behavior (`ScrollBehavior`, PE-001)
   once in `MaterialApp`. Per-platform behavior built into Flutter widgets (text selection handles, context menu, keyboard)
   is accepted; if one changes look or motion in a way the owner would notice, propose a PE entry instead of patching it.
@@ -32,7 +32,7 @@ D-043 uses Riverpod runtime 3.x with generator ^4.0.9, annotation ^4.0.7 and lin
 
 D-068: `tool/fake_backend/server.dart` is a development process and is not part of the APK. `FAKE_API_BASE` defaults to `http://127.0.0.1:8787`. The Android emulator uses `http://10.0.2.2:8787`. Cleartext HTTP is allowed only in the debug and profile Android manifests.
 
-D-071 / PE-003: Android OTP listening uses SMS Retriever through `lib/app/platform`. Debug and profile also receive `SMS_RECEIVED` so an emulator SMS reaches the same parser. Release does not request that permission. iOS does not read the inbox. The development SMS tools in `tool/sms/` are not packaged.
+D-156 / PE-005: Android OTP listening uses SMS User Consent through `lib/app/platform`, filtered to `+9810000001950`. It does not request `READ_SMS` or `RECEIVE_SMS`. A denial or timeout leaves manual entry. iOS does not read the inbox. The development SMS tools in `tool/sms/` are not packaged.
 
 D-073: the product theme uses one `PageTransitionsTheme` builder on every platform. Auth routes except startup use that horizontal slide. Back reverses it. Reduced motion shows the destination immediately. Figma defines no page motion for the auth back bars or primary buttons. Where those routes go is D-139.
 
@@ -49,3 +49,5 @@ D-140: notification permission is requested only from `lib/app/platform`, behind
 D-141: `/legal/:doc` is reachable in every startup state. Auth legal links open it. The page enters over 460ms and leaves over 300ms.
 
 D-142: the shell hosts the Home tour above the Navigator. `lib/app` may import the tour feature. The tour does not import games, missions or home.
+
+D-159: an `APP_ENV=dev` build keeps Home games, quests, balance, profile and game details on the temporary in-app catalog even when auth uses `BACKEND_MODE=remote`. The loopback API and media servers start for that catalog. Stage and prod keep the unconfigured remote stubs. Auth stays on `REMOTE_API_BASE`.

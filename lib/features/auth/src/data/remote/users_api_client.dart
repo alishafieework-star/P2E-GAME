@@ -1,16 +1,34 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:mygame_p2e/app/platform/agent_debug_log.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:mygame_p2e/shared/backend/json_transport.dart';
 
 import '../../domain/models.dart';
 import '../sources.dart';
 
+/// Cold-start registration still on the server (D-154). Not a signed-in session.
+final class RegistrationResume {
+  const RegistrationResume({
+    required this.step,
+    required this.maskedMobile,
+    this.userName = '',
+    this.challenge,
+  });
+
+  /// `PlayerRegistrationStep`: 1 mobile, 2 otp, 3 username, 4 password.
+  final int step;
+  final String maskedMobile;
+  final String userName;
+  final OtpChallengeDto? challenge;
+}
+
 /// D-152: the player panel's UsersService calls. No endpoint is added.
 ///
 /// Success is HTTP 2xx and envelope `status` in 2xx. Cookies stay on the
 /// transport client. This object only remembers challenge ids for this process.
+/// Passwords are arguments of one call and are not fields.
 final class UsersApiClient {
   UsersApiClient({
     required this.base,
@@ -20,26 +38,31 @@ final class UsersApiClient {
     this.nextRequestId,
   });
 
+  /// OTP and login calls. Other reads keep the transport default (D-154).
+  static const authTimeout = Duration(seconds: 45);
+
   final Uri base;
 
   /// Browser origin the Users policy allow-lists (D-153). Empty omits the header.
   final String origin;
   final JsonHttpTransport transport;
-  final void Function() clearSession;
+  final Future<void> Function() clearSession;
 
   /// Test seam. Production leaves this null and generates an id.
   final String Function()? nextRequestId;
 
-  static void _noop() {}
+  static Future<void> _noop() async {}
 
   String? registrationChallengeId;
   String? changeTicket;
   bool? identifierExists;
+  bool? canUseOtp;
   String? wireIdentifier;
   String? maskedDestination;
   bool remember = false;
   final _prefixes = <String, String>{};
   final _purposes = <String, String>{};
+  final _requestIds = <String, String>{};
 
   static const _playerAuth = '1';
 
@@ -47,6 +70,9 @@ final class UsersApiClient {
     final root = base.path.endsWith('/') ? base.path : '${base.path}/';
     return base.replace(path: '$root$path');
   }
+
+  /// Same id until that SendCode succeeds. A new id starts only after HTTP 2xx.
+  String _stableRequestId(String path) => _requestIds[path] ??= _requestId();
 
   String _requestId() {
     final supplied = nextRequestId?.call();
@@ -104,10 +130,36 @@ final class UsersApiClient {
   ) async {
     remember = rememberDevice;
     final wire = wireIdentifier ?? wirePhone(e164);
-    if (identifierExists == false) {
-      return _registrationCode(wire, cancellation);
+    // #region agent log
+    agentDebugLog(
+      location: 'users_api_client.dart:sendPhoneCode',
+      message: 'otp send path chosen',
+      hypothesisId: 'H3',
+      data: {
+        'exists': identifierExists,
+        'canUseOtp': canUseOtp,
+        'wireLen': wire.length,
+        'asciiWire': wire.codeUnits.every((c) => c < 128),
+        'registrationPath': identifierExists == false,
+      },
+    );
+    // #endregion
+    try {
+      if (identifierExists == false) {
+        return _registrationCode(wire, cancellation);
+      }
+      return _loginCode(wire, cancellation);
+    } on AuthDataException catch (error) {
+      // #region agent log
+      agentDebugLog(
+        location: 'users_api_client.dart:sendPhoneCode',
+        message: 'otp send failed',
+        hypothesisId: 'H1',
+        data: {'fault': error.fault.name},
+      );
+      // #endregion
+      rethrow;
     }
-    return _loginCode(wire, cancellation);
   }
 
   Future<OtpChallengeDto> sendLoginCode(
@@ -208,9 +260,31 @@ final class UsersApiClient {
       {'challengeId': id, 'password': password},
       cancellation,
     );
-    if (data?['registered'] != true) {
+    if (data?['registered'] != true || data?['loginRequired'] != true) {
       throw const AuthDataException(AuthDataFault.server);
     }
+    // Complete creates the account only. The session cookie comes from
+    // PlayerLogin. The password stays a local argument for this call (D-155).
+    final identifier = _loginIdentifier(body);
+    if (identifier == null) {
+      throw const AuthDataException(AuthDataFault.loginAfterRegister);
+    }
+    final rememberLogin = body['remember'] == true || remember;
+    try {
+      await signIn(identifier, password, rememberLogin, cancellation);
+    } on AuthDataException {
+      throw const AuthDataException(AuthDataFault.loginAfterRegister);
+    }
+  }
+
+  String? _loginIdentifier(Map<String, Object?> body) {
+    final known = wireIdentifier;
+    if (known != null && known.isNotEmpty) return known;
+    final phone = body['phone'];
+    if (phone is String && phone.isNotEmpty) return wirePhone(phone);
+    final email = body['email'];
+    if (email is String && email.isNotEmpty) return email;
+    return null;
   }
 
   /// Registration stores the password on Complete. A forced change uses the
@@ -232,6 +306,21 @@ final class UsersApiClient {
     );
     changeTicket = null;
     _afterLogin(data, allowLoginRequired: true);
+  }
+
+  /// Signed-in player's public handle (D-158). `GET Me` does not carry it.
+  Future<String> playerUserName(AuthCancellation? cancellation) async {
+    final data = await _data(
+      JsonMethod.get,
+      'player/profile/Mine',
+      null,
+      cancellation,
+    );
+    final name = data?['userName'];
+    if (name is! String || name.trim().isEmpty) {
+      throw const AuthDataException(AuthDataFault.server);
+    }
+    return name;
   }
 
   /// Cold start only. `userType` 4 is a player. 401 and network failures are
@@ -265,8 +354,9 @@ final class UsersApiClient {
       registrationChallengeId = null;
       changeTicket = null;
       identifierExists = null;
+      canUseOtp = null;
       wireIdentifier = null;
-      clearSession();
+      await clearSession();
     }
   }
 
@@ -281,6 +371,8 @@ final class UsersApiClient {
     }
     wireIdentifier = wire;
     identifierExists = exists;
+    final otp = data?['canUseOtp'];
+    canUseOtp = otp is bool ? otp : false;
     final masked = data?['otpDestination'];
     maskedDestination = masked is String && masked.isNotEmpty ? masked : wire;
     if (!exists) return PhoneAccountStatus.notRegistered;
@@ -291,12 +383,12 @@ final class UsersApiClient {
     String mobile,
     AuthCancellation? cancellation,
   ) async {
-    final data = await _data(
-      JsonMethod.post,
-      'general/player-registration/SendCode',
-      {'mobile': mobile, 'requestId': _requestId()},
-      cancellation,
-    );
+    const path = 'general/player-registration/SendCode';
+    final data = await _data(JsonMethod.post, path, {
+      'mobile': mobile,
+      'requestId': _stableRequestId(path),
+    }, cancellation);
+    _requestIds.remove(path);
     return _code(data, 'registration');
   }
 
@@ -304,25 +396,28 @@ final class UsersApiClient {
     String identifier,
     AuthCancellation? cancellation,
   ) async {
-    final data = await _data(
-      JsonMethod.post,
-      'general/auth/SendPlayerLoginCode',
-      {'identifier': identifier, 'requestId': _requestId()},
-      cancellation,
-    );
+    if (canUseOtp == false) {
+      throw const AuthDataException(AuthDataFault.blocked);
+    }
+    const path = 'general/auth/SendPlayerLoginCode';
+    final data = await _data(JsonMethod.post, path, {
+      'identifier': identifier,
+      'requestId': _stableRequestId(path),
+    }, cancellation);
+    _requestIds.remove(path);
     return _code(data, 'login');
   }
 
   OtpChallengeDto _code(Map<String, Object?>? data, String purpose) {
     final id = data?['challengeId'];
     final prefix = data?['codePrefix'];
-    final digits = data?['codeDigits'];
-    final resend = data?['resendAfterSeconds'];
+    final digits = _whole(data?['codeDigits']);
+    final resend = _whole(data?['resendAfterSeconds']);
     final expires = data?['expiresAtUtc'];
     if (id is! String ||
         prefix is! String ||
-        digits is! int ||
-        resend is! int ||
+        digits == null ||
+        resend == null ||
         expires is! String) {
       throw const AuthDataException(AuthDataFault.server);
     }
@@ -335,6 +430,21 @@ final class UsersApiClient {
     _prefixes[id] = prefix;
     _purposes[id] = purpose;
     if (purpose == 'registration') registrationChallengeId = id;
+    // #region agent log
+    agentDebugLog(
+      location: 'users_api_client.dart:_code',
+      message: 'otp challenge accepted',
+      hypothesisId: 'H2',
+      data: {
+        'purpose': purpose,
+        'prefixLen': prefix.length,
+        'digits': digits,
+        'resend': resend,
+        'deliveryStatus': data?['deliveryStatus']?.toString(),
+        'hasChallengeId': id.isNotEmpty,
+      },
+    );
+    // #endregion
     return OtpChallengeDto(
       id: id,
       prefix: prefix,
@@ -361,9 +471,9 @@ final class UsersApiClient {
         throw const AuthDataException(AuthDataFault.server);
       }
       changeTicket = ticket;
-      // The current screens have no change-ticket step. Do not treat this as
-      // a signed-in login. Reset stays notConfigured (D-152).
-      throw const AuthDataException(AuthDataFault.server);
+      // Not a signed-in login. The existing create-password screen uses the
+      // ticket. Reset stays notConfigured (D-152, D-154).
+      throw const AuthDataException(AuthDataFault.mustChangePassword);
     }
     if (data?['loginRequired'] == true && !allowLoginRequired) {
       throw const AuthDataException(AuthDataFault.server);
@@ -383,6 +493,71 @@ final class UsersApiClient {
           if (name is String) name,
       ],
     );
+  }
+
+  /// `GET Current` after process death. Primes the registration challenge so
+  /// the next verify stays on VerifyCode. A missing or expired flow is null.
+  Future<RegistrationResume?> resumeRegistration() async {
+    try {
+      final data = await _data(
+        JsonMethod.get,
+        'general/player-registration/Current',
+        null,
+        null,
+      );
+      if (data?['found'] != true || data?['expired'] == true) return null;
+      final step = _whole(data?['step']);
+      if (step == null || step < 1 || step > 4) return null;
+      final id = data?['challengeId'];
+      OtpChallengeDto? challenge;
+      if (id is String && id.isNotEmpty) {
+        registrationChallengeId = id;
+        _purposes[id] = 'registration';
+        final prefix = data?['codePrefix'];
+        if (prefix is String) _prefixes[id] = prefix;
+        final digits = _whole(data?['codeDigits']);
+        final resend = _whole(data?['resendAfterSeconds']) ?? 0;
+        final expires = data?['expiresAtUtc'];
+        DateTime? expiresAt;
+        if (expires is String) {
+          try {
+            expiresAt = DateTime.parse(expires);
+          } on FormatException {
+            expiresAt = null;
+          }
+        }
+        if (digits != null && expiresAt != null && prefix is String) {
+          challenge = OtpChallengeDto(
+            id: id,
+            prefix: prefix,
+            length: digits,
+            resendSeconds: resend,
+            expires: expiresAt,
+            destination: data?['mobileMasked'] is String
+                ? data!['mobileMasked'] as String
+                : '',
+          );
+        }
+      }
+      final masked = data?['mobileMasked'];
+      final name = data?['userName'];
+      return RegistrationResume(
+        step: step,
+        maskedMobile: masked is String ? masked : '',
+        userName: name is String ? name : '',
+        challenge: challenge,
+      );
+    } on AuthDataException {
+      return null;
+    } on AppFailure {
+      return null;
+    }
+  }
+
+  int? _whole(Object? value) {
+    if (value is int) return value;
+    if (value is num && value == value.roundToDouble()) return value.toInt();
+    return null;
   }
 
   Future<String> _registrationId(AuthCancellation? cancellation) async {
@@ -437,11 +612,26 @@ final class UsersApiClient {
           if (origin.isNotEmpty) 'origin': origin,
         },
         body: body,
+        timeout: _slow.contains(path) ? authTimeout : null,
         attachAbort: (next) => abort = next,
       );
       if (cancellation?.isCancelled ?? false) {
         throw const AuthDataException(AuthDataFault.cancelled);
       }
+      // #region agent log
+      if (path.contains('SendCode') || path.contains('SendPlayer')) {
+        agentDebugLog(
+          location: 'users_api_client.dart:_send',
+          message: 'otp send http',
+          hypothesisId: 'H1',
+          data: {
+            'path': path,
+            'httpStatus': response.status,
+            'bodyLen': response.body.length,
+          },
+        );
+      }
+      // #endregion
       return response;
     } on AuthDataException {
       rethrow;
@@ -492,14 +682,36 @@ final class UsersApiClient {
       throw const AuthDataException(AuthDataFault.server);
     }
     final code = envelope?['errorCode'];
-    throw AuthDataException(
-      faultFor(
-        code is String ? code : null,
-        response.status,
-        response.header('retry-after'),
-      ),
+    final retryHeader = response.header('retry-after');
+    final fault = faultFor(
+      code is String ? code : null,
+      response.status,
+      retryHeader,
     );
+    throw AuthDataException(fault, retryAfter: _retryAfter(retryHeader));
   }
+
+  static const _slow = {
+    'general/player-registration/SendCode',
+    'general/auth/SendPlayerLoginCode',
+    'general/player-registration/VerifyCode',
+    'general/auth/PlayerLogin',
+    'general/auth/ChangeInitialPassword',
+    'general/player-registration/Complete',
+  };
+}
+
+Duration? _retryAfter(String? header) {
+  if (header == null || header.isEmpty) return null;
+  final seconds = int.tryParse(header.trim());
+  if (seconds != null) {
+    return seconds > 0 ? Duration(seconds: seconds) : null;
+  }
+  final parsed = DateTime.tryParse(header.trim());
+  if (parsed == null) return null;
+  final delta = parsed.toUtc().difference(DateTime.now().toUtc());
+  if (!delta.isNegative && delta.inSeconds > 0) return delta;
+  return null;
 }
 
 /// Panel `errorCode` values. Retry-After marks a limit even when the code is
@@ -510,6 +722,7 @@ AuthDataFault faultFor(String? code, int httpStatus, String? retryAfter) {
     return AuthDataFault.rateLimited;
   }
   return switch (code) {
+    'PLAYER_BUSY' => AuthDataFault.rateLimited,
     'INVALID_CREDENTIALS' ||
     'PASSWORD_LENGTH_11_TO_128' ||
     'COMMON_PASSWORD' ||
@@ -522,7 +735,11 @@ AuthDataFault faultFor(String? code, int httpStatus, String? retryAfter) {
     'PLAYER_IDENTITY_TAKEN_OR_PROOF_USED' ||
     'PLAYER_IDENTIFIER_AMBIGUOUS' ||
     'PLAYER_OTP_UNAVAILABLE' ||
-    'ORIGIN_OR_CSRF_REJECTED' => AuthDataFault.blocked,
+    'ORIGIN_OR_CSRF_REJECTED' ||
+    'INVALID_REGISTRATION_REQUEST' ||
+    'REGISTRATION_CONTACT_REQUIRED' ||
+    'PLAYER_REQUEST_TOO_LARGE' ||
+    'PLAYER_REQUEST_CONFLICT' => AuthDataFault.blocked,
     _ =>
       httpStatus == 401 ? AuthDataFault.invalidPassword : AuthDataFault.server,
   };

@@ -10,11 +10,20 @@ enum AuthDataFault {
   notConfigured,
   unavailable,
   cancelled,
+
+  /// PlayerLogin asked for `ChangeInitialPassword` and did not sign in (D-154).
+  mustChangePassword,
+
+  /// `Complete` created the account, then `PlayerLogin` did not (D-155).
+  loginAfterRegister,
 }
 
 final class AuthDataException implements Exception {
-  const AuthDataException(this.fault);
+  const AuthDataException(this.fault, {this.retryAfter});
   final AuthDataFault fault;
+
+  /// Server `Retry-After` when the fault is a lock. Absent means no extra wait.
+  final Duration? retryAfter;
 }
 
 final class WelcomeOfferDto {

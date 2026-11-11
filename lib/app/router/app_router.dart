@@ -12,6 +12,7 @@ import '../../features/home/home.dart';
 import '../../shared/navigation/app_locations.dart';
 import '../shell/app_shell.dart';
 import '../shell/shell_placeholders.dart';
+import '../startup/registration_resume.dart';
 import '../startup/startup_controller.dart';
 import 'auth_transition.dart';
 import 'onboarding_transition.dart';
@@ -20,25 +21,26 @@ part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(Ref ref) {
-  final gate = ValueNotifier(ref.read(startupControllerProvider));
-  ref.listen(startupControllerProvider, (_, next) => gate.value = next);
+  final gate = ValueNotifier(0);
+  ref.listen(startupControllerProvider, (_, _) => gate.value++);
+  ref.listen(registrationResumeLockProvider, (_, _) => gate.value++);
   final router = GoRouter(
     initialLocation: '/startup',
     refreshListenable: gate,
     redirect: (_, state) {
+      final phase = ref.read(startupControllerProvider);
       if (state.uri.path.startsWith('/legal')) return null;
-      if (gate.value == StartupState.entry &&
-          state.uri.path.startsWith('/entry/')) {
+      if (phase == StartupState.entry && state.uri.path.startsWith('/entry/')) {
         final flow = ref.read(authFlowProvider);
         if (flow == null) return '/entry';
         final required = authStepPath(flow.step);
         return state.uri.path == required ? null : required;
       }
       final path = state.uri.path;
-      final location = switch (gate.value) {
+      final location = switch (phase) {
         StartupState.initializing || StartupState.sessionCheck => '/startup',
         StartupState.onboarding => '/entry/onboarding',
-        StartupState.entry => '/entry',
+        StartupState.entry => _entryLocation(ref, path),
         // A signed-in session may visit any product location.
         StartupState.ready =>
           path == '/' ||
@@ -273,6 +275,16 @@ class _Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       const PageScaffold(elementId: 'startup.page', child: SizedBox.shrink());
+}
+
+String _entryLocation(Ref ref, String path) {
+  final flow = ref.read(authFlowProvider);
+  if (ref.read(registrationResumeLockProvider) &&
+      flow != null &&
+      (path == '/entry' || path == '/startup')) {
+    return authStepPath(flow.step);
+  }
+  return '/entry';
 }
 
 class _AuthPlaceholder extends StatelessWidget {

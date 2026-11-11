@@ -50,6 +50,7 @@
   "authOtpChange": "تغییر شماره",
   "authOtpVerify": "تأیید شماره موبایل",
   "authOtpInvalid": "این کد درست نیست. دوباره تلاش کنید.",
+  "authOtpPrefix": "این حرف با این کد یکی نیست.",
   "authOtpHelp": "راهنما",
   "authOtpLoading": "در حال بررسی",
   "authPasswordTitle": "رمز عبور را وارد کنید",

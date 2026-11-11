@@ -29,6 +29,10 @@ const _useFake =
     ) ==
     'fake';
 
+/// D-159: dev builds serve the temporary Home catalog from the in-app loopback.
+const _devCatalog =
+    String.fromEnvironment('APP_ENV', defaultValue: 'dev') == 'dev';
+
 /// Neutral composition seams. Production main uses neither hook.
 /// [key] lets a host replace the scope when its override set changes shape.
 ProviderScope composeApp({
@@ -57,7 +61,7 @@ void bootstrap({
 }) {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AppConfig.fromEnvironment();
-  if (_useFake && config.backendMode == BackendMode.fake) {
+  if (_devCatalog || (_useFake && config.backendMode == BackendMode.fake)) {
     unawaited(_startDevFakeStack(config));
   }
   AppLogger().log(
@@ -85,13 +89,16 @@ void bootstrap({
 /// D-150: loopback fake API and media origin inside the app process. A bind
 /// failure (for example `adb reverse` already owning the port) falls back to
 /// whatever already serves that port instead of blocking startup.
+Future<void> startDevFakeStack(AppConfig config) => _startDevFakeStack(config);
+
 Future<void> _startDevFakeStack(AppConfig config) async {
   Future<ByteData?> loadAsset(String key) async {
-    try {
-      return await rootBundle.load(key);
-    } catch (_) {
-      return null;
+    for (final candidate in [key, 'packages/mygame_p2e/$key']) {
+      try {
+        return await rootBundle.load(candidate);
+      } catch (_) {}
     }
+    return null;
   }
 
   try {

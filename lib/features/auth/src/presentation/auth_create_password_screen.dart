@@ -35,16 +35,20 @@ final class AuthCreatePasswordState {
     this.toast,
     this.toastSerial = 0,
     this.createdSerial = 0,
+    this.scrubSerial = 0,
+    this.recoverSerial = 0,
+    this.registration = false,
   });
   final Email? email;
   final Phone? phone;
   final String password, confirm;
   final AuthSubmission submission;
   final AuthMessage? toast;
-  final int toastSerial, createdSerial;
+  final int toastSerial, createdSerial, scrubSerial, recoverSerial;
+  final bool registration;
   bool get busy => submission == AuthSubmission.loading;
   bool get canSubmit =>
-      (email != null || phone != null) &&
+      (email != null || phone != null || registration) &&
       !busy &&
       PasswordRules.acceptable(password, confirm);
 
@@ -57,6 +61,9 @@ final class AuthCreatePasswordState {
     Object? toast = _absent,
     int? toastSerial,
     int? createdSerial,
+    int? scrubSerial,
+    int? recoverSerial,
+    bool? registration,
   }) => AuthCreatePasswordState(
     email: email ?? this.email,
     phone: phone ?? this.phone,
@@ -66,6 +73,9 @@ final class AuthCreatePasswordState {
     toast: identical(toast, _absent) ? this.toast : toast as AuthMessage?,
     toastSerial: toastSerial ?? this.toastSerial,
     createdSerial: createdSerial ?? this.createdSerial,
+    scrubSerial: scrubSerial ?? this.scrubSerial,
+    recoverSerial: recoverSerial ?? this.recoverSerial,
+    registration: registration ?? this.registration,
   );
 }
 
@@ -94,9 +104,11 @@ class AuthCreatePasswordController extends _$AuthCreatePasswordController {
       }(),
       _ => null,
     };
+    final journey = flow is AccountJourney ? flow : null;
     return AuthCreatePasswordState(
       email: email,
       phone: email == null ? phone : null,
+      registration: journey != null && journey.username.isNotEmpty,
     );
   }
 
@@ -108,71 +120,148 @@ class AuthCreatePasswordController extends _$AuthCreatePasswordController {
   Future<void> submit() async {
     final email = state.email;
     final phone = state.phone;
-    if ((email == null && phone == null) || !state.canSubmit) return;
+    if (!state.canSubmit) return;
+    if (email == null && phone == null && !state.registration) return;
     final token = AuthCancellation();
     _request?.cancel();
     _request = token;
     final revision = ++_revision;
-    state = state.copyWith(submission: AuthSubmission.loading, toast: null);
-    final result = phone != null
-        ? await ref
-              .read(phoneSignInRepositoryProvider)
-              .createPhonePassword(phone, state.password, cancellation: token)
-        : await ref
-              .read(emailSignInRepositoryProvider)
-              .createPassword(email!, state.password, cancellation: token);
-    if (!ref.mounted || token.isCancelled || revision != _revision) return;
-    switch (result) {
-      case Success<void>():
-        final journey = ref.read(authFlowProvider);
-        final registration = journey is AccountJourney;
-        if (registration && journey.username.isNotEmpty) {
-          try {
-            await ref
-                .read(accountSetupRepositoryProvider)
-                .complete(
-                  username: journey.username,
-                  password: state.password,
-                  email: state.email?.normalized,
-                  phone: state.phone?.e164,
-                  avatarCharacter: journey.avatarCharacter,
-                  avatarTheme: journey.avatarTheme,
-                );
-          } on StateError {
-            // The screen still advances when setup is not composed.
-          }
-          if (!ref.mounted || token.isCancelled || revision != _revision) {
-            return;
-          }
-        }
-        ref
-            .read(authFlowProvider.notifier)
-            .accept(
-              registration
-                  ? AccountJourney(
-                      AuthStep.avatar,
-                      email: state.email,
-                      username: journey.username,
-                      phoneRaw: journey.phoneRaw,
-                      rememberDevice: journey.rememberDevice,
-                    )
-                  : AccountJourney(
-                      AuthStep.welcomeBack,
-                      rememberDevice: journey?.rememberDevice ?? false,
-                    ),
-            );
-        state = state.copyWith(
-          submission: AuthSubmission.idle,
-          createdSerial: state.createdSerial + 1,
-        );
-      case Failure<void>(:final error):
-        final mapped = AuthFailureMapper.map(error);
-        state = state.copyWith(
-          submission: AuthSubmission.failure,
-          toast: mapped.toast ?? mapped.field ?? AuthMessage.unknown,
-          toastSerial: state.toastSerial + 1,
-        );
+    final secret = state.password;
+    final registration = state.registration;
+    state = state.copyWith(
+      password: '',
+      confirm: '',
+      submission: AuthSubmission.loading,
+      toast: null,
+      scrubSerial: state.scrubSerial + 1,
+    );
+    if (phone != null) {
+      final result = await ref
+          .read(phoneSignInRepositoryProvider)
+          .createPhonePassword(phone, secret, cancellation: token);
+      if (result is Failure<void>) {
+        if (!ref.mounted || token.isCancelled || revision != _revision) return;
+        _fail(result.error);
+        return;
+      }
+    } else if (email != null) {
+      final result = await ref
+          .read(emailSignInRepositoryProvider)
+          .createPassword(email, secret, cancellation: token);
+      if (result is Failure<void>) {
+        if (!ref.mounted || token.isCancelled || revision != _revision) return;
+        _fail(result.error);
+        return;
+      }
+    } else if (!registration) {
+      return;
     }
+    if (!ref.mounted || token.isCancelled || revision != _revision) return;
+    final journey = ref.read(authFlowProvider);
+    final account = journey is AccountJourney;
+    if (account && journey.username.isNotEmpty) {
+      Result<void>? completed;
+      try {
+        completed = await ref
+            .read(accountSetupRepositoryProvider)
+            .complete(
+              username: journey.username,
+              password: secret,
+              email: state.email?.normalized,
+              phone: state.phone?.e164,
+              remember: journey.rememberDevice,
+              avatarCharacter: journey.avatarCharacter,
+              avatarTheme: journey.avatarTheme,
+            );
+      } on StateError {
+        // The screen still advances when setup is not composed.
+      }
+      if (!ref.mounted || token.isCancelled || revision != _revision) return;
+      if (completed is Failure<void>) {
+        if (completed.error is BusinessFailure &&
+            (completed.error as BusinessFailure).code ==
+                'login_after_register') {
+          _openPassword(journey);
+          return;
+        }
+        _fail(completed.error);
+        return;
+      }
+    }
+    if (account && journey.username.isNotEmpty) {
+      ref
+          .read(authFlowProvider.notifier)
+          .accept(
+            AccountJourney(
+              AuthStep.avatar,
+              email: state.email,
+              username: journey.username,
+              phoneRaw: journey.phoneRaw,
+              rememberDevice: journey.rememberDevice,
+            ),
+          );
+    } else {
+      final handle = await welcomeHandle(ref, cancellation: token);
+      if (!ref.mounted || token.isCancelled || revision != _revision) return;
+      switch (handle) {
+        case Failure(:final error):
+          _fail(error);
+          return;
+        case Success(:final value):
+          ref
+              .read(authFlowProvider.notifier)
+              .accept(
+                AccountJourney(
+                  AuthStep.welcomeBack,
+                  username: value ?? '',
+                  rememberDevice: journey?.rememberDevice ?? false,
+                ),
+              );
+      }
+    }
+    state = state.copyWith(
+      submission: AuthSubmission.idle,
+      createdSerial: state.createdSerial + 1,
+    );
+  }
+
+  void _openPassword(AccountJourney journey) {
+    final parsed = IdentifierClassifier.classify(journey.phoneRaw);
+    final email = journey.email;
+    if (email != null) {
+      ref
+          .read(authFlowProvider.notifier)
+          .accept(
+            EmailFlowResult(
+              email,
+              EmailAccountStatus.registered,
+              journey.rememberDevice,
+            ),
+          );
+    } else if (parsed is Phone) {
+      ref
+          .read(authFlowProvider.notifier)
+          .accept(
+            PhonePasswordFlowResult(
+              parsed,
+              journey.phoneRaw,
+              journey.rememberDevice,
+            ),
+          );
+    }
+    state = state.copyWith(
+      submission: AuthSubmission.idle,
+      recoverSerial: state.recoverSerial + 1,
+    );
+  }
+
+  void _fail(AppFailure failure) {
+    final mapped = AuthFailureMapper.map(failure);
+    state = state.copyWith(
+      submission: AuthSubmission.failure,
+      toast: mapped.toast ?? mapped.field ?? AuthMessage.unknown,
+      toastSerial: state.toastSerial + 1,
+    );
   }
 
   /// Toast dismissal (auto or by the player): only the toast goes.
@@ -220,8 +309,21 @@ class _AuthCreatePasswordScreenState
     final state = ref.watch(authCreatePasswordControllerProvider);
     final controller = ref.read(authCreatePasswordControllerProvider.notifier);
     ref.listen(authCreatePasswordControllerProvider, (previous, next) {
+      if (previous != null && next.scrubSerial != previous.scrubSerial) {
+        password.clear();
+        confirm.clear();
+      }
+      if (previous != null && next.recoverSerial != previous.recoverSerial) {
+        final step = ref.read(authFlowProvider)?.step;
+        context.go(
+          step == AuthStep.password
+              ? authStepPath(AuthStep.password)
+              : '/entry',
+        );
+      }
       if (previous != null && next.createdSerial != previous.createdSerial) {
-        context.go(authStepPath(AuthStep.avatar));
+        final step = ref.read(authFlowProvider)?.step ?? AuthStep.avatar;
+        context.go(authStepPath(step));
       }
     });
     final roles = SkinTheme.of(context).valuesFor(Theme.of(context).brightness);

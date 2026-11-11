@@ -367,6 +367,24 @@
   "minimizeFailure": "Minimize failure",
   "runAllScenarios": "All scenarios",
   "scenarioLabel": "Scenario",
+  "scenarioSection": "Section",
+  "@scenarioSection": {
+    "description": "First scenario menu: a main product area."
+  },
+  "scenarioState": "State",
+  "@scenarioState": {
+    "description": "Second scenario menu: states of the selected section."
+  },
+  "sectionStartup": "Startup",
+  "sectionOnboarding": "Onboarding",
+  "sectionAuth": "Auth",
+  "sectionHome": "Home",
+  "sectionMissions": "Missions",
+  "sectionGames": "Games",
+  "sectionLeaderboard": "Leaderboard",
+  "sectionShop": "Shop",
+  "sectionLegal": "Legal",
+  "sectionDesignSystem": "Design System",
   "coverageSummary": "Coverage",
   "resumeSweep": "Resume",
   "copyBundle": "Copy report",

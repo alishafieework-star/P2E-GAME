@@ -7,6 +7,7 @@ enum AuthMessage {
   socialUnavailable,
   blocked,
   invalidCode,
+  prefixMismatch,
   invalidPassword,
   rateLimited,
   unknown,

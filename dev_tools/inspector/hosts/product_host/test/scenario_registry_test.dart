@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mygame_p2e/app/router/app_router.dart';
+import 'package:mygame_p2e/features/auth/auth.dart';
 import 'package:mygame_p2e/features/games/games.dart';
 import 'package:mygame_p2e/features/home/home.dart';
 import 'package:mygame_p2e/features/missions/missions.dart';
@@ -22,6 +23,7 @@ void main() {
       '/startup',
       '/entry',
       '/entry/otp',
+      '/entry/verify',
       '/entry/password',
       '/entry/create-password',
       '/entry/forgot-password',
@@ -51,6 +53,39 @@ void main() {
       isTrue,
     );
     expect(productScenarios.any((scenario) => scenario.fixtures), isTrue);
+    expect(productScenarios.map((scenario) => scenario.sectionId).toSet(), {
+      'startup',
+      'onboarding',
+      'auth',
+      'home',
+      'missions',
+      'games',
+      'leaderboard',
+      'shop',
+      'legal',
+      'designSystem',
+    });
+    expect(
+      productScenarioById('auth.create-password').flow!().step,
+      AuthStep.createPassword,
+    );
+    expect(
+      productScenarioById('auth.verify.phone').flow!().step,
+      AuthStep.verify,
+    );
+    expect(productScenarioById('auth.verify.email').path, '/entry/verify');
+    expect(productScenarioById('auth.otp.player').path, '/entry/otp');
+    expect(productScenarioById('home.tour').tourPending, isTrue);
+    expect(
+      productScenarioById('game.studio').path,
+      AppLocations.studioOn(AppLocations.home, 'sample'),
+    );
+    expect(
+      productScenarios
+          .where((scenario) => scenario.sectionId == 'auth')
+          .map((scenario) => scenario.id),
+      isNot(contains('shell.home')),
+    );
   });
 
   testWidgets(
@@ -101,7 +136,9 @@ void main() {
             scenario.id == 'onboarding' ||
             scenario.id == 'auth.notifications' ||
             scenario.id == 'auth.all-set' ||
-            scenario.id == 'auth.username';
+            scenario.id == 'auth.username' ||
+            scenario.id == 'auth.otp.sms-access' ||
+            scenario.id == 'home.tour';
         if (hasAnimation) {
           await tester.pump(const Duration(milliseconds: 50));
         } else {

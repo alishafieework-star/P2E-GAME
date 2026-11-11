@@ -399,6 +399,12 @@ abstract class AppLocalizations {
   /// **'That code is not correct. Please try again.'**
   String get authOtpInvalid;
 
+  /// Field error when the typed OTP letter does not match codePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'That letter does not match this code.'**
+  String get authOtpPrefix;
+
   /// Accessible name for the OTP help action. It has no destination yet.
   ///
   /// In en, this message translates to:

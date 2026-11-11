@@ -15,7 +15,11 @@ abstract final class PiiRedactor {
     r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',
   );
   static final _assignedSecret = RegExp(
-    r'''(?:token|otp|password|secret|authorization)\s*[:=]\s*[^\s,;]+''',
+    r'''(?:token|otp|password|secret|authorization|cookie|authtoken|playerpreauth|authremember)\s*[:=]\s*[^\s,;]+''',
+    caseSensitive: false,
+  );
+  static final _jsonSecret = RegExp(
+    r'"(?:password|newPassword|token|authorization|cookie|authToken)"\s*:\s*"(?:\\.|[^"\\])*"',
     caseSensitive: false,
   );
   static final _phone = RegExp(r'\+?[0-9۰-۹٠-٩][0-9۰-۹٠-٩ ()-]{2,}[0-9۰-۹٠-٩]');
@@ -24,6 +28,7 @@ abstract final class PiiRedactor {
       .replaceAll(_email, '[REDACTED]')
       .replaceAll(_bearer, 'Bearer [REDACTED]')
       .replaceAll(_jwt, '[REDACTED]')
+      .replaceAll(_jsonSecret, '"[REDACTED]"')
       .replaceAll(_assignedSecret, '[REDACTED]')
       .replaceAll(_phone, '[REDACTED]');
 

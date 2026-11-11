@@ -578,6 +578,7 @@ String message(AppLocalizations strings, AuthMessage value) => switch (value) {
   AuthMessage.socialUnavailable => strings.authSocialUnavailable,
   AuthMessage.blocked => strings.authBlocked,
   AuthMessage.invalidCode => strings.authOtpInvalid,
+  AuthMessage.prefixMismatch => strings.authOtpPrefix,
   AuthMessage.invalidPassword => strings.authPasswordInvalid,
   AuthMessage.rateLimited => strings.authRateLimited,
   AuthMessage.unknown => strings.authUnknown,

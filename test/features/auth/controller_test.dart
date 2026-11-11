@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mygame_p2e/core/errors/app_failure.dart';
 import 'package:mygame_p2e/features/auth/auth.dart';
+import 'package:mygame_p2e/features/auth/src/presentation/auth_password_controller.dart';
 
 class Repositories
     implements
@@ -307,6 +308,37 @@ void main() {
       expect(AuthFailureMapper.map(entry.key).field, isNull);
     });
   }
+  test('password login stores Mine userName on Welcome Back', () async {
+    final box = _passwordBox(repos, const Success('nova'));
+    addTearDown(box.dispose);
+    await _submitPassword(box);
+    final journey = box.read(authFlowProvider) as AccountJourney;
+    expect(journey.step, AuthStep.welcomeBack);
+    expect(journey.username, 'nova');
+    expect(box.read(authPasswordControllerProvider).welcomeSerial, 1);
+  });
+  test('Mine failure does not open Welcome Back', () async {
+    final box = _passwordBox(repos, const Failure(ServerFailure()));
+    addTearDown(box.dispose);
+    await _submitPassword(box);
+    expect(box.read(authFlowProvider), isA<EmailFlowResult>());
+    final password = box.read(authPasswordControllerProvider);
+    expect(password.welcomeSerial, 0);
+    expect(password.toast, AuthMessage.server);
+  });
+  test('fake login keeps the journey username empty', () async {
+    final email = IdentifierClassifier.classify('ada@example.com') as Email;
+    container
+        .read(authFlowProvider.notifier)
+        .accept(EmailFlowResult(email, EmailAccountStatus.registered, false));
+    container.listen(authPasswordControllerProvider, (_, _) {});
+    await container
+        .read(authPasswordControllerProvider.notifier)
+        .submit('secret-pass');
+    final journey = container.read(authFlowProvider) as AccountJourney;
+    expect(journey.step, AuthStep.welcomeBack);
+    expect(journey.username, isEmpty);
+  });
   for (final code in ['blocked', 'rate_limited']) {
     test('field error $code does not become toast', () async {
       controller().identifierChanged('09123456789');
@@ -321,3 +353,34 @@ void main() {
     });
   }
 }
+
+final class _NamedSession implements PlayerSessionCheck {
+  const _NamedSession(this.name);
+  final Result<String>? name;
+
+  @override
+  Future<bool> allowsHome() async => true;
+
+  @override
+  Future<Result<String>?> publicName({AuthCancellation? cancellation}) async =>
+      name;
+}
+
+ProviderContainer _passwordBox(Repositories repos, Result<String>? name) {
+  final box = ProviderContainer(
+    overrides: [
+      emailSignInRepositoryProvider.overrideWith((_) => repos),
+      phoneSignInRepositoryProvider.overrideWith((_) => repos),
+      playerSessionCheckProvider.overrideWithValue(_NamedSession(name)),
+    ],
+  );
+  final email = IdentifierClassifier.classify('ada@example.com') as Email;
+  box
+      .read(authFlowProvider.notifier)
+      .accept(EmailFlowResult(email, EmailAccountStatus.registered, false));
+  box.listen(authPasswordControllerProvider, (_, _) {});
+  return box;
+}
+
+Future<void> _submitPassword(ProviderContainer box) =>
+    box.read(authPasswordControllerProvider.notifier).submit('secret-pass');
